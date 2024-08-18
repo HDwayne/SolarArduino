@@ -52,6 +52,8 @@ float degreesPerMs = 0.0;           // Degrees the motor turns per millisecond
 #define AZIMUTH_DEG_THRESHOLD 10.0     // Threshold in degrees to trigger motor adjustment (minimum rotation angle)
 #define AZIMUTH_TIME_THRESHOLD 10000.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
 
+DateTime lastAzimuthUpdateTime;
+
 // Function Prototypes
 void azimuthCalibrationProcedure();
 void azimuthFullLeft();
@@ -60,7 +62,6 @@ void startMotorLeft();
 void startMotorRight();
 void stopMotor();
 void waitForButtonPress();
-void updateTime();
 void initializeSystem();
 void UpdateSunPos();
 void printAllData();
@@ -86,18 +87,28 @@ void setup()
   azimuthCalibrationProcedure();
 
   delay(1000);
+
+  Serial.println(F("\n\t--- First Azimuth Adjustment ---\n"));
+
+  UpdateSunPos();
+  adjustAzimuth();
+
+  Serial.println(F("\n\t--- System Ready, Entering Main Loop ---\n"));
 }
 
 void loop()
 {
-  UpdateTime();
-  UpdateSunPos();
-  adjustAzimuth();
+  DateTime now = rtc.now();
 
-  while (1)
+  if (now.hour() != lastAzimuthUpdateTime.hour())
   {
-    delay(1000);
+    lastAzimuthUpdateTime = now;
+
+    UpdateSunPos();
+    adjustAzimuth();
   }
+
+  delay(60000);
 }
 
 // ----------------- System initialization functions -----------
@@ -119,14 +130,17 @@ void initializeSystem()
 
   if (!rtc.isrunning())
   {
-    Serial.println(F("[INFO] RTC is not running. Setting time..."));
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    Serial.println(F("[ERROR] RTC is not running."));
+    // Set the RTC time to the compile time
+    // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    while (1)
+      ; // Halt if RTC is not running
   }
   else
   {
-    DateTime now = rtc.now();
+    lastAzimuthUpdateTime = rtc.now();
     Serial.print(F("[INFO] RTC is running with the following time: "));
-    printDateTime(now);
+    printDateTime(lastAzimuthUpdateTime);
   }
 
   // Set initial location data for solar calculations
@@ -326,17 +340,6 @@ bool waitForButtonPressOrDelay(unsigned long delayTime)
 
 // ----------------- RTC functions -----------------------------
 
-void UpdateTime()
-{
-  DateTime now = rtc.now();
-  time.year = now.year();
-  time.month = now.month();
-  time.day = now.day();
-  time.hour = now.hour() - TIMEZONE;
-  time.minute = now.minute();
-  time.second = now.second();
-}
-
 void printDateTime(DateTime now)
 {
   // Print date in YYYY-MM-DD format
@@ -370,6 +373,13 @@ void printDateTime(DateTime now)
 
 void UpdateSunPos()
 {
+  time.year = lastAzimuthUpdateTime.year();
+  time.month = lastAzimuthUpdateTime.month();
+  time.day = lastAzimuthUpdateTime.day();
+  time.hour = lastAzimuthUpdateTime.hour() - TIMEZONE;
+  time.minute = lastAzimuthUpdateTime.minute();
+  time.second = lastAzimuthUpdateTime.second();
+
   SolTrack(time, locationData, &solarPosition, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
 
   printAllData();
