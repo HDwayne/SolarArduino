@@ -102,10 +102,15 @@ void loop()
 
   if (now.hour() != lastAzimuthUpdateTime.hour())
   {
+    Serial.print(F("\n\t--- New Hour Detected ---\n"));
     lastAzimuthUpdateTime = now;
 
     UpdateSunPos();
     adjustAzimuth();
+  }
+  else
+  {
+    Serial.print(F("."));
   }
 
   delay(60000);
