@@ -73,26 +73,25 @@ bool waitForButtonPressOrDelay(unsigned long delayTime);
 
 void setup()
 {
+  delay(1000); // stabilization time
+
   // Initialize Serial for debugging
   Serial.begin(9600);
-
-  delay(1000);
+  while (!Serial)
+    ;
 
   // Initialize the system components
   initializeSystem();
-
   delay(1000);
 
   // Perform the azimuth calibration procedure
   azimuthCalibrationProcedure();
-
   delay(1000);
 
+  // Perform the first azimuth adjustment
   Serial.println(F("\n\t--- First Azimuth Adjustment ---\n"));
-
   UpdateSunPos();
   adjustAzimuth();
-
   Serial.println(F("\n\t--- System Ready, Entering Main Loop ---\n"));
 }
 
