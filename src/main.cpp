@@ -84,10 +84,13 @@ void setup()
 
   // Perform the azimuth calibration procedure
   azimuthCalibrationProcedure();
+
+  delay(1000);
 }
 
 void loop()
 {
+  UpdateTime();
   UpdateSunPos();
   adjustAzimuth();
 
@@ -113,7 +116,6 @@ void initializeSystem()
     while (1)
       ; // Halt if RTC initialization fails
   }
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
   if (!rtc.isrunning())
   {
@@ -142,12 +144,11 @@ void azimuthCalibrationProcedure()
 {
   Serial.println(F("\n\t--- Starting Calibration Procedure ---\n"));
 
-  azimuthFullLeft();
+  azimuthFullRight();
   delay(3000);
 
   unsigned long pressStartTime = millis();
-
-  azimuthFullRight();
+  azimuthFullLeft();
 
   fullRotationDuration = millis() - pressStartTime;
   Serial.print(F("\n\tCalibration Duration: "));
@@ -159,9 +160,6 @@ void azimuthCalibrationProcedure()
   Serial.print(F("\tDegrees per millisecond: "));
   Serial.print(degreesPerMs, 6);
   Serial.println(F("°/ms\n"));
-
-  delay(3000);
-  azimuthFullLeft();
 
   Serial.println(F("\n\t--- Calibration procedure completed. ---\n"));
 }
@@ -199,7 +197,7 @@ void azimuthFullRight()
 void adjustAzimuth()
 {
   Serial.println(F("\n\t--- Adjusting Azimuth ---\n"));
-  float solarAzimuth = solarPosition.azimuthRefract; // Get the current solar azimuth
+  float solarAzimuth = solarPosition.azimuthRefract; // Get the computed solar azimuth
 
   if (solarAzimuth < AZIMUTH_MIN || solarAzimuth > AZIMUTH_MAX)
   {
@@ -224,7 +222,6 @@ void adjustAzimuth()
 
   // Calculate the time needed to move the panel to the solar azimuth
   float timeToMove = azimuthDifference / degreesPerMs; // Time in milliseconds
-
   if (timeToMove < AZIMUTH_TIME_THRESHOLD)
   {
     Serial.println(F("[INFO] Time to move is less than the minimal required time. Cannot adjust azimuth."));
@@ -373,8 +370,6 @@ void printDateTime(DateTime now)
 
 void UpdateSunPos()
 {
-  UpdateTime();
-
   SolTrack(time, locationData, &solarPosition, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
 
   printAllData();
