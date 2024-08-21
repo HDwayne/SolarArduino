@@ -8,7 +8,7 @@
 // ----------------- Constants and Variables -----------------
 
 // Timezone
-#define TIMEZONE 2 // UTC+1 in winter, UTC+2 in summer
+#define TIMEZONE 2 // FR: UTC+1 in winter, UTC+2 in summer
 
 // Solar Tracking Settings
 #define ST_LATITUDE 43.8045  // Latitude of the solar panel (in degrees)
@@ -28,14 +28,14 @@ struct STLocation locationData;  // Struct for geographic locationDataation vari
 struct STPosition solarPosition; // Struct for solar position variables
 
 // Pin Definitions
-#define MOTOR_PIN_EN 4
-#define MOTOR_PWM_PIN_L 6
-#define MOTOR_PWM_PIN_R 5
-#define MOTOR_PWM_SPEED 60
-#define LIMIT_SWITCH_PIN 7
+#define AZIMUTH_MOTOR_PIN_EN 4     // Motor enable pin
+#define AZIMUTH_MOTOR_PWM_PIN_L 6  // Motor PWM pin (left)
+#define AZIMUTH_MOTOR_PWM_PIN_R 5  // Motor PWM pin (right)
+#define AZIMUTH_MOTOR_PWM_SPEED 60 // Motor PWM speed
+#define AZIMUTH_LIMIT_SWITCH_PIN 7 // Limit switch pin
 
-#define AZIMUTH_MAX 310.0              // Maximum azimuth value
-#define AZIMUTH_MIN 50.0               // Minimum azimuth value
+#define AZIMUTH_DEG_MAX 310.0          // Maximum azimuth value (degrees)
+#define AZIMUTH_DEG_MIN 50.0           // Minimum azimuth value (degrees)
 #define AZIMUTH_DEG_THRESHOLD 10.0     // Threshold in degrees to trigger motor adjustment (minimum rotation angle)
 #define AZIMUTH_TIME_THRESHOLD 10000.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
 
@@ -45,13 +45,22 @@ DateTime lastAzimuthUpdateTime;
 RTC_DS1307 rtc;
 
 // Azimuth Controller
-AzimuthController azimuthController(MOTOR_PIN_EN, MOTOR_PWM_PIN_L, MOTOR_PWM_PIN_R, LIMIT_SWITCH_PIN, AZIMUTH_MAX, AZIMUTH_MIN, AZIMUTH_DEG_THRESHOLD, AZIMUTH_TIME_THRESHOLD, MOTOR_PWM_SPEED);
+AzimuthController azimuthController(
+    AZIMUTH_MOTOR_PIN_EN,
+    AZIMUTH_MOTOR_PWM_PIN_L,
+    AZIMUTH_MOTOR_PWM_PIN_R,
+    AZIMUTH_MOTOR_PWM_SPEED,
+    AZIMUTH_LIMIT_SWITCH_PIN,
+    AZIMUTH_DEG_MAX,
+    AZIMUTH_DEG_MIN,
+    AZIMUTH_DEG_THRESHOLD,
+    AZIMUTH_TIME_THRESHOLD);
 
 // ----------------- Function Prototypes -----------------
 
 void initializeSystem();
 void UpdateSunPos();
-void printAllData();
+void printSunPos();
 void printDateTime(DateTime now);
 
 // ----------------- Setup and Loop -----------------
@@ -60,7 +69,7 @@ void setup()
 {
   delay(1000); // stabilization time
 
-  // Initialize Serial for debugging
+  // Initialize Serial
   Serial.begin(9600);
   while (!Serial)
     ;
@@ -69,11 +78,10 @@ void setup()
   initializeSystem();
   delay(1000);
 
-  // Perform the azimuth calibration procedure
+  // Perform the azimuth calibration procedure and first adjustment
   azimuthController.calibrate();
   delay(1000);
 
-  // Perform the first azimuth adjustment
   Serial.println(F("\n\t--- First Azimuth Adjustment ---\n"));
   UpdateSunPos();
   azimuthController.moveToSun(solarPosition);
@@ -182,10 +190,10 @@ void UpdateSunPos()
 
   SolTrack(time, locationData, &solarPosition, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
 
-  printAllData();
+  printSunPos();
 }
 
-void printAllData()
+void printSunPos()
 {
   Serial.println(F("\n\t--- Sun Position Data ---\n"));
 

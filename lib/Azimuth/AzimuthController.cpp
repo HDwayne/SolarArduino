@@ -1,13 +1,13 @@
 #include "AzimuthController.h"
 
 // Constructor
-AzimuthController::AzimuthController(int motorEnPin, int motorPwmLeftPin, int motorPwmRightPin, int limitSwitchPin, float maxAzimuth, float minAzimuth, float degThreshold, unsigned long timeThreshold, int motorSpeed)
+AzimuthController::AzimuthController(int motorEnPin, int motorPwmLeftPin, int motorPwmRightPin, int motorSpeed, int limitSwitchPin, float maxAzimuth, float minAzimuth, float degThreshold, unsigned long timeThreshold)
     : motorPinEn(motorEnPin), motorPinPwmL(motorPwmLeftPin), motorPinPwmR(motorPwmRightPin),
       limitSwitchPin(limitSwitchPin), motorPwmSpeed(motorSpeed),
       motorController(motorEnPin, motorPwmLeftPin, motorPwmRightPin),
       limitSwitch(limitSwitchPin),
       fullRotationDuration(0), currentAzimuth(0.0), degreesPerMs(0.0),
-      azimuthMax(maxAzimuth), azimuthMin(minAzimuth),
+      azimuthDegMax(maxAzimuth), azimuthDegMin(minAzimuth),
       azimuthDegThreshold(degThreshold), azimuthTimeThreshold(timeThreshold)
 {
   limitSwitch.setDebounceTime(100);
@@ -74,7 +74,7 @@ void AzimuthController::moveToSun(struct STPosition solarPosition)
   Serial.println(F("\n\t--- Adjusting Azimuth ---\n"));
   float solarAzimuth = solarPosition.azimuthRefract; // Get the computed solar azimuth
 
-  if (solarAzimuth < azimuthMin || solarAzimuth > azimuthMax)
+  if (solarAzimuth < azimuthDegMin || solarAzimuth > azimuthDegMax)
   {
     Serial.println(F("[INFO] Solar azimuth is out of the tracking range. Cannot adjust azimuth."));
 
@@ -165,9 +165,9 @@ void AzimuthController::stopMotor()
   motorController.Stop();
 }
 
-// ----------------- Button control functions ------------------
+// ----------------- Limit Switch control functions ------------------
 
-// function blocks until the button is pressed
+// function blocks until the Limit Switch is reached
 void AzimuthController::waitForLimitSwitch()
 {
   while (true)
@@ -182,7 +182,7 @@ void AzimuthController::waitForLimitSwitch()
   limitSwitch.loop();
 }
 
-// function blocks until the button is pressed or the delay time has passed. Returns true if the button was pressed.
+// function blocks until the Limit Switch is reached or the delay time has passed. Returns true if the Limit Switch was pressed.
 bool AzimuthController::waitForLimitSwitchOrDelay(unsigned long delayTime)
 {
   unsigned long startTime = millis();
