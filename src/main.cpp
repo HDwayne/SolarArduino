@@ -1,19 +1,14 @@
 #include <Arduino.h>
-#include <ezButton.h>
-#include <BTS7960.h>
 #include <RTClib.h>
 #include <SPI.h>
 #include "stdlib.h"
 #include "SolTrack.h"
+#include "AzimuthController.h"
 
-// Pin Definitions
-#define MOTOR_PIN_EN 4
-#define MOTOR_PWM_PIN_L 6
-#define MOTOR_PWM_PIN_R 5
-#define LIMIT_SWITCH_PIN 7
+// ----------------- Constants and Variables -----------------
 
-// Motor Settings
-#define MOTOR_PWM_SPEED 60
+// Timezone
+#define TIMEZONE 2 // FR: UTC+1 in winter, UTC+2 in summer
 
 // Solar Tracking Settings
 #define ST_LATITUDE 43.8045  // Latitude of the solar panel (in degrees)
@@ -21,53 +16,52 @@
 #define ST_PRESSURE 101.0    // Atmospheric pressure in kPa
 #define ST_TEMPERATURE 283.0 // Atmospheric temperature in Kelvin
 
-// Timezone
-#define TIMEZONE 2 // UTC+1 in winter, UTC+2 in summer
-
-// Structs for SolTrack
-struct STTime time;              // Struct for date and time variables
-struct STLocation locationData;  // Struct for geographic locationDataation variables
-struct STPosition solarPosition; // Struct for solar position variables
-
-// Motor Controller and Limit Switch
-BTS7960 motorController(MOTOR_PIN_EN, MOTOR_PWM_PIN_L, MOTOR_PWM_PIN_R);
-ezButton limitSwitch(LIMIT_SWITCH_PIN);
-
-// RTC Module
-RTC_DS1307 rtc;
-
 // Solar Track Options
 const int useDegrees = 1;            // Input/output in degrees
 const int useNorthEqualsZero = 1;    // Azimuth reference: 0 = North
 const int computeRefrEquatorial = 0; // Do not compute refraction-corrected equatorial coordinates
 const int computeDistance = 0;       // Do not compute the distance to the Sun
 
-// Variables
-unsigned long fullRotationDuration; // Duration of a full rotation in milliseconds
-float currentAzimuth = 0.0;         // Current azimuth position of the solar panel
-float degreesPerMs = 0.0;           // Degrees the motor turns per millisecond
+// Structs for SolTrack
+struct STTime time;              // Struct for date and time variables
+struct STLocation locationData;  // Struct for geographic locationDataation variables
+struct STPosition solarPosition; // Struct for solar position variables
 
-#define AZIMUTH_MAX 310.0              // Maximum azimuth value
-#define AZIMUTH_MIN 50.0               // Minimum azimuth value
+// Pin Definitions
+#define AZIMUTH_MOTOR_PIN_EN 4     // Motor enable pin
+#define AZIMUTH_MOTOR_PWM_PIN_L 6  // Motor PWM pin (left)
+#define AZIMUTH_MOTOR_PWM_PIN_R 5  // Motor PWM pin (right)
+#define AZIMUTH_MOTOR_PWM_SPEED 60 // Motor PWM speed
+#define AZIMUTH_LIMIT_SWITCH_PIN 7 // Limit switch pin
+
+#define AZIMUTH_DEG_MAX 310.0          // Maximum azimuth value (degrees)
+#define AZIMUTH_DEG_MIN 50.0           // Minimum azimuth value (degrees)
 #define AZIMUTH_DEG_THRESHOLD 10.0     // Threshold in degrees to trigger motor adjustment (minimum rotation angle)
 #define AZIMUTH_TIME_THRESHOLD 10000.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
 
 DateTime lastAzimuthUpdateTime;
 
-// Function Prototypes
-void azimuthCalibrationProcedure();
-void azimuthFullLeft();
-void azimuthFullRight();
-void startMotorLeft();
-void startMotorRight();
-void stopMotor();
-void waitForButtonPress();
+// RTC Module
+RTC_DS1307 rtc;
+
+// Azimuth Controller
+AzimuthController azimuthController(
+    AZIMUTH_MOTOR_PIN_EN,
+    AZIMUTH_MOTOR_PWM_PIN_L,
+    AZIMUTH_MOTOR_PWM_PIN_R,
+    AZIMUTH_MOTOR_PWM_SPEED,
+    AZIMUTH_LIMIT_SWITCH_PIN,
+    AZIMUTH_DEG_MAX,
+    AZIMUTH_DEG_MIN,
+    AZIMUTH_DEG_THRESHOLD,
+    AZIMUTH_TIME_THRESHOLD);
+
+// ----------------- Function Prototypes -----------------
+
 void initializeSystem();
 void UpdateSunPos();
-void printAllData();
+void printSunPos();
 void printDateTime(DateTime now);
-void adjustAzimuth();
-bool waitForButtonPressOrDelay(unsigned long delayTime);
 
 // ----------------- Setup and Loop -----------------
 
@@ -75,7 +69,7 @@ void setup()
 {
   delay(1000); // stabilization time
 
-  // Initialize Serial for debugging
+  // Initialize Serial
   Serial.begin(9600);
   while (!Serial)
     ;
@@ -84,14 +78,13 @@ void setup()
   initializeSystem();
   delay(1000);
 
-  // Perform the azimuth calibration procedure
-  azimuthCalibrationProcedure();
+  // Perform the azimuth calibration procedure and first adjustment
+  azimuthController.calibrate();
   delay(1000);
 
-  // Perform the first azimuth adjustment
   Serial.println(F("\n\t--- First Azimuth Adjustment ---\n"));
   UpdateSunPos();
-  adjustAzimuth();
+  azimuthController.moveToSun(solarPosition);
   Serial.println(F("\n\t--- System Ready, Entering Main Loop ---\n"));
 }
 
@@ -105,7 +98,7 @@ void loop()
     lastAzimuthUpdateTime = now;
 
     UpdateSunPos();
-    adjustAzimuth();
+    azimuthController.moveToSun(solarPosition);
   }
   else
   {
@@ -120,9 +113,6 @@ void loop()
 void initializeSystem()
 {
   Serial.println(F("\n\t--- System Initialization ---\n"));
-
-  // Initialize the limit switch with debounce time
-  limitSwitch.setDebounceTime(100);
 
   // Initialize the RTC module
   if (!rtc.begin())
@@ -154,192 +144,6 @@ void initializeSystem()
   locationData.temperature = ST_TEMPERATURE;
 
   Serial.println(F("\n\t--- System initialized. ---\n"));
-}
-
-// ----------------- Azimuth control functions -----------------
-
-void azimuthCalibrationProcedure()
-{
-  Serial.println(F("\n\t--- Starting Calibration Procedure ---\n"));
-
-  azimuthFullRight();
-  delay(3000);
-
-  unsigned long pressStartTime = millis();
-  azimuthFullLeft();
-
-  fullRotationDuration = millis() - pressStartTime;
-  Serial.print(F("\n\tCalibration Duration: "));
-  Serial.print(fullRotationDuration);
-  Serial.println(F(" ms"));
-
-  // Calculate degrees per millisecond
-  degreesPerMs = 360.0 / fullRotationDuration;
-  Serial.print(F("\tDegrees per millisecond: "));
-  Serial.print(degreesPerMs, 6);
-  Serial.println(F("°/ms\n"));
-
-  Serial.println(F("\n\t--- Calibration procedure completed. ---\n"));
-}
-
-void azimuthFullLeft()
-{
-  Serial.println(F("-> Moving to full left position"));
-  motorController.Enable();
-
-  startMotorLeft();
-  waitForButtonPress();
-  stopMotor();
-
-  motorController.Disable();
-
-  currentAzimuth = 0.0;
-  Serial.println(F("-> Full left position reached"));
-}
-
-void azimuthFullRight()
-{
-  Serial.println(F("-> Moving to full right position"));
-  motorController.Enable();
-
-  startMotorRight();
-  waitForButtonPress();
-  stopMotor();
-
-  motorController.Disable();
-
-  currentAzimuth = 360.0;
-  Serial.println(F("-> Full right position reached"));
-}
-
-void adjustAzimuth()
-{
-  Serial.println(F("\n\t--- Adjusting Azimuth ---\n"));
-  float solarAzimuth = solarPosition.azimuthRefract; // Get the computed solar azimuth
-
-  if (solarAzimuth < AZIMUTH_MIN || solarAzimuth > AZIMUTH_MAX)
-  {
-    Serial.println(F("[INFO] Solar azimuth is out of the tracking range. Cannot adjust azimuth."));
-
-    if (currentAzimuth != 0.0)
-    {
-      Serial.println(F("[INFO] Moving to the initial position."));
-      azimuthFullLeft();
-    }
-
-    return;
-  }
-
-  // Check if the difference between the current panel azimuth and the solar azimuth exceeds the threshold
-  float azimuthDifference = fabs(solarAzimuth - currentAzimuth);
-  if (azimuthDifference < AZIMUTH_DEG_THRESHOLD)
-  {
-    Serial.println(F("[INFO] Azimuth is already aligned according to the threshold."));
-    return;
-  }
-
-  // Calculate the time needed to move the panel to the solar azimuth
-  float timeToMove = azimuthDifference / degreesPerMs; // Time in milliseconds
-  if (timeToMove < AZIMUTH_TIME_THRESHOLD)
-  {
-    Serial.println(F("[INFO] Time to move is less than the minimal required time. Cannot adjust azimuth."));
-    return;
-  }
-
-  Serial.print(F("[INFO] Azimuth difference: "));
-  Serial.print(azimuthDifference, 2);
-  Serial.print(F("°. Time to move: "));
-  Serial.print(timeToMove);
-  Serial.println(F(" ms"));
-
-  motorController.Enable();
-
-  // Determine the direction of movement and move the motor
-  if (solarAzimuth > currentAzimuth)
-  {
-    Serial.println(F("[ADJUST] Moving motor to the right to align with the sun."));
-    currentAzimuth += azimuthDifference;
-    startMotorRight();
-    if (waitForButtonPressOrDelay(timeToMove))
-    {
-      Serial.println(F("[WARNING] Limit switch was pressed during adjustment."));
-      currentAzimuth = 360.0;
-    }
-  }
-  else
-  {
-    Serial.println(F("[ADJUST] Moving motor to the left to align with the sun."));
-    currentAzimuth -= azimuthDifference;
-    startMotorLeft();
-    if (waitForButtonPressOrDelay(timeToMove))
-    {
-      Serial.println(F("[WARNING] Limit switch was pressed during adjustment."));
-      currentAzimuth = 0.0;
-    }
-  }
-
-  // Stop the motor after adjustment
-  stopMotor();
-  motorController.Disable();
-
-  Serial.print(F("[ADJUST] Azimuth aligned. Current azimuth: "));
-  Serial.println(currentAzimuth, 2);
-
-  Serial.println(F("\n\t--- End of Azimuth Adjustment ---\n"));
-}
-
-// ----------------- Motor control functions -------------------
-
-void startMotorLeft()
-{
-  Serial.println(F("[MOTOR] Starting motor. Direction: left."));
-  motorController.TurnLeft(MOTOR_PWM_SPEED);
-}
-
-void startMotorRight()
-{
-  Serial.println(F("[MOTOR] Starting motor. Direction: right."));
-  motorController.TurnRight(MOTOR_PWM_SPEED);
-}
-
-void stopMotor()
-{
-  Serial.println(F("[MOTOR] Stopping motor."));
-  motorController.Stop();
-}
-
-// ----------------- Button control functions ------------------
-
-// function blocks until the button is pressed
-void waitForButtonPress()
-{
-  while (true)
-  {
-    limitSwitch.loop();
-    if (limitSwitch.isPressed())
-    {
-      Serial.println(F("[SWITCH] Limit switch pressed."));
-      break;
-    }
-  }
-  limitSwitch.loop();
-}
-
-// function blocks until the button is pressed or the delay time has passed. Returns true if the button was pressed.
-bool waitForButtonPressOrDelay(unsigned long delayTime)
-{
-  unsigned long startTime = millis();
-  while (millis() - startTime < delayTime)
-  {
-    limitSwitch.loop();
-    if (limitSwitch.isPressed())
-    {
-      Serial.println(F("[SWITCH] Limit switch pressed."));
-      return true;
-    }
-  }
-  limitSwitch.loop();
-  return false;
 }
 
 // ----------------- RTC functions -----------------------------
@@ -386,10 +190,10 @@ void UpdateSunPos()
 
   SolTrack(time, locationData, &solarPosition, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
 
-  printAllData();
+  printSunPos();
 }
 
-void printAllData()
+void printSunPos()
 {
   Serial.println(F("\n\t--- Sun Position Data ---\n"));
 

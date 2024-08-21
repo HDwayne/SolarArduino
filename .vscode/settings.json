@@ -1,5 +1,6 @@
 {
   "files.associations": {
-    "soltrack.h": "c"
+    "soltrack.h": "c",
+    "SOLTRACK.H": "cpp"
   }
 }
