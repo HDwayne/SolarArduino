@@ -75,43 +75,6 @@ void setup()
     ;
 
   // Initialize the system components
-  initializeSystem();
-  delay(1000);
-
-  // Perform the azimuth calibration procedure and first adjustment
-  azimuthController.calibrate();
-  delay(1000);
-
-  Serial.println(F("\n\t--- First Azimuth Adjustment ---\n"));
-  UpdateSunPos();
-  azimuthController.moveToSun(solarPosition);
-  Serial.println(F("\n\t--- System Ready, Entering Main Loop ---\n"));
-}
-
-void loop()
-{
-  DateTime now = rtc.now();
-
-  if (now.hour() != lastAzimuthUpdateTime.hour())
-  {
-    Serial.print(F("\n\t--- New Hour Detected ---\n"));
-    lastAzimuthUpdateTime = now;
-
-    UpdateSunPos();
-    azimuthController.moveToSun(solarPosition);
-  }
-  else
-  {
-    Serial.print(F("."));
-  }
-
-  delay(60000);
-}
-
-// ----------------- System initialization functions -----------
-
-void initializeSystem()
-{
   Serial.println(F("\n\t--- System Initialization ---\n"));
 
   // Initialize the RTC module
@@ -143,7 +106,34 @@ void initializeSystem()
   locationData.pressure = ST_PRESSURE;
   locationData.temperature = ST_TEMPERATURE;
 
-  Serial.println(F("\n\t--- System initialized. ---\n"));
+  // Perform the azimuth calibration procedure and first adjustment
+  azimuthController.calibrate();
+  delay(1000);
+
+  Serial.println(F("\n\t--- First Azimuth Adjustment ---\n"));
+  UpdateSunPos();
+  azimuthController.moveToSun(solarPosition);
+  Serial.println(F("\n\t--- System Ready, Entering Main Loop ---\n"));
+}
+
+void loop()
+{
+  DateTime now = rtc.now();
+
+  if (now.hour() != lastAzimuthUpdateTime.hour())
+  {
+    Serial.print(F("\n\t--- New Hour Detected ---\n"));
+    lastAzimuthUpdateTime = now;
+
+    UpdateSunPos();
+    azimuthController.moveToSun(solarPosition);
+  }
+  else
+  {
+    Serial.print(F("."));
+  }
+
+  delay(60000);
 }
 
 // ----------------- RTC functions -----------------------------
