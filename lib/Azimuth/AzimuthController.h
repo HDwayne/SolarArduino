@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include <ezButton.h>
 #include <BTS7960.h>
-#include "SolTrack.h"
 
 class AzimuthController
 {
@@ -16,7 +15,7 @@ public:
   void calibrate();
   void moveFullLeft();
   void moveFullRight();
-  void moveToSun(struct STPosition solarPosition);
+  void moveToSun(float targetAngle);
 
 private:
   // Pin Definitions

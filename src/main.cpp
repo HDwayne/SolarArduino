@@ -112,7 +112,7 @@ void setup()
 
   Serial.println(F("\n\t--- First Azimuth Adjustment ---\n"));
   UpdateSunPos();
-  azimuthController.moveToSun(solarPosition);
+  azimuthController.moveToSun(solarPosition.azimuthRefract);
   Serial.println(F("\n\t--- System Ready, Entering Main Loop ---\n"));
 }
 
@@ -126,7 +126,7 @@ void loop()
     lastAzimuthUpdateTime = now;
 
     UpdateSunPos();
-    azimuthController.moveToSun(solarPosition);
+    azimuthController.moveToSun(solarPosition.azimuthRefract);
   }
   else
   {

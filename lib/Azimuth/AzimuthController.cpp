@@ -69,12 +69,11 @@ void AzimuthController::moveFullRight()
   Serial.println(F("-> Full right position reached"));
 }
 
-void AzimuthController::moveToSun(struct STPosition solarPosition)
+void AzimuthController::moveToSun(float targetAngle)
 {
   Serial.println(F("\n\t--- Adjusting Azimuth ---\n"));
-  float solarAzimuth = solarPosition.azimuthRefract; // Get the computed solar azimuth
 
-  if (solarAzimuth < azimuthDegMin || solarAzimuth > azimuthDegMax)
+  if (targetAngle < azimuthDegMin || targetAngle > azimuthDegMax)
   {
     Serial.println(F("[INFO] Solar azimuth is out of the tracking range. Cannot adjust azimuth."));
 
@@ -88,7 +87,7 @@ void AzimuthController::moveToSun(struct STPosition solarPosition)
   }
 
   // Check if the difference between the current panel azimuth and the solar azimuth exceeds the threshold
-  float azimuthDifference = fabs(solarAzimuth - currentAzimuth);
+  float azimuthDifference = fabs(targetAngle - currentAzimuth);
   if (azimuthDifference < azimuthDegThreshold)
   {
     Serial.println(F("[INFO] Azimuth is already aligned according to the threshold."));
@@ -112,7 +111,7 @@ void AzimuthController::moveToSun(struct STPosition solarPosition)
   motorController.Enable();
 
   // Determine the direction of movement and move the motor
-  if (solarAzimuth > currentAzimuth)
+  if (targetAngle > currentAzimuth)
   {
     Serial.println(F("[ADJUST] Moving motor to the right to align with the sun."));
     currentAzimuth += azimuthDifference;
