@@ -43,6 +43,13 @@ void ElevationController::moveToAngle(float targetAngle)
   if (targetAngle > elevationDegMax || targetAngle < elevationDegMin)
   {
     Serial.println(F("[INFO] Solar elevation is out of tracking range. Cannot adjust elevation."));
+
+    if (currentElevation != elevationDegMax)
+    {
+      Serial.println(F("[INFO] Moving to the horizontal position."));
+      moveToMaxElevation();
+    }
+
     return;
   }
 
