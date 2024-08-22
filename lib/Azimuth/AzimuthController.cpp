@@ -69,7 +69,7 @@ void AzimuthController::moveFullRight()
   Serial.println(F("-> Full right position reached"));
 }
 
-void AzimuthController::moveToSun(float targetAngle)
+void AzimuthController::moveToAngle(float targetAngle)
 {
   Serial.println(F("\n\t--- Adjusting Azimuth ---\n"));
 

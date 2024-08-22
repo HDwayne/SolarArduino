@@ -15,7 +15,7 @@ public:
   void calibrate();
   void moveFullLeft();
   void moveFullRight();
-  void moveToSun(float targetAngle);
+  void moveToAngle(float targetAngle);
 
 private:
   // Pin Definitions
