@@ -4,6 +4,7 @@
 #include "stdlib.h"
 #include "SolTrack.h"
 #include "AzimuthController.h"
+#include "ElevationController.h"
 
 // ----------------- Constants and Variables -----------------
 
@@ -27,19 +28,32 @@ struct STTime time;              // Struct for date and time variables
 struct STLocation locationData;  // Struct for geographic locationDataation variables
 struct STPosition solarPosition; // Struct for solar position variables
 
-// Pin Definitions
+// Azimuth Settings
 #define AZIMUTH_MOTOR_PIN_EN 4     // Motor enable pin
 #define AZIMUTH_MOTOR_PWM_PIN_L 6  // Motor PWM pin (left)
 #define AZIMUTH_MOTOR_PWM_PIN_R 5  // Motor PWM pin (right)
 #define AZIMUTH_MOTOR_PWM_SPEED 60 // Motor PWM speed
 #define AZIMUTH_LIMIT_SWITCH_PIN 7 // Limit switch pin
 
-#define AZIMUTH_DEG_MAX 310.0          // Maximum azimuth value (degrees)
-#define AZIMUTH_DEG_MIN 50.0           // Minimum azimuth value (degrees)
-#define AZIMUTH_DEG_THRESHOLD 10.0     // Threshold in degrees to trigger motor adjustment (minimum rotation angle)
-#define AZIMUTH_TIME_THRESHOLD 10000.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
+#define AZIMUTH_DEG_MAX 310.0         // Maximum azimuth value (degrees)
+#define AZIMUTH_DEG_MIN 50.0          // Minimum azimuth value (degrees)
+#define AZIMUTH_DEG_THRESHOLD 10.0    // Threshold in degrees to trigger motor adjustment (minimum rotation angle)
+#define AZIMUTH_TIME_THRESHOLD 6000.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
 
-DateTime lastAzimuthUpdateTime;
+// Elevation Settings
+#define ELEVATION_MOTOR_PIN_EN 8     // Motor enable pin
+#define ELEVATION_MOTOR_PWM_PIN_U 10 // Motor PWM pin for actuator extension (up)
+#define ELEVATION_MOTOR_PWM_PIN_D 9  // Motor PWM pin for actuator retraction (down)
+
+#define ELEVATION_DEG_MAX 90.0          // Maximum elevation value (degrees)
+#define ELEVATION_DEG_MIN 15.0          // Minimum elevation value (degrees)
+#define ELEVATION_TIME_THRESHOLD 2000.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
+
+#define ELEVATION_ACTUATOR_SPEED 5.0    // Actuator speed in mm/s
+#define ELEVATION_ACTUATOR_LENGTH 350.0 // Actuator length in mm
+
+// Time variables
+DateTime lastPanelAdjustmentTime; // Last time the solar panel was adjusted
 
 // RTC Module
 RTC_DS1307 rtc;
@@ -56,9 +70,19 @@ AzimuthController azimuthController(
     AZIMUTH_DEG_THRESHOLD,
     AZIMUTH_TIME_THRESHOLD);
 
+// Elevation Controller
+ElevationController elevationController(
+    ELEVATION_MOTOR_PIN_EN,
+    ELEVATION_MOTOR_PWM_PIN_U,
+    ELEVATION_MOTOR_PWM_PIN_D,
+    ELEVATION_DEG_MAX,
+    ELEVATION_DEG_MIN,
+    ELEVATION_TIME_THRESHOLD,
+    ELEVATION_ACTUATOR_SPEED,
+    ELEVATION_ACTUATOR_LENGTH);
+
 // ----------------- Function Prototypes -----------------
 
-void initializeSystem();
 void UpdateSunPos();
 void printSunPos();
 void printDateTime(DateTime now);
@@ -95,9 +119,9 @@ void setup()
   }
   else
   {
-    lastAzimuthUpdateTime = rtc.now();
+    lastPanelAdjustmentTime = rtc.now();
     Serial.print(F("[INFO] RTC is running with the following time: "));
-    printDateTime(lastAzimuthUpdateTime);
+    printDateTime(lastPanelAdjustmentTime);
   }
 
   // Set initial location data for solar calculations
@@ -106,13 +130,21 @@ void setup()
   locationData.pressure = ST_PRESSURE;
   locationData.temperature = ST_TEMPERATURE;
 
-  // Perform the azimuth calibration procedure and first adjustment
+  // Perform the azimuth calibration procedure
   azimuthController.calibrate();
-  delay(1000);
+  delay(3000);
 
+  // Perform the elevation calibration procedure
+  elevationController.calibrate();
+  delay(3000);
+
+  // Move the solar panel for the first time
   Serial.println(F("\n\t--- First Azimuth Adjustment ---\n"));
   UpdateSunPos();
-  azimuthController.moveToSun(solarPosition.azimuthRefract);
+  azimuthController.moveToAngle(solarPosition.azimuthRefract);
+  delay(3000);
+  elevationController.moveToAngle(solarPosition.altitudeRefract);
+
   Serial.println(F("\n\t--- System Ready, Entering Main Loop ---\n"));
 }
 
@@ -120,13 +152,15 @@ void loop()
 {
   DateTime now = rtc.now();
 
-  if (now.hour() != lastAzimuthUpdateTime.hour())
+  if (now.hour() != lastPanelAdjustmentTime.hour())
   {
     Serial.print(F("\n\t--- New Hour Detected ---\n"));
-    lastAzimuthUpdateTime = now;
+    lastPanelAdjustmentTime = now;
 
     UpdateSunPos();
-    azimuthController.moveToSun(solarPosition.azimuthRefract);
+    azimuthController.moveToAngle(solarPosition.azimuthRefract);
+    delay(3000);
+    elevationController.moveToAngle(solarPosition.altitudeRefract);
   }
   else
   {
@@ -171,12 +205,12 @@ void printDateTime(DateTime now)
 
 void UpdateSunPos()
 {
-  time.year = lastAzimuthUpdateTime.year();
-  time.month = lastAzimuthUpdateTime.month();
-  time.day = lastAzimuthUpdateTime.day();
-  time.hour = lastAzimuthUpdateTime.hour() - TIMEZONE;
-  time.minute = lastAzimuthUpdateTime.minute();
-  time.second = lastAzimuthUpdateTime.second();
+  time.year = lastPanelAdjustmentTime.year();
+  time.month = lastPanelAdjustmentTime.month();
+  time.day = lastPanelAdjustmentTime.day();
+  time.hour = lastPanelAdjustmentTime.hour() - TIMEZONE;
+  time.minute = lastPanelAdjustmentTime.minute();
+  time.second = lastPanelAdjustmentTime.second();
 
   SolTrack(time, locationData, &solarPosition, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
 

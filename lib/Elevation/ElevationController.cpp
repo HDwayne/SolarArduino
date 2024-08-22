@@ -2,9 +2,16 @@
 
 // Constructor
 ElevationController::ElevationController(int motorEnPin, int motorPwmUpPin, int motorPwmDownPin, float maxElevation, float minElevation, unsigned long timeThreshold, float actuatorSpeed, float actuatorLength)
-    : motorPinEn(motorEnPin), motorPinPwmUp(motorPwmUpPin), motorPinPwmDown(motorPwmDownPin),
-      elevationDegMax(maxElevation), elevationDegMin(minElevation), elevationTimeThreshold(timeThreshold),
-      actuatorSpeed(actuatorSpeed), actuatorLength(actuatorLength), motorController(motorEnPin, motorPwmUpPin, motorPwmDownPin)
+    : motorController(motorEnPin, motorPwmUpPin, motorPwmDownPin),
+      motorPinEn(motorEnPin),
+      motorPinPwmUp(motorPwmUpPin),
+      motorPinPwmDown(motorPwmDownPin),
+      currentElevation(0),
+      actuatorSpeed(actuatorSpeed),
+      actuatorLength(actuatorLength),
+      elevationDegMax(maxElevation),
+      elevationDegMin(minElevation),
+      elevationTimeThreshold(timeThreshold)
 {
 }
 
@@ -15,7 +22,7 @@ void ElevationController::calibrate()
   Serial.println(F("\n\t--- Starting Elevation Calibration Procedure ---\n"));
 
   actuatorFullTravelTime = (actuatorLength / actuatorSpeed) * 1000.0;
-  Serial.println(F("\tThe actuator full travel time is: "));
+  Serial.print(F("\tThe actuator full travel time is: "));
   Serial.print(actuatorFullTravelTime);
   Serial.println(F(" ms"));
 
@@ -32,6 +39,12 @@ void ElevationController::calibrate()
 void ElevationController::moveToAngle(float targetAngle)
 {
   Serial.println(F("\n\t--- Adjusting Elevation ---\n"));
+
+  if (targetAngle > elevationDegMax || targetAngle < elevationDegMin)
+  {
+    Serial.println(F("[INFO] Solar elevation is out of tracking range. Cannot adjust elevation."));
+    return;
+  }
 
   float azimuthDifference = fabs(targetAngle - currentElevation);
   float timeToMove = azimuthDifference / degreesPerMs;
