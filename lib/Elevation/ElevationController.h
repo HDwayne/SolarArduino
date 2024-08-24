@@ -10,11 +10,11 @@ class ElevationController
 {
 public:
   // Constructor
-  ElevationController(int motorEnPin, int motorPwmUpPin, int motorPwmDownPin, float maxElevation, float minElevation, unsigned long timeThreshold, float actuatorSpeed, float actuatorLength);
+  ElevationController(int motorEnPin, int motorPwmUpPin, int motorPwmDownPin, float maxAzimuth, float minAzimuth, float maxElevation, float minElevation, unsigned long timeThreshold, float actuatorSpeed, float actuatorLength);
 
   // Movement methods
   void calibrate();
-  void moveToAngle(float targetAngle);
+  void moveToAngle(float targetAzimuth, float targetElevation);
   void moveToMaxElevation();
   void moveToMinElevation();
 
@@ -37,6 +37,8 @@ private:
   float degreesPerMs;                   // Degrees the actuator moves per millisecond
 
   // Constants
+  const float azimuthDegMax;
+  const float azimuthDegMin;
   const float elevationDegMax;
   const float elevationDegMin;
   const unsigned long elevationTimeThreshold;

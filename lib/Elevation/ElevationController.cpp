@@ -1,14 +1,16 @@
 #include "ElevationController.h"
 
 // Constructor
-ElevationController::ElevationController(int motorEnPin, int motorPwmUpPin, int motorPwmDownPin, float maxElevation, float minElevation, unsigned long timeThreshold, float actuatorSpeed, float actuatorLength)
-    : motorController(motorEnPin, motorPwmUpPin, motorPwmDownPin),
-      motorPinEn(motorEnPin),
+ElevationController::ElevationController(int motorEnPin, int motorPwmUpPin, int motorPwmDownPin, float maxAzimuth, float minAzimuth, float maxElevation, float minElevation, unsigned long timeThreshold, float actuatorSpeed, float actuatorLength)
+    : motorPinEn(motorEnPin),
       motorPinPwmUp(motorPwmUpPin),
       motorPinPwmDown(motorPwmDownPin),
+      motorController(motorEnPin, motorPwmUpPin, motorPwmDownPin),
       currentElevation(0),
       actuatorSpeed(actuatorSpeed),
       actuatorLength(actuatorLength),
+      azimuthDegMax(maxAzimuth),
+      azimuthDegMin(minAzimuth),
       elevationDegMax(maxElevation),
       elevationDegMin(minElevation),
       elevationTimeThreshold(timeThreshold)
@@ -36,24 +38,31 @@ void ElevationController::calibrate()
   Serial.println(F("\n\t--- Elevation Calibration Procedure Completed ---\n"));
 }
 
-void ElevationController::moveToAngle(float targetAngle)
+void ElevationController::moveToAngle(float targetAzimuth, float targetElevation)
 {
   Serial.println(F("\n\t--- Adjusting Elevation ---\n"));
 
-  if (targetAngle > elevationDegMax || targetAngle < elevationDegMin)
+  if (targetElevation > elevationDegMax || targetElevation < elevationDegMin)
   {
     Serial.println(F("[INFO] Solar elevation is out of tracking range. Cannot adjust elevation."));
 
     if (currentElevation != elevationDegMax)
     {
-      Serial.println(F("[INFO] Moving to the horizontal position."));
-      moveToMaxElevation();
+      if (targetAzimuth > azimuthDegMax || targetAzimuth < azimuthDegMin)
+      {
+        Serial.println(F("[INFO] Moving to the horizontal safety position."));
+        moveToMaxElevation();
+      }
+      else
+      {
+        Serial.println(F("[INFO] Azimuth is within tracking range. Wait before horizontal safety position."));
+      }
     }
 
     return;
   }
 
-  float azimuthDifference = fabs(targetAngle - currentElevation);
+  float azimuthDifference = fabs(targetElevation - currentElevation);
   float timeToMove = azimuthDifference / degreesPerMs;
 
   if (timeToMove < elevationTimeThreshold)
@@ -70,7 +79,7 @@ void ElevationController::moveToAngle(float targetAngle)
 
   motorController.Enable();
 
-  if (targetAngle > currentElevation)
+  if (targetElevation > currentElevation)
   {
     Serial.println(F("[ADJUST] Moving actuator up."));
     currentElevation += azimuthDifference;

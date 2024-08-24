@@ -28,6 +28,8 @@ ElevationController elevationController(
     ELEVATION_MOTOR_PIN_EN,
     ELEVATION_MOTOR_PWM_PIN_U,
     ELEVATION_MOTOR_PWM_PIN_D,
+    AZIMUTH_DEG_MAX,
+    AZIMUTH_DEG_MIN,
     ELEVATION_DEG_MAX,
     ELEVATION_DEG_MIN,
     ELEVATION_TIME_THRESHOLD,
@@ -90,7 +92,7 @@ void setup()
   UpdateSunPos();
   azimuthController.moveToAngle(solarPosition.azimuthRefract);
   delay(3000);
-  elevationController.moveToAngle(solarPosition.altitudeRefract);
+  elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
 
   Serial.println(F("\n\t--- System Ready, Entering Main Loop ---\n"));
 }
@@ -107,7 +109,7 @@ void loop()
     UpdateSunPos();
     azimuthController.moveToAngle(solarPosition.azimuthRefract);
     delay(3000);
-    elevationController.moveToAngle(solarPosition.altitudeRefract);
+    elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
   }
   else
   {
