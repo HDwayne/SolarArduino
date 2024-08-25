@@ -36,6 +36,11 @@ ElevationController elevationController(
     ELEVATION_ACTUATOR_SPEED,
     ELEVATION_ACTUATOR_LENGTH);
 
+ezButton button(SW_PIN);
+
+unsigned long lastPanelAdjustmentMillis = 0;
+unsigned long panelAdjustmentInterval = 60000; // check every minute
+
 // ----------------- Setup and Loop -----------------
 
 void setup()
@@ -49,6 +54,8 @@ void setup()
 
   // Initialize the system components
   Serial.println(F("\n\t--- System Initialization ---\n"));
+
+  button.setDebounceTime(100);
 
   // Initialize the RTC module
   if (!rtc.begin())
@@ -68,9 +75,8 @@ void setup()
   }
   else
   {
-    lastPanelAdjustmentTime = rtc.now();
     Serial.print(F("[INFO] RTC is running with the following time: "));
-    printDateTime(lastPanelAdjustmentTime);
+    printDateTime(rtc.now());
   }
 
   // Set initial location data for solar calculations
@@ -79,44 +85,47 @@ void setup()
   locationData.pressure = ST_PRESSURE;
   locationData.temperature = ST_TEMPERATURE;
 
-  // Perform the azimuth calibration procedure
-  azimuthController.calibrate();
-  delay(3000);
+  // Calibrate the solar panel
+  calibratePanel();
 
-  // Perform the elevation calibration procedure
-  elevationController.calibrate();
-  delay(3000);
+  // Update the solar panel position
+  updatePanel();
 
-  // Move the solar panel for the first time
-  Serial.println(F("\n\t--- First Azimuth Adjustment ---\n"));
-  UpdateSunPos();
-  azimuthController.moveToAngle(solarPosition.azimuthRefract);
-  delay(3000);
-  elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
-
-  Serial.println(F("\n\t--- System Ready, Entering Main Loop ---\n"));
+  Serial.println(F("\n\t--- System Initialization Completed ---\n"));
 }
 
 void loop()
 {
-  DateTime now = rtc.now();
+  unsigned long currentMillis = millis();
+  button.loop();
 
-  if (now.hour() != lastPanelAdjustmentTime.hour())
+  if (button.isPressed())
   {
-    Serial.print(F("\n\t--- New Hour Detected ---\n"));
-    lastPanelAdjustmentTime = now;
+    joyStick();
 
-    UpdateSunPos();
-    azimuthController.moveToAngle(solarPosition.azimuthRefract);
-    delay(3000);
-    elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
+    resetPanelPosition();
+    updatePanel();
+
+    while (button.isPressed())
+    {
+      button.loop();
+    }
   }
-  else
+
+  if (currentMillis - lastPanelAdjustmentMillis >= panelAdjustmentInterval)
   {
-    Serial.print(F("."));
+    lastPanelAdjustmentMillis = currentMillis;
+    DateTime now = rtc.now();
+    if (now.hour() != lastPanelAdjustmentTime.hour())
+    {
+      Serial.print(F("\n\t--- New Hour Detected ---\n"));
+      updatePanel();
+    }
+    else
+    {
+      Serial.print(F("."));
+    }
   }
-
-  delay(60000);
 }
 
 // ----------------- RTC functions -----------------------------
@@ -150,9 +159,157 @@ void printDateTime(DateTime now)
   Serial.println(now.second(), DEC);
 }
 
-// ----------------- Solar tracking functions ------------------
+// ----------------- Panel control functions ---------------------
 
-void UpdateSunPos()
+void resetPanelPosition()
+{
+  Serial.println(F("\n\t--- Resetting Solar Panel Position ---\n"));
+
+  azimuthController.moveFullLeft();
+  elevationController.moveToMaxElevation();
+
+  Serial.println(F("\n\t--- Solar Panel Position Reset ---\n"));
+}
+
+void calibratePanel()
+{
+  Serial.println(F("\n\t--- Starting Solar Panel Calibration ---\n"));
+
+  azimuthController.calibrate();
+  elevationController.calibrate();
+
+  Serial.println(F("\n\t--- Solar Panel Calibration Completed ---\n"));
+}
+
+void updatePanel()
+{
+  Serial.println(F("\n\t--- Updating Solar Panel Position ---\n"));
+  lastPanelAdjustmentTime = rtc.now();
+  updateSunPos();
+
+  azimuthController.moveToAngle(solarPosition.azimuthRefract);
+  elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
+
+  Serial.println(F("\n\t--- Solar Panel Position Updated ---\n"));
+}
+
+void joyStick()
+{
+  Serial.println(F("\nEntering Joystick Mode"));
+
+  button.loop();
+
+  // Enable motors
+  azimuthController.enableMotor();
+  elevationController.enableMotor();
+
+  // Variables to store previous command states
+  uint8_t prevCommand = COMMAND_NO;
+
+  while (!button.isPressed())
+  {
+    button.loop();
+
+    // Read joystick values
+    int xValue = analogRead(VRX_PIN);
+    int yValue = analogRead(VRY_PIN);
+
+    // Reset command
+    uint8_t command = COMMAND_NO;
+
+    // Determine left/right commands
+    if (xValue < LEFT_THRESHOLD)
+    {
+      command |= COMMAND_LEFT;
+    }
+    else if (xValue > RIGHT_THRESHOLD)
+    {
+      command |= COMMAND_RIGHT;
+    }
+
+    // Determine up/down commands
+    if (yValue < UP_THRESHOLD)
+    {
+      command |= COMMAND_UP;
+    }
+    else if (yValue > DOWN_THRESHOLD)
+    {
+      command |= COMMAND_DOWN;
+    }
+
+    // Process command only if there is a change
+    if (command != prevCommand)
+    {
+      // Stop motors before changing direction to avoid conflicts
+      if ((prevCommand & (COMMAND_LEFT | COMMAND_RIGHT)) != (command & (COMMAND_LEFT | COMMAND_RIGHT)))
+      {
+        elevationController.stopActuator();
+      }
+      if ((prevCommand & (COMMAND_UP | COMMAND_DOWN)) != (command & (COMMAND_UP | COMMAND_DOWN)))
+      {
+        azimuthController.stopMotor();
+      }
+
+      // Start motors based on new command
+      if (command & COMMAND_LEFT)
+      {
+        elevationController.startActuatorDown();
+      }
+      else if (command & COMMAND_RIGHT)
+      {
+        elevationController.startActuatorUp();
+      }
+
+      if (command & COMMAND_UP)
+      {
+        azimuthController.startMotorLeft();
+      }
+      else if (command & COMMAND_DOWN)
+      {
+        azimuthController.startMotorRight();
+      }
+
+      // Update previous command
+      prevCommand = command;
+
+      // Print new command to serial if any
+      String output = "";
+      if (command & COMMAND_LEFT)
+      {
+        output += "COMMAND DOWN ";
+      }
+      if (command & COMMAND_RIGHT)
+      {
+        output += "COMMAND UP ";
+      }
+      if (command & COMMAND_UP)
+      {
+        output += "COMMAND LEFT ";
+      }
+      if (command & COMMAND_DOWN)
+      {
+        output += "COMMAND RIGHT ";
+      }
+
+      if (output != "")
+      {
+        Serial.println(output);
+      }
+    }
+  }
+
+  azimuthController.stopMotor();
+  azimuthController.disableMotor();
+
+  elevationController.stopActuator();
+  elevationController.disableMotor();
+
+  Serial.println(F("Exiting Joystick Mode"));
+}
+
+// ----------------- Sun position functions ---------------------
+
+void updateSunPos()
 {
   time.year = lastPanelAdjustmentTime.year();
   time.month = lastPanelAdjustmentTime.month();

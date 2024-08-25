@@ -16,6 +16,11 @@ public:
   void moveFullLeft();
   void moveFullRight();
   void moveToAngle(float targetAngle);
+  void startMotorLeft();
+  void startMotorRight();
+  void stopMotor();
+  void enableMotor() { motorController.Enable(); }
+  void disableMotor() { motorController.Disable(); }
 
 private:
   // Pin Definitions
@@ -43,9 +48,6 @@ private:
   const unsigned long azimuthTimeThreshold;
 
   // Utility methods
-  void startMotorLeft();
-  void startMotorRight();
-  void stopMotor();
   void waitForLimitSwitch();
   bool waitForLimitSwitchOrDelay(unsigned long delayTime);
 };

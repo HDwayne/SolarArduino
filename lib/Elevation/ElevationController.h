@@ -17,6 +17,11 @@ public:
   void moveToAngle(float targetAzimuth, float targetElevation);
   void moveToMaxElevation();
   void moveToMinElevation();
+  void startActuatorUp();
+  void startActuatorDown();
+  void stopActuator();
+  void enableMotor() { motorController.Enable(); }
+  void disableMotor() { motorController.Disable(); }
 
 private:
   // Pin Definitions
@@ -42,11 +47,6 @@ private:
   const float elevationDegMax;
   const float elevationDegMin;
   const unsigned long elevationTimeThreshold;
-
-  // Utility methods
-  void startActuatorUp();
-  void startActuatorDown();
-  void stopActuator();
 };
 
 #endif // ELEVATION_CONTROLLER_H

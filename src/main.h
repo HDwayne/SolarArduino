@@ -10,6 +10,7 @@
 #include "SolTrack.h"
 #include "AzimuthController.h"
 #include "ElevationController.h"
+#include "ezButton.h"
 
 // Timezone
 #define TIMEZONE 2 // FR: UTC+1 in winter, UTC+2 in summer
@@ -55,6 +56,22 @@ extern struct STPosition solarPosition; // Struct for solar position variables
 #define ELEVATION_ACTUATOR_SPEED 5.0    // Actuator speed in mm/s
 #define ELEVATION_ACTUATOR_LENGTH 350.0 // Actuator length in mm
 
+// Joystick Settings
+#define VRX_PIN A0 // Arduino pin connected to VRX pin
+#define VRY_PIN A1 // Arduino pin connected to VRY pin
+#define SW_PIN 2   // Arduino pin connected to SW  pin
+
+#define LEFT_THRESHOLD 400
+#define RIGHT_THRESHOLD 800
+#define UP_THRESHOLD 400
+#define DOWN_THRESHOLD 800
+
+#define COMMAND_NO 0x00
+#define COMMAND_LEFT 0x01
+#define COMMAND_RIGHT 0x02
+#define COMMAND_UP 0x04
+#define COMMAND_DOWN 0x08
+
 // Time variables
 extern DateTime lastPanelAdjustmentTime; // Last time the solar panel was adjusted
 
@@ -68,7 +85,11 @@ extern AzimuthController azimuthController;
 extern ElevationController elevationController;
 
 // Function Prototypes
-void UpdateSunPos();
+void resetPanelPosition();
+void calibratePanel();
+void updatePanel();
+void joyStick();
+void updateSunPos();
 void printSunPos();
 void printDateTime(DateTime now);
 
