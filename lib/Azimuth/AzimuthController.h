@@ -5,6 +5,8 @@
 #include <ezButton.h>
 #include <BTS7960.h>
 
+#define AZIMUTH_SAFE_DELTA 5
+
 class AzimuthController
 {
 public:

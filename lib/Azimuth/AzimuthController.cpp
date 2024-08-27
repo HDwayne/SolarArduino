@@ -77,13 +77,28 @@ void AzimuthController::moveToAngle(float targetAngle)
   {
     Serial.println(F("[INFO] Solar azimuth is out of the tracking range. Cannot adjust azimuth."));
 
-    if (currentAzimuth != 0.0)
+    if (currentAzimuth != AZIMUTH_SAFE_DELTA)
     {
       Serial.println(F("[INFO] Moving to the initial position."));
       moveFullLeft();
-    }
 
-    return;
+      // DO NOT STAY ON THE LEFT LIMIT SWITCH
+      // if aruidno is reset, the motor will start moving to the right because
+      // the limit switch is already pressed and cannot be read
+      // this will cause the panel to make a new full rotation.
+
+      // GO TO THE SAFE POSITION (AZIMUTH_SAFE_DELTA)
+
+      Serial.println(F("[INFO] Moving to the safe position."));
+      targetAngle = AZIMUTH_SAFE_DELTA;
+      Serial.print(F("[INFO] Target angle: "));
+      Serial.println(targetAngle, 2);
+    }
+    else
+    {
+      Serial.println(F("[INFO] Already at the initial position. Cannot adjust azimuth."));
+      return;
+    }
   }
 
   // Check if the difference between the current panel azimuth and the solar azimuth exceeds the threshold
