@@ -39,7 +39,7 @@ ElevationController elevationController(
 ezButton button(SW_PIN);
 
 unsigned long lastPanelAdjustmentMillis = 0;
-unsigned long panelAdjustmentInterval = 60000; // check every minute
+unsigned long panelAdjustmentIntervalMillis = 60000; // check every minute
 
 // ----------------- Setup and Loop -----------------
 
@@ -112,19 +112,29 @@ void loop()
     }
   }
 
-  if (currentMillis - lastPanelAdjustmentMillis >= panelAdjustmentInterval)
+  if (currentMillis - lastPanelAdjustmentMillis >= panelAdjustmentIntervalMillis)
   {
     lastPanelAdjustmentMillis = currentMillis;
+
     DateTime now = rtc.now();
-    if (now.hour() != lastPanelAdjustmentTime.hour())
+    int nowTotalMinutes = now.hour() * 60 + now.minute();
+    int lastAdjustmentTotalMinutes = lastPanelAdjustmentTime.hour() * 60 + lastPanelAdjustmentTime.minute();
+    int minutesDiff = nowTotalMinutes - lastAdjustmentTotalMinutes;
+
+    if (minutesDiff < 0)
     {
-      Serial.print(F("\n\t--- New Hour Detected ---\n"));
+      minutesDiff += 1440; // 24 hours in minutes
+    }
+
+    if (minutesDiff >= UPDATE_PANEL_ADJUSTMENT_INTERVAL)
+    {
+      Serial.print(F("\n\t--- New Solar Panel Adjustment ---\n"));
       updatePanel();
     }
-    else
-    {
-      Serial.print(F("."));
-    }
+  }
+  else
+  {
+    Serial.print(F("."));
   }
 }
 

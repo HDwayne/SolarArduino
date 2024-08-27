@@ -12,6 +12,8 @@
 #include "ElevationController.h"
 #include "ezButton.h"
 
+#define UPDATE_PANEL_ADJUSTMENT_INTERVAL 15 // Update panel every 15 minutes
+
 // Timezone
 #define TIMEZONE 2 // FR: UTC+1 in winter, UTC+2 in summer
 
@@ -33,11 +35,11 @@ extern struct STLocation locationData;  // Struct for geographic locationDataati
 extern struct STPosition solarPosition; // Struct for solar position variables
 
 // Azimuth Settings
-#define AZIMUTH_MOTOR_PIN_EN 4     // Motor enable pin
-#define AZIMUTH_MOTOR_PWM_PIN_L 6  // Motor PWM pin (left)
-#define AZIMUTH_MOTOR_PWM_PIN_R 5  // Motor PWM pin (right)
-#define AZIMUTH_MOTOR_PWM_SPEED 60 // Motor PWM speed
-#define AZIMUTH_LIMIT_SWITCH_PIN 7 // Limit switch pin
+#define AZIMUTH_MOTOR_PIN_EN 4      // Motor enable pin
+#define AZIMUTH_MOTOR_PWM_PIN_L 6   // Motor PWM pin (left)
+#define AZIMUTH_MOTOR_PWM_PIN_R 5   // Motor PWM pin (right)
+#define AZIMUTH_MOTOR_PWM_SPEED 100 // Motor PWM speed
+#define AZIMUTH_LIMIT_SWITCH_PIN 7  // Limit switch pin
 
 #define AZIMUTH_DEG_MAX 310.0         // Maximum azimuth value (degrees)
 #define AZIMUTH_DEG_MIN 50.0          // Minimum azimuth value (degrees)
