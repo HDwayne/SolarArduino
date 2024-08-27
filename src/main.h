@@ -44,7 +44,7 @@ extern struct STPosition solarPosition; // Struct for solar position variables
 #define AZIMUTH_DEG_MAX 310.0         // Maximum azimuth value (degrees)
 #define AZIMUTH_DEG_MIN 50.0          // Minimum azimuth value (degrees)
 #define AZIMUTH_DEG_THRESHOLD 10.0    // Threshold in degrees to trigger motor adjustment (minimum rotation angle)
-#define AZIMUTH_TIME_THRESHOLD 6000.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
+#define AZIMUTH_TIME_THRESHOLD 4000.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
 
 // Elevation Settings
 #define ELEVATION_MOTOR_PIN_EN 8     // Motor enable pin
