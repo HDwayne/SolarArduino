@@ -36,7 +36,7 @@ ElevationController elevationController(
     ELEVATION_ACTUATOR_SPEED,
     ELEVATION_ACTUATOR_LENGTH);
 
-ezButton button(SW_PIN);
+ezButton joyStickButton(SW_PIN);
 
 unsigned long lastPanelAdjustmentMillis = 0;
 unsigned long panelAdjustmentIntervalMillis = 60000; // check every minute
@@ -55,7 +55,7 @@ void setup()
   // Initialize the system components
   Serial.println(F("\n\t--- System Initialization ---\n"));
 
-  button.setDebounceTime(100);
+  joyStickButton.setDebounceTime(500);
 
   // Initialize the RTC module
   if (!rtc.begin())
@@ -97,18 +97,18 @@ void setup()
 void loop()
 {
   unsigned long currentMillis = millis();
-  button.loop();
+  joyStickButton.loop();
 
-  if (button.isPressed())
+  if (joyStickButton.isPressed())
   {
     joyStick();
 
     resetPanelPosition();
     updatePanel();
 
-    while (button.isPressed())
+    while (joyStickButton.isPressed())
     {
-      button.loop();
+      joyStickButton.loop();
     }
   }
 
@@ -207,7 +207,7 @@ void joyStick()
 {
   Serial.println(F("\nEntering Joystick Mode"));
 
-  button.loop();
+  joyStickButton.loop();
 
   // Enable motors
   azimuthController.enableMotor();
@@ -216,9 +216,9 @@ void joyStick()
   // Variables to store previous command states
   uint8_t prevCommand = COMMAND_NO;
 
-  while (!button.isPressed())
+  while (!joyStickButton.isPressed())
   {
-    button.loop();
+    joyStickButton.loop();
 
     // Read joystick values
     int xValue = analogRead(VRX_PIN);
