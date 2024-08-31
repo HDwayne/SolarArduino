@@ -130,10 +130,10 @@ void loop()
       Serial.print(F("\n\t--- New Solar Panel Adjustment ---\n"));
       updatePanel();
     }
-  }
-  else
-  {
-    Serial.print(F("."));
+    else
+    {
+      Serial.print(F("."));
+    }
   }
 }
 
