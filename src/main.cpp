@@ -185,8 +185,8 @@ void calibratePanel()
 {
   Serial.println(F("\n\t--- Starting Solar Panel Calibration ---\n"));
 
-  azimuthController.calibrate();
   elevationController.calibrate();
+  azimuthController.calibrate();
 
   Serial.println(F("\n\t--- Solar Panel Calibration Completed ---\n"));
 }
@@ -197,8 +197,8 @@ void updatePanel()
   lastPanelAdjustmentTime = rtc.now();
   updateSunPos();
 
-  azimuthController.moveToAngle(solarPosition.azimuthRefract);
   elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
+  azimuthController.moveToAngle(solarPosition.azimuthRefract);
 
   Serial.println(F("\n\t--- Solar Panel Position Updated ---\n"));
 }
