@@ -196,8 +196,8 @@ void updatePanel()
   lastPanelAdjustmentTime = rtc.now();
   updateSunPos();
 
-  azimuthController.moveToAngle(solarPosition.azimuthRefract);
   elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
+  azimuthController.moveToAngle(solarPosition.azimuthRefract);
 
   Serial.println(F("\n\t--- Solar Panel Position Updated ---\n"));
 }
