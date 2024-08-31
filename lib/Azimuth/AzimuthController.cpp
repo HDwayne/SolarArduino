@@ -77,10 +77,10 @@ void AzimuthController::moveToAngle(float targetAngle)
   {
     Serial.println(F("[INFO] Solar azimuth is out of the tracking range. Cannot adjust azimuth."));
 
-    if (currentAzimuth != 360.0)
+    if (currentAzimuth != 0.0)
     {
       Serial.println(F("[INFO] Moving to the initial position."));
-      moveFullRight();
+      moveFullLeft();
     }
 
     return;
