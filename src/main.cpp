@@ -20,7 +20,6 @@ AzimuthController azimuthController(
     AZIMUTH_LIMIT_SWITCH_PIN,
     AZIMUTH_DEG_MAX,
     AZIMUTH_DEG_MIN,
-    AZIMUTH_DEG_THRESHOLD,
     AZIMUTH_TIME_THRESHOLD);
 
 // Elevation Controller

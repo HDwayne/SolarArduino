@@ -9,7 +9,7 @@ class AzimuthController
 {
 public:
   // Constructor
-  AzimuthController(int motorEnPin, int motorPwmLeftPin, int motorPwmRightPin, int motorSpeed, int limitSwitchPin, float maxAzimuth, float minAzimuth, float degThreshold, unsigned long timeThreshold);
+  AzimuthController(int motorEnPin, int motorPwmLeftPin, int motorPwmRightPin, int motorSpeed, int limitSwitchPin, float maxAzimuth, float minAzimuth, unsigned long timeThreshold);
 
   // Calibration and movement methods
   void calibrate();
@@ -44,7 +44,6 @@ private:
   // Constants
   const float azimuthDegMax;
   const float azimuthDegMin;
-  const float azimuthDegThreshold;
   const unsigned long azimuthTimeThreshold;
 
   // Utility methods

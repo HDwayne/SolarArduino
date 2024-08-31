@@ -1,14 +1,14 @@
 #include "AzimuthController.h"
 
 // Constructor
-AzimuthController::AzimuthController(int motorEnPin, int motorPwmLeftPin, int motorPwmRightPin, int motorSpeed, int limitSwitchPin, float maxAzimuth, float minAzimuth, float degThreshold, unsigned long timeThreshold)
+AzimuthController::AzimuthController(int motorEnPin, int motorPwmLeftPin, int motorPwmRightPin, int motorSpeed, int limitSwitchPin, float maxAzimuth, float minAzimuth, unsigned long timeThreshold)
     : motorPinEn(motorEnPin), motorPinPwmL(motorPwmLeftPin), motorPinPwmR(motorPwmRightPin),
       limitSwitchPin(limitSwitchPin), motorPwmSpeed(motorSpeed),
       motorController(motorEnPin, motorPwmLeftPin, motorPwmRightPin),
       limitSwitch(limitSwitchPin),
       fullRotationDuration(0), currentAzimuth(0.0), degreesPerMs(0.0),
       azimuthDegMax(maxAzimuth), azimuthDegMin(minAzimuth),
-      azimuthDegThreshold(degThreshold), azimuthTimeThreshold(timeThreshold)
+      azimuthTimeThreshold(timeThreshold)
 {
   limitSwitch.setDebounceTime(100);
 }
@@ -86,16 +86,9 @@ void AzimuthController::moveToAngle(float targetAngle)
     return;
   }
 
-  // Check if the difference between the current panel azimuth and the solar azimuth exceeds the threshold
   float azimuthDifference = fabs(targetAngle - currentAzimuth);
-  if (azimuthDifference < azimuthDegThreshold)
-  {
-    Serial.println(F("[INFO] Azimuth is already aligned according to the threshold."));
-    return;
-  }
-
-  // Calculate the time needed to move the panel to the solar azimuth
   float timeToMove = azimuthDifference / degreesPerMs; // Time in milliseconds
+
   if (timeToMove < azimuthTimeThreshold)
   {
     Serial.println(F("[INFO] Time to move is less than the minimal required time. Cannot adjust azimuth."));
