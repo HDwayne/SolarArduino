@@ -12,7 +12,7 @@
 #include "ElevationController.h"
 #include "ezButton.h"
 
-#define UPDATE_PANEL_ADJUSTMENT_INTERVAL 15 // Update panel every 15 minutes
+#define UPDATE_PANEL_ADJUSTMENT_INTERVAL 20 // Update panel every 15 minutes
 
 // Timezone
 #define TIMEZONE 2 // FR: UTC+1 in winter, UTC+2 in summer
@@ -41,8 +41,8 @@ extern struct STPosition solarPosition; // Struct for solar position variables
 #define AZIMUTH_MOTOR_PWM_SPEED 100 // Motor PWM speed
 #define AZIMUTH_LIMIT_SWITCH_PIN 7  // Limit switch pin
 
-#define AZIMUTH_DEG_MAX 310.0         // Maximum azimuth value (degrees)
-#define AZIMUTH_DEG_MIN 50.0          // Minimum azimuth value (degrees)
+#define AZIMUTH_DEG_MAX 270.0         // Maximum azimuth value (degrees) - 270° West
+#define AZIMUTH_DEG_MIN 90.0          // Minimum azimuth value (degrees) - 90° East
 #define AZIMUTH_DEG_THRESHOLD 10.0    // Threshold in degrees to trigger motor adjustment (minimum rotation angle)
 #define AZIMUTH_TIME_THRESHOLD 4000.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
 
@@ -52,7 +52,7 @@ extern struct STPosition solarPosition; // Struct for solar position variables
 #define ELEVATION_MOTOR_PWM_PIN_D 9  // Motor PWM pin for actuator retraction (down)
 
 #define ELEVATION_DEG_MAX 90.0          // Maximum elevation value (degrees)
-#define ELEVATION_DEG_MIN 15.0          // Minimum elevation value (degrees)
+#define ELEVATION_DEG_MIN 22.0          // Minimum elevation value (degrees)
 #define ELEVATION_TIME_THRESHOLD 2000.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
 
 #define ELEVATION_ACTUATOR_SPEED 5.0    // Actuator speed in mm/s
