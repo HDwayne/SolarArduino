@@ -41,7 +41,7 @@ extern struct STPosition solarPosition; // Struct for solar position variables
 #define AZIMUTH_MOTOR_PWM_SPEED 100 // Motor PWM speed
 #define AZIMUTH_LIMIT_SWITCH_PIN 7  // Limit switch pin
 
-#define AZIMUTH_DEG_MAX 270.0      // Maximum azimuth value (degrees) - 270° West
+#define AZIMUTH_DEG_MAX 275.0      // Maximum azimuth value (degrees) - 270° West
 #define AZIMUTH_DEG_MIN 90.0       // Minimum azimuth value (degrees) - 90° East
 #define AZIMUTH_TIME_THRESHOLD 0.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
 
