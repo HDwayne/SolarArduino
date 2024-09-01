@@ -51,7 +51,7 @@ extern struct STPosition solarPosition; // Struct for solar position variables
 #define ELEVATION_MOTOR_PWM_PIN_D 9  // Motor PWM pin for actuator retraction (down)
 
 #define ELEVATION_DEG_MAX 90.0       // Maximum elevation value (degrees)
-#define ELEVATION_DEG_MIN 22.0       // Minimum elevation value (degrees)
+#define ELEVATION_DEG_MIN 21.0       // Minimum elevation value (degrees)
 #define ELEVATION_TIME_THRESHOLD 0.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
 
 #define ELEVATION_ACTUATOR_SPEED 5.0    // Actuator speed in mm/s
