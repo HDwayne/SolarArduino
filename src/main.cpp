@@ -174,8 +174,8 @@ void resetPanelPosition()
 {
   Serial.println(F("\n\t--- Resetting Solar Panel Position ---\n"));
 
-  azimuthController.moveFullLeft();
   elevationController.moveToMaxElevation();
+  azimuthController.moveFullLeft();
 
   Serial.println(F("\n\t--- Solar Panel Position Reset ---\n"));
 }
