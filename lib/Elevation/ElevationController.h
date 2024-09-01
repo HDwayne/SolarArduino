@@ -5,6 +5,7 @@
 #include <BTS7960.h>
 
 #define ELEVATION_MOTOR_PWM_SPEED 255 // Maximum PWM speed for the motor driver
+#define FORCE_TIME_FULL_TRAVEL 95     // If you observe that the actuator does not reach the end positions (real and predicted can differ), you can force the full travel time in seconds
 
 class ElevationController
 {

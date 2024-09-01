@@ -23,7 +23,12 @@ void ElevationController::calibrate()
 {
   Serial.println(F("\n\t--- Starting Elevation Calibration Procedure ---\n"));
 
+#ifdef FORCE_TIME_FULL_TRAVEL
+  actuatorFullTravelTime = FORCE_TIME_FULL_TRAVEL * 1000;
+#else
   actuatorFullTravelTime = (actuatorLength / actuatorSpeed) * 1000.0;
+#endif
+
   Serial.print(F("\tThe actuator full travel time is: "));
   Serial.print(actuatorFullTravelTime);
   Serial.println(F(" ms"));
