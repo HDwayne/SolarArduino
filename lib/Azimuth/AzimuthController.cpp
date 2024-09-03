@@ -1,14 +1,19 @@
 #include "AzimuthController.h"
 
-// Constructor
-AzimuthController::AzimuthController(int motorEnPin, int motorPwmLeftPin, int motorPwmRightPin, int motorSpeed, int limitSwitchPin, float maxAzimuth, float minAzimuth, unsigned long timeThreshold)
-    : motorPinEn(motorEnPin), motorPinPwmL(motorPwmLeftPin), motorPinPwmR(motorPwmRightPin),
-      limitSwitchPin(limitSwitchPin), motorPwmSpeed(motorSpeed),
-      motorController(motorEnPin, motorPwmLeftPin, motorPwmRightPin),
-      limitSwitch(limitSwitchPin),
-      fullRotationDuration(0), currentAzimuth(0.0), degreesPerMs(0.0),
-      azimuthDegMax(maxAzimuth), azimuthDegMin(minAzimuth),
-      azimuthTimeThreshold(timeThreshold)
+AzimuthController::AzimuthController(const AzimuthControllerConfig &config)
+    : motorPinEn(config.motorEnPin),
+      motorPinPwmL(config.motorPwmLeftPin),
+      motorPinPwmR(config.motorPwmRightPin),
+      limitSwitchPin(config.limitSwitchPin),
+      motorPwmSpeed(config.motorSpeed),
+      motorController(config.motorEnPin, config.motorPwmLeftPin, config.motorPwmRightPin),
+      limitSwitch(config.limitSwitchPin),
+      fullRotationDuration(0),
+      currentAzimuth(0.0),
+      degreesPerMs(0.0),
+      azimuthDegMax(config.maxAzimuth),
+      azimuthDegMin(config.minAzimuth),
+      azimuthTimeThreshold(config.timeThreshold)
 {
   limitSwitch.setDebounceTime(100);
 }

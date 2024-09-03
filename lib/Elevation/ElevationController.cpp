@@ -1,19 +1,20 @@
 #include "ElevationController.h"
 
-// Constructor
-ElevationController::ElevationController(int motorEnPin, int motorPwmUpPin, int motorPwmDownPin, float maxAzimuth, float minAzimuth, float maxElevation, float minElevation, unsigned long timeThreshold, float actuatorSpeed, float actuatorLength)
-    : motorPinEn(motorEnPin),
-      motorPinPwmUp(motorPwmUpPin),
-      motorPinPwmDown(motorPwmDownPin),
-      motorController(motorEnPin, motorPwmUpPin, motorPwmDownPin),
-      currentElevation(0),
-      actuatorSpeed(actuatorSpeed),
-      actuatorLength(actuatorLength),
-      azimuthDegMax(maxAzimuth),
-      azimuthDegMin(minAzimuth),
-      elevationDegMax(maxElevation),
-      elevationDegMin(minElevation),
-      elevationTimeThreshold(timeThreshold)
+ElevationController::ElevationController(const ElevationControllerConfig &config)
+    : motorPinEn(config.motorEnPin),
+      motorPinPwmUp(config.motorPwmUpPin),
+      motorPinPwmDown(config.motorPwmDownPin),
+      motorController(config.motorEnPin, config.motorPwmUpPin, config.motorPwmDownPin),
+      currentElevation(0.0),
+      actuatorSpeed(config.actuatorSpeed),
+      actuatorLength(config.actuatorLength),
+      actuatorFullTravelTime(0),
+      degreesPerMs(0.0),
+      azimuthDegMax(config.maxAzimuth),
+      azimuthDegMin(config.minAzimuth),
+      elevationDegMax(config.maxElevation),
+      elevationDegMin(config.minElevation),
+      elevationTimeThreshold(config.timeThreshold)
 {
 }
 

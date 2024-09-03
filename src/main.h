@@ -41,21 +41,43 @@ extern struct STPosition solarPosition; // Struct for solar position variables
 #define AZIMUTH_MOTOR_PWM_SPEED 100 // Motor PWM speed
 #define AZIMUTH_LIMIT_SWITCH_PIN 7  // Limit switch pin
 
-#define AZIMUTH_DEG_MAX 275.0      // Maximum azimuth value (degrees) - 270° West
-#define AZIMUTH_DEG_MIN 90.0       // Minimum azimuth value (degrees) - 90° East
-#define AZIMUTH_TIME_THRESHOLD 0.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
+#define AZIMUTH_DEG_MAX 275.0    // Maximum azimuth value (degrees) - 270° West
+#define AZIMUTH_DEG_MIN 90.0     // Minimum azimuth value (degrees) - 90° East
+#define AZIMUTH_TIME_THRESHOLD 0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
+
+AzimuthControllerConfig azimuthConfig = {
+    AZIMUTH_MOTOR_PIN_EN,
+    AZIMUTH_MOTOR_PWM_PIN_L,
+    AZIMUTH_MOTOR_PWM_PIN_R,
+    AZIMUTH_MOTOR_PWM_SPEED,
+    AZIMUTH_LIMIT_SWITCH_PIN,
+    AZIMUTH_DEG_MAX,
+    AZIMUTH_DEG_MIN,
+    AZIMUTH_TIME_THRESHOLD};
 
 // Elevation Settings
 #define ELEVATION_MOTOR_PIN_EN 8     // Motor enable pin
 #define ELEVATION_MOTOR_PWM_PIN_U 10 // Motor PWM pin for actuator extension (up)
 #define ELEVATION_MOTOR_PWM_PIN_D 9  // Motor PWM pin for actuator retraction (down)
 
-#define ELEVATION_DEG_MAX 90.0       // Maximum elevation value (degrees)
-#define ELEVATION_DEG_MIN 19.0       // Minimum elevation value (degrees)
-#define ELEVATION_TIME_THRESHOLD 0.0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
+#define ELEVATION_DEG_MAX 90.0     // Maximum elevation value (degrees)
+#define ELEVATION_DEG_MIN 19.0     // Minimum elevation value (degrees)
+#define ELEVATION_TIME_THRESHOLD 0 // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
 
 #define ELEVATION_ACTUATOR_SPEED 5.0    // Actuator speed in mm/s
 #define ELEVATION_ACTUATOR_LENGTH 350.0 // Actuator length in mm
+
+ElevationControllerConfig elevationConfig = {
+    ELEVATION_MOTOR_PIN_EN,
+    ELEVATION_MOTOR_PWM_PIN_U,
+    ELEVATION_MOTOR_PWM_PIN_D,
+    AZIMUTH_DEG_MAX,
+    AZIMUTH_DEG_MIN,
+    ELEVATION_DEG_MAX,
+    ELEVATION_DEG_MIN,
+    ELEVATION_TIME_THRESHOLD,
+    ELEVATION_ACTUATOR_SPEED,
+    ELEVATION_ACTUATOR_LENGTH};
 
 // Joystick Settings
 #define VRX_PIN A0 // Arduino pin connected to VRX pin

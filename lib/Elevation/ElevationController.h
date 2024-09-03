@@ -7,11 +7,25 @@
 #define ELEVATION_MOTOR_PWM_SPEED 255 // Maximum PWM speed for the motor driver
 #define FORCE_TIME_FULL_TRAVEL 95     // If you observe that the actuator does not reach the end positions (real and predicted can differ), you can force the full travel time in seconds
 
+struct ElevationControllerConfig
+{
+  int motorEnPin;
+  int motorPwmUpPin;
+  int motorPwmDownPin;
+  float maxAzimuth;
+  float minAzimuth;
+  float maxElevation;
+  float minElevation;
+  unsigned long timeThreshold;
+  float actuatorSpeed;
+  float actuatorLength;
+};
+
 class ElevationController
 {
 public:
   // Constructor
-  ElevationController(int motorEnPin, int motorPwmUpPin, int motorPwmDownPin, float maxAzimuth, float minAzimuth, float maxElevation, float minElevation, unsigned long timeThreshold, float actuatorSpeed, float actuatorLength);
+  ElevationController(const ElevationControllerConfig &config);
 
   // Movement methods
   void calibrate();

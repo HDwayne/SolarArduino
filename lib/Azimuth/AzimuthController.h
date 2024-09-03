@@ -5,11 +5,23 @@
 #include <ezButton.h>
 #include <BTS7960.h>
 
+struct AzimuthControllerConfig
+{
+  int motorEnPin;
+  int motorPwmLeftPin;
+  int motorPwmRightPin;
+  int motorSpeed;
+  int limitSwitchPin;
+  float maxAzimuth;
+  float minAzimuth;
+  unsigned long timeThreshold;
+};
+
 class AzimuthController
 {
 public:
   // Constructor
-  AzimuthController(int motorEnPin, int motorPwmLeftPin, int motorPwmRightPin, int motorSpeed, int limitSwitchPin, float maxAzimuth, float minAzimuth, unsigned long timeThreshold);
+  AzimuthController(const AzimuthControllerConfig &config);
 
   // Calibration and movement methods
   void calibrate();
