@@ -63,4 +63,6 @@ private:
   bool waitForLimitSwitchOrDelay(unsigned long delayTime);
 };
 
+extern AzimuthController azimuthController;
+
 #endif // AZIMUTH_CONTROLLER_H

@@ -1,4 +1,19 @@
 #include "AzimuthController.h"
+#include "config.h"
+
+AzimuthControllerConfig azimuthConfig = {
+    AZIMUTH_MOTOR_PIN_EN,
+    AZIMUTH_MOTOR_PWM_PIN_L,
+    AZIMUTH_MOTOR_PWM_PIN_R,
+    AZIMUTH_MOTOR_PWM_SPEED,
+    AZIMUTH_LIMIT_SWITCH_PIN,
+    AZIMUTH_DEG_MAX,
+    AZIMUTH_DEG_MIN,
+    AZIMUTH_TIME_THRESHOLD};
+
+AzimuthController azimuthController(azimuthConfig);
+
+// ----------------- Azimuth Controller Constructor -----------------
 
 AzimuthController::AzimuthController(const AzimuthControllerConfig &config)
     : motorPinEn(config.motorEnPin),

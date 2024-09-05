@@ -1,4 +1,21 @@
 #include "ElevationController.h"
+#include "config.h"
+
+ElevationControllerConfig elevationConfig = {
+    ELEVATION_MOTOR_PIN_EN,
+    ELEVATION_MOTOR_PWM_PIN_U,
+    ELEVATION_MOTOR_PWM_PIN_D,
+    AZIMUTH_DEG_MAX,
+    AZIMUTH_DEG_MIN,
+    ELEVATION_DEG_MAX,
+    ELEVATION_DEG_MIN,
+    ELEVATION_TIME_THRESHOLD,
+    ELEVATION_ACTUATOR_SPEED,
+    ELEVATION_ACTUATOR_LENGTH};
+
+ElevationController elevationController(elevationConfig);
+
+// ----------------- Elevation Controller Constructor -----------------
 
 ElevationController::ElevationController(const ElevationControllerConfig &config)
     : motorPinEn(config.motorEnPin),

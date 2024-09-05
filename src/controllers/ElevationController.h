@@ -64,4 +64,6 @@ private:
   const unsigned long elevationTimeThreshold;
 };
 
+extern ElevationController elevationController;
+
 #endif // ELEVATION_CONTROLLER_H

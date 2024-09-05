@@ -1,4 +1,6 @@
 #include "main.h"
+#include "controllers/AzimuthController.h"
+#include "controllers/ElevationController.h"
 
 // Initialize structs
 struct STTime time;              // Struct for date and time variables
@@ -10,35 +12,6 @@ DateTime lastPanelAdjustmentTime;
 
 // RTC Module
 RTC_DS1307 rtc;
-
-// Azimuth and Elevation Configurations
-AzimuthControllerConfig azimuthConfig = {
-    AZIMUTH_MOTOR_PIN_EN,
-    AZIMUTH_MOTOR_PWM_PIN_L,
-    AZIMUTH_MOTOR_PWM_PIN_R,
-    AZIMUTH_MOTOR_PWM_SPEED,
-    AZIMUTH_LIMIT_SWITCH_PIN,
-    AZIMUTH_DEG_MAX,
-    AZIMUTH_DEG_MIN,
-    AZIMUTH_TIME_THRESHOLD};
-
-ElevationControllerConfig elevationConfig = {
-    ELEVATION_MOTOR_PIN_EN,
-    ELEVATION_MOTOR_PWM_PIN_U,
-    ELEVATION_MOTOR_PWM_PIN_D,
-    AZIMUTH_DEG_MAX,
-    AZIMUTH_DEG_MIN,
-    ELEVATION_DEG_MAX,
-    ELEVATION_DEG_MIN,
-    ELEVATION_TIME_THRESHOLD,
-    ELEVATION_ACTUATOR_SPEED,
-    ELEVATION_ACTUATOR_LENGTH};
-
-// Azimuth Controller
-AzimuthController azimuthController(azimuthConfig);
-
-// Elevation Controller
-ElevationController elevationController(elevationConfig);
 
 ezButton joyStickButton(SW_PIN);
 
