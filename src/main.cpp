@@ -1,6 +1,4 @@
 #include "main.h"
-#include "controllers/AzimuthController.h"
-#include "controllers/ElevationController.h"
 
 // Initialize structs
 struct STTime time;              // Struct for date and time variables
