@@ -19,8 +19,6 @@ void resetPanelPosition();
 void calibratePanel();
 void updatePanel();
 void joyStick();
-void updateSunPos();
-void printSunPos();
 void printDateTime(DateTime now);
 
 #endif // SOLAR_TRACKER_H

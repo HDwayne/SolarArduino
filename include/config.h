@@ -35,9 +35,10 @@ constexpr float AZIMUTH_DEG_MIN = 90.0;             // Minimum azimuth value (de
 constexpr unsigned long AZIMUTH_TIME_THRESHOLD = 0; // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
 
 // Elevation Settings
-constexpr int ELEVATION_MOTOR_PIN_EN = 8;     // Motor enable pin
-constexpr int ELEVATION_MOTOR_PWM_PIN_U = 10; // Motor PWM pin for actuator extension (up)
-constexpr int ELEVATION_MOTOR_PWM_PIN_D = 9;  // Motor PWM pin for actuator retraction (down)
+constexpr int ELEVATION_MOTOR_PIN_EN = 8;      // Motor enable pin
+constexpr int ELEVATION_MOTOR_PWM_PIN_U = 10;  // Motor PWM pin for actuator extension (up)
+constexpr int ELEVATION_MOTOR_PWM_PIN_D = 9;   // Motor PWM pin for actuator retraction (down)
+constexpr int ELEVATION_MOTOR_PWM_SPEED = 255; // Maximum PWM speed for the motor driver (DO NOT CHANGE else calculations will be wrong)
 
 constexpr float ELEVATION_DEG_MAX = 90.0;             // Maximum elevation value (degrees)
 constexpr float ELEVATION_DEG_MIN = 19.0;             // Minimum elevation value (degrees)
@@ -45,6 +46,9 @@ constexpr unsigned long ELEVATION_TIME_THRESHOLD = 0; // Threshold in millisecon
 
 constexpr float ELEVATION_ACTUATOR_SPEED = 5.0;    // Actuator speed in mm/s
 constexpr float ELEVATION_ACTUATOR_LENGTH = 350.0; // Actuator length in mm
+
+// uncomment the following line to force the full travel time in seconds
+#define FORCE_TIME_FULL_TRAVEL 95 // If you observe that the actuator does not reach the end positions (real and predicted can differ), you can force the full travel time in seconds
 
 // Joystick Settings
 constexpr int VRX_PIN = A0; // Arduino pin connected to VRX pin

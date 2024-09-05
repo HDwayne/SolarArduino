@@ -5,6 +5,7 @@ ElevationControllerConfig elevationConfig = {
     ELEVATION_MOTOR_PIN_EN,
     ELEVATION_MOTOR_PWM_PIN_U,
     ELEVATION_MOTOR_PWM_PIN_D,
+    ELEVATION_MOTOR_PWM_SPEED,
     AZIMUTH_DEG_MAX,
     AZIMUTH_DEG_MIN,
     ELEVATION_DEG_MAX,
@@ -21,6 +22,7 @@ ElevationController::ElevationController(const ElevationControllerConfig &config
     : motorPinEn(config.motorEnPin),
       motorPinPwmUp(config.motorPwmUpPin),
       motorPinPwmDown(config.motorPwmDownPin),
+      motorPwmSpeed(config.motorPwmSpeed),
       motorController(config.motorEnPin, config.motorPwmUpPin, config.motorPwmDownPin),
       currentElevation(0.0),
       actuatorSpeed(config.actuatorSpeed),
@@ -161,13 +163,13 @@ void ElevationController::moveToMinElevation()
 void ElevationController::startActuatorUp()
 {
   Serial.println(F("[ACTUATOR] Starting actuator. Direction: up."));
-  motorController.TurnLeft(ELEVATION_MOTOR_PWM_SPEED);
+  motorController.TurnLeft(motorPwmSpeed);
 }
 
 void ElevationController::startActuatorDown()
 {
   Serial.println(F("[ACTUATOR] Starting actuator. Direction: down."));
-  motorController.TurnRight(ELEVATION_MOTOR_PWM_SPEED);
+  motorController.TurnRight(motorPwmSpeed);
 }
 
 void ElevationController::stopActuator()

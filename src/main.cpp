@@ -170,13 +170,59 @@ void updatePanel()
 {
   Serial.println(F("\n\t--- Updating Solar Panel Position ---\n"));
   lastPanelAdjustmentTime = rtc.now();
-  updateSunPos();
+
+  time.year = lastPanelAdjustmentTime.year();
+  time.month = lastPanelAdjustmentTime.month();
+  time.day = lastPanelAdjustmentTime.day();
+  time.hour = lastPanelAdjustmentTime.hour() - TIMEZONE;
+  time.minute = lastPanelAdjustmentTime.minute();
+  time.second = lastPanelAdjustmentTime.second();
+
+  SolTrack(time, locationData, &solarPosition, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
+
+  Serial.println(F("\n\t--- Sun Position Data ---\n"));
+
+  Serial.print(F("Date: "));
+  Serial.print(time.year);
+  Serial.print(F("-"));
+  if (time.month < 10)
+    Serial.print(F("0")); // Zero padding for single digit months
+  Serial.print(time.month);
+  Serial.print(F("-"));
+  if (time.day < 10)
+    Serial.print(F("0")); // Zero padding for single digit days
+  Serial.println(time.day);
+
+  Serial.print(F("Time: "));
+  if (time.hour + TIMEZONE < 10)
+    Serial.print(F("0")); // Zero padding for single digit hours
+  Serial.print(time.hour + TIMEZONE);
+  Serial.print(F(":"));
+  if (time.minute < 10)
+    Serial.print(F("0")); // Zero padding for single digit minutes
+  Serial.print(time.minute);
+  Serial.print(F(":"));
+  if (time.second < 10)
+    Serial.print(F("0")); // Zero padding for single digit seconds
+  Serial.println(time.second);
+
+  Serial.println();
+
+  Serial.print(F("Corrected Azimuth: "));
+  Serial.print(solarPosition.azimuthRefract, 2);
+  Serial.print(F("°\tAltitude: "));
+  Serial.print(solarPosition.altitudeRefract, 2);
+  Serial.println(F("°"));
+
+  Serial.println(F("\n\t--- End of Sun Position Data ---\n"));
 
   elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
   azimuthController.moveToAngle(solarPosition.azimuthRefract);
 
   Serial.println(F("\n\t--- Solar Panel Position Updated ---\n"));
 }
+
+// ----------------- Joystick control functions ---------------------
 
 void joyStick()
 {
@@ -290,59 +336,4 @@ void joyStick()
   elevationController.disableMotor();
 
   Serial.println(F("Exiting Joystick Mode"));
-}
-
-// ----------------- Sun position functions ---------------------
-
-void updateSunPos()
-{
-  time.year = lastPanelAdjustmentTime.year();
-  time.month = lastPanelAdjustmentTime.month();
-  time.day = lastPanelAdjustmentTime.day();
-  time.hour = lastPanelAdjustmentTime.hour() - TIMEZONE;
-  time.minute = lastPanelAdjustmentTime.minute();
-  time.second = lastPanelAdjustmentTime.second();
-
-  SolTrack(time, locationData, &solarPosition, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
-
-  printSunPos();
-}
-
-void printSunPos()
-{
-  Serial.println(F("\n\t--- Sun Position Data ---\n"));
-
-  Serial.print(F("Date: "));
-  Serial.print(time.year);
-  Serial.print(F("-"));
-  if (time.month < 10)
-    Serial.print(F("0")); // Zero padding for single digit months
-  Serial.print(time.month);
-  Serial.print(F("-"));
-  if (time.day < 10)
-    Serial.print(F("0")); // Zero padding for single digit days
-  Serial.println(time.day);
-
-  Serial.print(F("Time: "));
-  if (time.hour + TIMEZONE < 10)
-    Serial.print(F("0")); // Zero padding for single digit hours
-  Serial.print(time.hour + TIMEZONE);
-  Serial.print(F(":"));
-  if (time.minute < 10)
-    Serial.print(F("0")); // Zero padding for single digit minutes
-  Serial.print(time.minute);
-  Serial.print(F(":"));
-  if (time.second < 10)
-    Serial.print(F("0")); // Zero padding for single digit seconds
-  Serial.println(time.second);
-
-  Serial.println();
-
-  Serial.print(F("Corrected Azimuth: "));
-  Serial.print(solarPosition.azimuthRefract, 2);
-  Serial.print(F("°\tAltitude: "));
-  Serial.print(solarPosition.altitudeRefract, 2);
-  Serial.println(F("°"));
-
-  Serial.println(F("\n\t--- End of Sun Position Data ---\n"));
 }

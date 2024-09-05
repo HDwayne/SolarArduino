@@ -4,14 +4,12 @@
 #include <Arduino.h>
 #include <BTS7960.h>
 
-#define ELEVATION_MOTOR_PWM_SPEED 255 // Maximum PWM speed for the motor driver
-#define FORCE_TIME_FULL_TRAVEL 95     // If you observe that the actuator does not reach the end positions (real and predicted can differ), you can force the full travel time in seconds
-
 struct ElevationControllerConfig
 {
   int motorEnPin;
   int motorPwmUpPin;
   int motorPwmDownPin;
+  int motorPwmSpeed;
   float maxAzimuth;
   float minAzimuth;
   float maxElevation;
@@ -43,6 +41,7 @@ private:
   int motorPinEn;      // Motor enable pin
   int motorPinPwmUp;   // Motor PWM pin for actuator extension (up)
   int motorPinPwmDown; // Motor PWM pin for actuator retraction (down)
+  int motorPwmSpeed;   // Motor PWM speed
 
   // Motor Controller
   BTS7960 motorController;
