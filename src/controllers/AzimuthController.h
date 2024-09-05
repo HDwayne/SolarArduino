@@ -7,14 +7,14 @@
 
 struct AzimuthControllerConfig
 {
-  int motorEnPin;
-  int motorPwmLeftPin;
-  int motorPwmRightPin;
-  int motorSpeed;
-  int limitSwitchPin;
+  uint8_t motorEnPin;
+  uint8_t motorPwmLeftPin;
+  uint8_t motorPwmRightPin;
+  uint8_t motorSpeed;
+  uint8_t limitSwitchPin;
   float maxAzimuth;
   float minAzimuth;
-  unsigned long timeThreshold;
+  uint32_t timeThreshold;
 };
 
 class AzimuthController
@@ -36,31 +36,29 @@ public:
 
 private:
   // Pin Definitions
-  int motorPinEn;     // Motor enable pin
-  int motorPinPwmL;   // Motor PWM pin (left)
-  int motorPinPwmR;   // Motor PWM pin (right)
-  int limitSwitchPin; // Limit switch pin
-
-  // Motor Settings
-  int motorPwmSpeed; // Motor PWM speed
+  uint8_t motorPinEn;     // Motor enable pin
+  uint8_t motorPinPwmL;   // Motor PWM pin (left)
+  uint8_t motorPinPwmR;   // Motor PWM pin (right)
+  uint8_t motorPwmSpeed;  // Motor PWM speed
+  uint8_t limitSwitchPin; // Limit switch pin
 
   // Motor Controller and Limit Switch
   BTS7960 motorController;
   ezButton limitSwitch;
 
   // Variables
-  unsigned long fullRotationDuration; // Duration of a full rotation in milliseconds
-  float currentAzimuth;               // Current azimuth position of the solar panel
-  float degreesPerMs;                 // Degrees the motor turns per millisecond
+  uint32_t fullRotationDuration; // Duration of a full rotation in milliseconds
+  float currentAzimuth;          // Current azimuth position of the solar panel
+  float degreesPerMs;            // Degrees the motor turns per millisecond
 
   // Constants
   const float azimuthDegMax;
   const float azimuthDegMin;
-  const unsigned long azimuthTimeThreshold;
+  const uint32_t azimuthTimeThreshold;
 
   // Utility methods
   void waitForLimitSwitch();
-  bool waitForLimitSwitchOrDelay(unsigned long delayTime);
+  bool waitForLimitSwitchOrDelay(uint32_t delayTime);
 };
 
 extern AzimuthController azimuthController;

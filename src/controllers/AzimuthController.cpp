@@ -19,8 +19,8 @@ AzimuthController::AzimuthController(const AzimuthControllerConfig &config)
     : motorPinEn(config.motorEnPin),
       motorPinPwmL(config.motorPwmLeftPin),
       motorPinPwmR(config.motorPwmRightPin),
-      limitSwitchPin(config.limitSwitchPin),
       motorPwmSpeed(config.motorSpeed),
+      limitSwitchPin(config.limitSwitchPin),
       motorController(config.motorEnPin, config.motorPwmLeftPin, config.motorPwmRightPin),
       limitSwitch(config.limitSwitchPin),
       fullRotationDuration(0),
@@ -195,9 +195,9 @@ void AzimuthController::waitForLimitSwitch()
 }
 
 // function blocks until the Limit Switch is reached or the delay time has passed. Returns true if the Limit Switch was pressed.
-bool AzimuthController::waitForLimitSwitchOrDelay(unsigned long delayTime)
+bool AzimuthController::waitForLimitSwitchOrDelay(uint32_t delayTime)
 {
-  unsigned long startTime = millis();
+  uint32_t startTime = millis();
   while (millis() - startTime < delayTime)
   {
     limitSwitch.loop();
