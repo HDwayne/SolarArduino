@@ -8,8 +8,8 @@
 #include <SPI.h>
 #include "stdlib.h"
 #include "SolTrack.h"
-#include "AzimuthController.h"
-#include "ElevationController.h"
+#include "controllers/AzimuthController.h"
+#include "controllers/ElevationController.h"
 #include "ezButton.h"
 
 // Constants
