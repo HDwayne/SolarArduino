@@ -1,19 +1,39 @@
 #include "ElevationController.h"
+#include "config.h"
 
-// Constructor
-ElevationController::ElevationController(int motorEnPin, int motorPwmUpPin, int motorPwmDownPin, float maxAzimuth, float minAzimuth, float maxElevation, float minElevation, unsigned long timeThreshold, float actuatorSpeed, float actuatorLength)
-    : motorPinEn(motorEnPin),
-      motorPinPwmUp(motorPwmUpPin),
-      motorPinPwmDown(motorPwmDownPin),
-      motorController(motorEnPin, motorPwmUpPin, motorPwmDownPin),
-      currentElevation(0),
-      actuatorSpeed(actuatorSpeed),
-      actuatorLength(actuatorLength),
-      azimuthDegMax(maxAzimuth),
-      azimuthDegMin(minAzimuth),
-      elevationDegMax(maxElevation),
-      elevationDegMin(minElevation),
-      elevationTimeThreshold(timeThreshold)
+ElevationControllerConfig elevationConfig = {
+    ELEVATION_MOTOR_PIN_EN,
+    ELEVATION_MOTOR_PWM_PIN_U,
+    ELEVATION_MOTOR_PWM_PIN_D,
+    ELEVATION_MOTOR_PWM_SPEED,
+    AZIMUTH_DEG_MAX,
+    AZIMUTH_DEG_MIN,
+    ELEVATION_DEG_MAX,
+    ELEVATION_DEG_MIN,
+    ELEVATION_TIME_THRESHOLD,
+    ELEVATION_ACTUATOR_SPEED,
+    ELEVATION_ACTUATOR_LENGTH};
+
+ElevationController elevationController(elevationConfig);
+
+// ----------------- Elevation Controller Constructor -----------------
+
+ElevationController::ElevationController(const ElevationControllerConfig &config)
+    : motorPinEn(config.motorEnPin),
+      motorPinPwmUp(config.motorPwmUpPin),
+      motorPinPwmDown(config.motorPwmDownPin),
+      motorPwmSpeed(config.motorPwmSpeed),
+      motorController(config.motorEnPin, config.motorPwmUpPin, config.motorPwmDownPin),
+      currentElevation(0.0),
+      actuatorSpeed(config.actuatorSpeed),
+      actuatorLength(config.actuatorLength),
+      actuatorFullTravelTime(0),
+      degreesPerMs(0.0),
+      azimuthDegMax(config.maxAzimuth),
+      azimuthDegMin(config.minAzimuth),
+      elevationDegMax(config.maxElevation),
+      elevationDegMin(config.minElevation),
+      elevationTimeThreshold(config.timeThreshold)
 {
 }
 
@@ -24,7 +44,7 @@ void ElevationController::calibrate()
   Serial.println(F("\n\t--- Starting Elevation Calibration Procedure ---\n"));
 
 #ifdef FORCE_TIME_FULL_TRAVEL
-  actuatorFullTravelTime = FORCE_TIME_FULL_TRAVEL * 1000;
+  actuatorFullTravelTime = FORCE_TIME_FULL_TRAVEL * 1000.0;
 #else
   actuatorFullTravelTime = (actuatorLength / actuatorSpeed) * 1000.0;
 #endif
@@ -143,13 +163,13 @@ void ElevationController::moveToMinElevation()
 void ElevationController::startActuatorUp()
 {
   Serial.println(F("[ACTUATOR] Starting actuator. Direction: up."));
-  motorController.TurnLeft(ELEVATION_MOTOR_PWM_SPEED);
+  motorController.TurnLeft(motorPwmSpeed);
 }
 
 void ElevationController::startActuatorDown()
 {
   Serial.println(F("[ACTUATOR] Starting actuator. Direction: down."));
-  motorController.TurnRight(ELEVATION_MOTOR_PWM_SPEED);
+  motorController.TurnRight(motorPwmSpeed);
 }
 
 void ElevationController::stopActuator()

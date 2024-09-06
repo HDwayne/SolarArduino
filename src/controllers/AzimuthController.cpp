@@ -1,14 +1,34 @@
 #include "AzimuthController.h"
+#include "config.h"
 
-// Constructor
-AzimuthController::AzimuthController(int motorEnPin, int motorPwmLeftPin, int motorPwmRightPin, int motorSpeed, int limitSwitchPin, float maxAzimuth, float minAzimuth, unsigned long timeThreshold)
-    : motorPinEn(motorEnPin), motorPinPwmL(motorPwmLeftPin), motorPinPwmR(motorPwmRightPin),
-      limitSwitchPin(limitSwitchPin), motorPwmSpeed(motorSpeed),
-      motorController(motorEnPin, motorPwmLeftPin, motorPwmRightPin),
-      limitSwitch(limitSwitchPin),
-      fullRotationDuration(0), currentAzimuth(0.0), degreesPerMs(0.0),
-      azimuthDegMax(maxAzimuth), azimuthDegMin(minAzimuth),
-      azimuthTimeThreshold(timeThreshold)
+AzimuthControllerConfig azimuthConfig = {
+    AZIMUTH_MOTOR_PIN_EN,
+    AZIMUTH_MOTOR_PWM_PIN_L,
+    AZIMUTH_MOTOR_PWM_PIN_R,
+    AZIMUTH_MOTOR_PWM_SPEED,
+    AZIMUTH_LIMIT_SWITCH_PIN,
+    AZIMUTH_DEG_MAX,
+    AZIMUTH_DEG_MIN,
+    AZIMUTH_TIME_THRESHOLD};
+
+AzimuthController azimuthController(azimuthConfig);
+
+// ----------------- Azimuth Controller Constructor -----------------
+
+AzimuthController::AzimuthController(const AzimuthControllerConfig &config)
+    : motorPinEn(config.motorEnPin),
+      motorPinPwmL(config.motorPwmLeftPin),
+      motorPinPwmR(config.motorPwmRightPin),
+      motorPwmSpeed(config.motorSpeed),
+      limitSwitchPin(config.limitSwitchPin),
+      motorController(config.motorEnPin, config.motorPwmLeftPin, config.motorPwmRightPin),
+      limitSwitch(config.limitSwitchPin),
+      fullRotationDuration(0),
+      currentAzimuth(0.0),
+      degreesPerMs(0.0),
+      azimuthDegMax(config.maxAzimuth),
+      azimuthDegMin(config.minAzimuth),
+      azimuthTimeThreshold(config.timeThreshold)
 {
   limitSwitch.setDebounceTime(100);
 }
@@ -175,9 +195,9 @@ void AzimuthController::waitForLimitSwitch()
 }
 
 // function blocks until the Limit Switch is reached or the delay time has passed. Returns true if the Limit Switch was pressed.
-bool AzimuthController::waitForLimitSwitchOrDelay(unsigned long delayTime)
+bool AzimuthController::waitForLimitSwitchOrDelay(uint32_t delayTime)
 {
-  unsigned long startTime = millis();
+  uint32_t startTime = millis();
   while (millis() - startTime < delayTime)
   {
     limitSwitch.loop();
