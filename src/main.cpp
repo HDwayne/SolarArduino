@@ -1,9 +1,9 @@
 #include "main.h"
 
 // Initialize structs
-struct STTime time;              // Struct for date and time variables
-struct STLocation locationData;  // Struct for geographic locationDataation variables
-struct STPosition solarPosition; // Struct for solar position variables
+struct STTime time;                                                                        // Struct for date and time variables
+struct STLocation locationData = {ST_LATITUDE, ST_LONGITUDE, ST_PRESSURE, ST_TEMPERATURE}; // Struct for geographic locationDataation variables
+struct STPosition solarPosition;                                                           // Struct for solar position variables
 
 // Initialize time variable
 DateTime lastPanelAdjustmentTime;
@@ -12,7 +12,7 @@ DateTime lastPanelAdjustmentTime;
 RTC_DS1307 rtc;
 
 unsigned long lastPanelAdjustmentMillis = 0;
-unsigned long panelAdjustmentIntervalMillis = 60000; // check every minute
+const unsigned long panelAdjustmentIntervalMillis = 60000; // check every minute
 
 // ----------------- Setup and Loop -----------------
 
@@ -29,35 +29,10 @@ void setup()
   Serial.println(F("\n\t--- System Initialization ---\n"));
 
   // Initialize the RTC module
-  if (!rtc.begin())
-  {
-    Serial.println(F("[ERROR] RTC initialization failed!"));
-    while (1)
-      ; // Halt if RTC initialization fails
-  }
-
-  if (!rtc.isrunning())
-  {
-    Serial.println(F("[ERROR] RTC is not running."));
-    // Set the RTC time to the compile time
-    // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-    while (1)
-      ; // Halt if RTC is not running
-  }
-  else
-  {
-    Serial.print(F("[INFO] RTC is running with the following time: "));
-    printDateTime(rtc.now());
-  }
-
-  // Set initial location data for solar calculations
-  locationData.latitude = ST_LATITUDE;
-  locationData.longitude = ST_LONGITUDE;
-  locationData.pressure = ST_PRESSURE;
-  locationData.temperature = ST_TEMPERATURE;
+  initRTC();
 
   // initialize joystick
-  initializeJoystick();
+  initJoystick();
 
   // Calibrate the solar panel
   calibratePanel();
@@ -80,9 +55,7 @@ void loop()
     updatePanel();
 
     while (joystickController.isPressed())
-    {
-      // avoid bouncing
-    }
+      ; // avoid multiple calls
   }
 
   if (currentMillis - lastPanelAdjustmentMillis >= panelAdjustmentIntervalMillis)
@@ -90,14 +63,8 @@ void loop()
     lastPanelAdjustmentMillis = currentMillis;
 
     DateTime now = rtc.now();
-    int nowTotalMinutes = now.hour() * 60 + now.minute();
-    int lastAdjustmentTotalMinutes = lastPanelAdjustmentTime.hour() * 60 + lastPanelAdjustmentTime.minute();
-    int minutesDiff = nowTotalMinutes - lastAdjustmentTotalMinutes;
-
-    if (minutesDiff < 0)
-    {
-      minutesDiff += 1440; // 24 hours in minutes
-    }
+    uint32_t secc = now.unixtime() - lastPanelAdjustmentTime.unixtime();
+    uint16_t minutesDiff = secc / 60;
 
     if (minutesDiff >= UPDATE_PANEL_ADJUSTMENT_INTERVAL)
     {
@@ -113,33 +80,25 @@ void loop()
 
 // ----------------- RTC functions -----------------------------
 
-void printDateTime(DateTime now)
+void initRTC()
 {
-  // Print date in YYYY-MM-DD format
-  Serial.print(now.year(), DEC);
-  Serial.print('-');
-  if (now.month() < 10)
-    Serial.print('0');
-  Serial.print(now.month(), DEC);
-  Serial.print('-');
-  if (now.day() < 10)
-    Serial.print('0');
-  Serial.print(now.day(), DEC);
+  if (!rtc.begin())
+  {
+    Serial.println(F("[ERROR] RTC initialization failed!"));
+    while (1)
+      ; // Halt if RTC initialization fails
+  }
 
-  Serial.print(' ');
+  if (!rtc.isrunning())
+  {
+    Serial.println(F("[ERROR] RTC is not running."));
+    // Set the RTC time to the compile time
+    // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    while (1)
+      ; // Halt if RTC is not running
+  }
 
-  // Print time in HH:MM:SS format
-  if (now.hour() < 10)
-    Serial.print('0');
-  Serial.print(now.hour(), DEC);
-  Serial.print(':');
-  if (now.minute() < 10)
-    Serial.print('0');
-  Serial.print(now.minute(), DEC);
-  Serial.print(':');
-  if (now.second() < 10)
-    Serial.print('0');
-  Serial.println(now.second(), DEC);
+  Serial.print(F("[INFO] RTC is running"));
 }
 
 // ----------------- Panel control functions ---------------------
@@ -178,8 +137,6 @@ void updatePanel()
 
   SolTrack(time, locationData, &solarPosition, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
 
-  Serial.println(F("\n\t--- Sun Position Data ---\n"));
-
   Serial.print(F("Date: "));
   Serial.print(time.year);
   Serial.print(F("-"));
@@ -212,8 +169,6 @@ void updatePanel()
   Serial.print(solarPosition.altitudeRefract, 2);
   Serial.println(F("°"));
 
-  Serial.println(F("\n\t--- End of Sun Position Data ---\n"));
-
   elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
   azimuthController.moveToAngle(solarPosition.azimuthRefract);
 
@@ -222,7 +177,7 @@ void updatePanel()
 
 // ----------------- Joystick control functions ---------------------
 
-void initializeJoystick()
+void initJoystick()
 {
   joystickController.setOnDown([]()
                                { azimuthController.startMotorRight(); });

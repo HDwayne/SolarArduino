@@ -16,11 +16,11 @@
 #include "controllers/JoystickController.h"
 
 // Function Prototypes
+void initRTC();
 void resetPanelPosition();
 void calibratePanel();
 void updatePanel();
+void initJoystick();
 void JoystickMode();
-void initializeJoystick();
-void printDateTime(DateTime now);
 
 #endif // SOLAR_TRACKER_H
