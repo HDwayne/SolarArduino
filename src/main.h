@@ -13,12 +13,14 @@
 #include "config.h"
 #include "controllers/AzimuthController.h"
 #include "controllers/ElevationController.h"
+#include "controllers/JoystickController.h"
 
 // Function Prototypes
 void resetPanelPosition();
 void calibratePanel();
 void updatePanel();
-void joyStick();
+void JoystickMode();
+void initializeJoystick();
 void printDateTime(DateTime now);
 
 #endif // SOLAR_TRACKER_H

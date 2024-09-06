@@ -11,8 +11,6 @@ DateTime lastPanelAdjustmentTime;
 // RTC Module
 RTC_DS1307 rtc;
 
-ezButton joyStickButton(SW_PIN);
-
 unsigned long lastPanelAdjustmentMillis = 0;
 unsigned long panelAdjustmentIntervalMillis = 60000; // check every minute
 
@@ -29,8 +27,6 @@ void setup()
 
   // Initialize the system components
   Serial.println(F("\n\t--- System Initialization ---\n"));
-
-  joyStickButton.setDebounceTime(500);
 
   // Initialize the RTC module
   if (!rtc.begin())
@@ -60,6 +56,9 @@ void setup()
   locationData.pressure = ST_PRESSURE;
   locationData.temperature = ST_TEMPERATURE;
 
+  // initialize joystick
+  initializeJoystick();
+
   // Calibrate the solar panel
   calibratePanel();
 
@@ -72,18 +71,17 @@ void setup()
 void loop()
 {
   unsigned long currentMillis = millis();
-  joyStickButton.loop();
 
-  if (joyStickButton.isPressed())
+  if (joystickController.isPressed())
   {
-    joyStick();
+    JoystickMode();
 
     resetPanelPosition();
     updatePanel();
 
-    while (joyStickButton.isPressed())
+    while (joystickController.isPressed())
     {
-      joyStickButton.loop();
+      // avoid bouncing
     }
   }
 
@@ -224,109 +222,39 @@ void updatePanel()
 
 // ----------------- Joystick control functions ---------------------
 
-void joyStick()
+void initializeJoystick()
+{
+  joystickController.setOnDown([]()
+                               { azimuthController.startMotorRight(); });
+
+  joystickController.setOnUp([]()
+                             { azimuthController.startMotorLeft(); });
+
+  joystickController.setOnLeaveLR([]()
+                                  { elevationController.stopActuator(); });
+
+  joystickController.setOnLeaveUD([]()
+                                  { azimuthController.stopMotor(); });
+
+  joystickController.setOnLeft([]()
+                               { elevationController.startActuatorDown(); });
+
+  joystickController.setOnRight([]()
+                                { elevationController.startActuatorUp(); });
+}
+
+void JoystickMode()
 {
   Serial.println(F("\nEntering Joystick Mode"));
 
-  joyStickButton.loop();
-
-  // Enable motors
   azimuthController.enableMotor();
   elevationController.enableMotor();
 
-  // Variables to store previous command states
-  uint8_t prevCommand = COMMAND_NO;
+  joystickController.clearCommand();
 
-  while (!joyStickButton.isPressed())
+  while (!joystickController.isPressed())
   {
-    joyStickButton.loop();
-
-    // Read joystick values
-    int xValue = analogRead(VRX_PIN);
-    int yValue = analogRead(VRY_PIN);
-
-    // Reset command
-    uint8_t command = COMMAND_NO;
-
-    // Determine left/right commands
-    if (xValue < LEFT_THRESHOLD)
-    {
-      command |= COMMAND_LEFT;
-    }
-    else if (xValue > RIGHT_THRESHOLD)
-    {
-      command |= COMMAND_RIGHT;
-    }
-
-    // Determine up/down commands
-    if (yValue < UP_THRESHOLD)
-    {
-      command |= COMMAND_UP;
-    }
-    else if (yValue > DOWN_THRESHOLD)
-    {
-      command |= COMMAND_DOWN;
-    }
-
-    // Process command only if there is a change
-    if (command != prevCommand)
-    {
-      // Stop motors before changing direction to avoid conflicts
-      if ((prevCommand & (COMMAND_LEFT | COMMAND_RIGHT)) != (command & (COMMAND_LEFT | COMMAND_RIGHT)))
-      {
-        elevationController.stopActuator();
-      }
-      if ((prevCommand & (COMMAND_UP | COMMAND_DOWN)) != (command & (COMMAND_UP | COMMAND_DOWN)))
-      {
-        azimuthController.stopMotor();
-      }
-
-      // Start motors based on new command
-      if (command & COMMAND_LEFT)
-      {
-        elevationController.startActuatorDown();
-      }
-      else if (command & COMMAND_RIGHT)
-      {
-        elevationController.startActuatorUp();
-      }
-
-      if (command & COMMAND_UP)
-      {
-        azimuthController.startMotorLeft();
-      }
-      else if (command & COMMAND_DOWN)
-      {
-        azimuthController.startMotorRight();
-      }
-
-      // Update previous command
-      prevCommand = command;
-
-      // Print new command to serial if any
-      String output = "";
-      if (command & COMMAND_LEFT)
-      {
-        output += "COMMAND DOWN ";
-      }
-      if (command & COMMAND_RIGHT)
-      {
-        output += "COMMAND UP ";
-      }
-      if (command & COMMAND_UP)
-      {
-        output += "COMMAND LEFT ";
-      }
-      if (command & COMMAND_DOWN)
-      {
-        output += "COMMAND RIGHT ";
-      }
-
-      if (output != "")
-      {
-        Serial.println(output);
-      }
-    }
+    joystickController.executeCommand();
   }
 
   azimuthController.stopMotor();
