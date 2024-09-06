@@ -1,9 +1,9 @@
 #include "main.h"
 
 // Initialize structs
-struct STTime time;                                                                        // Struct for date and time variables
-struct STLocation locationData = {ST_LATITUDE, ST_LONGITUDE, ST_PRESSURE, ST_TEMPERATURE}; // Struct for geographic locationDataation variables
-struct STPosition solarPosition;                                                           // Struct for solar position variables
+struct STTime time;              // Struct for date and time variables
+struct STLocation locationData;  // Struct for geographic locationDataation variables
+struct STPosition solarPosition; // Struct for solar position variables
 
 // Initialize time variable
 DateTime lastPanelAdjustmentTime;
@@ -33,6 +33,12 @@ void setup()
 
   // initialize joystick
   initJoystick();
+
+  // Set initial location data for solar calculations
+  locationData.latitude = ST_LATITUDE;
+  locationData.longitude = ST_LONGITUDE;
+  locationData.pressure = ST_PRESSURE;
+  locationData.temperature = ST_TEMPERATURE;
 
   // Calibrate the solar panel
   calibratePanel();
