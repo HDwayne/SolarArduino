@@ -51,9 +51,10 @@ constexpr float ELEVATION_ACTUATOR_LENGTH = 350.0; // Actuator length in mm
 #define FORCE_TIME_FULL_TRAVEL 95 // If you observe that the actuator does not reach the end positions (real and predicted can differ), you can force the full travel time in seconds
 
 // Joystick Settings
-constexpr uint8_t JOYSTICK_VRX_PIN = A0;   // Arduino pin connected to VRX pin
-constexpr uint8_t JOYSTICK_VRY_PIN = A1;   // Arduino pin connected to VRY pin
-constexpr uint8_t JOYSTICK_BUTTON_PIN = 2; // Arduino pin connected to SW pin
+constexpr uint8_t JOYSTICK_VRX_PIN = A0;            // Arduino pin connected to VRX pin
+constexpr uint8_t JOYSTICK_VRY_PIN = A1;            // Arduino pin connected to VRY pin
+constexpr uint8_t JOYSTICK_BUTTON_PIN = 2;          // Arduino pin connected to SW pin
+constexpr uint32_t JOYSTICK_BUTTON_DEBOUNCE = 5000; // Debounce time in microseconds
 
 constexpr int16_t JOYSTICK_LEFT_THRESHOLD = 400;
 constexpr int16_t JOYSTICK_RIGHT_THRESHOLD = 800;
