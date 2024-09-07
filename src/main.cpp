@@ -1,7 +1,7 @@
 #include "main.h"
 
 // Initialize structs
-struct STTime time;              // Struct for date and time variables
+struct STTime currentTime;       // Struct for date and time variables
 struct STLocation locationData;  // Struct for geographic locationDataation variables
 struct STPosition solarPosition; // Struct for solar position variables
 
@@ -134,38 +134,38 @@ void updatePanel()
   Serial.println(F("\n\t--- Updating Solar Panel Position ---\n"));
   lastPanelAdjustmentTime = rtc.now();
 
-  time.year = lastPanelAdjustmentTime.year();
-  time.month = lastPanelAdjustmentTime.month();
-  time.day = lastPanelAdjustmentTime.day();
-  time.hour = lastPanelAdjustmentTime.hour() - TIMEZONE;
-  time.minute = lastPanelAdjustmentTime.minute();
-  time.second = lastPanelAdjustmentTime.second();
+  currentTime.year = lastPanelAdjustmentTime.year();
+  currentTime.month = lastPanelAdjustmentTime.month();
+  currentTime.day = lastPanelAdjustmentTime.day();
+  currentTime.hour = lastPanelAdjustmentTime.hour() - TIMEZONE;
+  currentTime.minute = lastPanelAdjustmentTime.minute();
+  currentTime.second = lastPanelAdjustmentTime.second();
 
-  SolTrack(time, locationData, &solarPosition, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
+  SolTrack(currentTime, locationData, &solarPosition, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
 
   Serial.print(F("Date: "));
-  Serial.print(time.year);
+  Serial.print(currentTime.year);
   Serial.print(F("-"));
-  if (time.month < 10)
+  if (currentTime.month < 10)
     Serial.print(F("0")); // Zero padding for single digit months
-  Serial.print(time.month);
+  Serial.print(currentTime.month);
   Serial.print(F("-"));
-  if (time.day < 10)
+  if (currentTime.day < 10)
     Serial.print(F("0")); // Zero padding for single digit days
-  Serial.println(time.day);
+  Serial.println(currentTime.day);
 
   Serial.print(F("Time: "));
-  if (time.hour + TIMEZONE < 10)
+  if (currentTime.hour + TIMEZONE < 10)
     Serial.print(F("0")); // Zero padding for single digit hours
-  Serial.print(time.hour + TIMEZONE);
+  Serial.print(currentTime.hour + TIMEZONE);
   Serial.print(F(":"));
-  if (time.minute < 10)
+  if (currentTime.minute < 10)
     Serial.print(F("0")); // Zero padding for single digit minutes
-  Serial.print(time.minute);
+  Serial.print(currentTime.minute);
   Serial.print(F(":"));
-  if (time.second < 10)
+  if (currentTime.second < 10)
     Serial.print(F("0")); // Zero padding for single digit seconds
-  Serial.println(time.second);
+  Serial.println(currentTime.second);
 
   Serial.println();
 
