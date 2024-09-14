@@ -31,6 +31,10 @@ void setup()
   // Initialize Modules
 #if defined(MODULE_WIFI_H)
   wifiModule.init();
+
+#if defined(MODULE_MQTT_H)
+  mqttModule.init();
+#endif // MODULE_MQTT_H
 #endif // MODULE_WIFI_H
 
   // Initialize the RTC module
