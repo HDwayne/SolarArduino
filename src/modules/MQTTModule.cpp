@@ -2,6 +2,7 @@
 
 #include "MQTTModule.h"
 #include "config.h"
+#include "SolTrack.h"
 
 MQTTModuleConfig mqtttModuleConfig = {
     .mqtt_server = MQTT_SERVER,
@@ -67,16 +68,41 @@ void MQTTModule::loop()
   client.loop();
 }
 
-void MQTTModule::updateField(MQTTFields field, const char *value)
+void MQTTModule::updateField(MQTTFields field, void *value)
 {
   if (field == NUM_MQTT_FIELDS)
     return;
 
   char topic[128];
 
-  sprintf(topic, "%s/%s/%s/state", String(device_name).c_str(), String(devUniqueID).c_str(), MQTTFieldsNames[field]);
+  sprintf(topic, "homeassistant/sensor/%s/%s/state", String(devUniqueID).c_str(), MQTTFieldsNames[field]);
 
-  client.publish(topic, value);
+  switch (field)
+  {
+  case SOLAR_POSITION:
+  {
+    STPosition *val = (STPosition *)value;
+    JsonDocument doc;
+
+    doc["azimuth"] = val->azimuthRefract;
+    doc["altitude"] = val->altitudeRefract;
+
+    char buffer[512];
+    serializeJson(doc, buffer);
+
+    Serial.print("[MQTT] Update message: ");
+    Serial.println(buffer);
+
+    client.publish(topic, buffer, true);
+    break;
+  }
+  case LAST_PANEL_ADJUSTMENT_TIME:
+  case NEXT_PANEL_ADJUSTMENT_TIME:
+  case PANEL_STATUS:
+  case PANEL_POSITION:
+  default:
+    break;
+  }
 }
 
 // ----------------- private methods -----------------
@@ -102,7 +128,7 @@ void MQTTModule::publishMQTTDiscovery()
     JsonDocument doc;
 
     doc["name"] = MQTTFieldsNames[i];
-    doc["state_topic"] = String(device_name) + "/" + String(devUniqueID) + "/" + MQTTFieldsTopics[i] + "/state";
+    doc["state_topic"] = "homeassistant/sensor/" + String(devUniqueID) + "/" + MQTTFieldsNames[i] + "/state";
     doc["unique_id"] = String(devUniqueID) + "_" + MQTTFieldsTopics[i];
     doc["device_class"] = MQTTFieldsClasses[i];
     doc["icon"] = MQTTFieldsIcons[i];

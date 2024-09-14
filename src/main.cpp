@@ -31,11 +31,11 @@ void setup()
   // Initialize Modules
 #if defined(MODULE_WIFI_H)
   wifiModule.init();
+#endif // MODULE_WIFI_H
 
 #if defined(MODULE_MQTT_H)
   mqttModule.init();
 #endif // MODULE_MQTT_H
-#endif // MODULE_WIFI_H
 
   // Initialize the RTC module
   initRTC();
@@ -61,6 +61,9 @@ void setup()
 void loop()
 {
   unsigned long currentMillis = millis();
+#if defined(MODULE_MQTT_H)
+  mqttModule.loop();
+#endif // MODULE_MQTT_H
 
   if (joystickController.isPressed())
   {
