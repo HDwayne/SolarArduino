@@ -28,6 +28,11 @@ void setup()
   // Initialize the system components
   Serial.println(F("\n\t--- System Initialization ---\n"));
 
+  // Initialize Modules
+#if defined(MODULE_WIFI_H)
+  wifiModule.init();
+#endif // MODULE_WIFI_H
+
   // Initialize the RTC module
   initRTC();
 
