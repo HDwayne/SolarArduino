@@ -15,6 +15,10 @@
 #include "controllers/ElevationController.h"
 #include "controllers/JoystickController.h"
 
+#if defined(ESP32)
+#include "modules/WifiModule.h"
+#endif
+
 // Function Prototypes
 void initRTC();
 void resetPanelPosition();
