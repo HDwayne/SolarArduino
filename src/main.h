@@ -17,6 +17,7 @@
 
 #if defined(ESP32)
 #include "modules/WifiModule.h"
+#include "modules/MQTTModule.h"
 #endif
 
 // Function Prototypes

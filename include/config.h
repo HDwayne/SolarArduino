@@ -82,4 +82,11 @@ constexpr int16_t JOYSTICK_RIGHT_THRESHOLD = 800;
 constexpr int16_t JOYSTICK_UP_THRESHOLD = 400;
 constexpr int16_t JOYSTICK_DOWN_THRESHOLD = 800;
 
+// MQTT Settings
+constexpr char MQTT_SERVER[] = "replace_with_your_mqtt_server";
+constexpr uint16_t MQTT_PORT = 1883;           // MQTT server port
+constexpr char MQTT_USER[] = "";               // MQTT username
+constexpr char MQTT_PASSWORD[] = "";           // MQTT password
+constexpr char DEVICE_NAME[] = "SolarTracker"; // Device name
+
 #endif // CONFIG_H
