@@ -33,7 +33,7 @@ class MQTTModule
 public:
   MQTTModule(const MQTTModuleConfig &config);
   void init();
-  void updateField(MQTTFields field, const char *value);
+  void updateField(MQTTFields field, void *value);
   void loop();
 
 private:
