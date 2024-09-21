@@ -3,6 +3,7 @@
 #include "MQTTModule.h"
 #include "config.h"
 #include "SolTrack.h"
+#include <RTClib.h>
 
 MQTTModuleConfig mqtttModuleConfig = {
     .mqtt_server = MQTT_SERVER,
@@ -88,27 +89,34 @@ void MQTTModule::updateField(MQTTFields field, void *value)
 
   switch (field)
   {
-  case SOLAR_POSITION:
+  case PANEL_AZIMUTH:
+  case PANEL_ELEVATION:
   {
-    STPosition *val = (STPosition *)value;
-    StaticJsonDocument<256> doc;
-
-    doc["azimuth"] = val->azimuthRefract;
-    doc["altitude"] = val->altitudeRefract;
-
-    char buffer[256];
-    serializeJson(doc, buffer);
-
-    Serial.print("[MQTT] Updating field: ");
-    Serial.println(buffer);
-
+    float *val = (float *)value;
+    char buffer[64];
+    sprintf(buffer, "%.2f", *val);
+    messages[field] = String(buffer);
+    break;
+  }
+  case SOLAR_AZIMUTH:
+  case SOLAR_ELEVATION:
+  {
+    double *val = (double *)value;
+    char buffer[64];
+    sprintf(buffer, "%.2f", *val);
     messages[field] = String(buffer);
     break;
   }
   case LAST_PANEL_ADJUSTMENT_TIME:
   case NEXT_PANEL_ADJUSTMENT_TIME:
+  {
+    DateTime *val = (DateTime *)value;
+    char buffer[64];
+    sprintf(buffer, "%04d-%02d-%02dT%02d:%02d:%02d", val->year(), val->month(), val->day(), val->hour(), val->minute(), val->second());
+    messages[field] = String(buffer);
+    break;
+  }
   case PANEL_STATUS:
-  case PANEL_POSITION:
   default:
     break;
   }

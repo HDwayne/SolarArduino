@@ -27,7 +27,7 @@ public:
   void calibrate();
   void moveFullLeft();
   void moveFullRight();
-  void moveToAngle(float targetAngle);
+  float moveToAngle(float targetAngle);
   void startMotorLeft();
   void startMotorRight();
   void stopMotor();

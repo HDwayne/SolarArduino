@@ -27,7 +27,7 @@ public:
 
   // Movement methods
   void calibrate();
-  void moveToAngle(float targetAzimuth, float targetElevation);
+  float moveToAngle(float targetAzimuth, float targetElevation);
   void moveToMaxElevation();
   void moveToMinElevation();
   void startActuatorUp();

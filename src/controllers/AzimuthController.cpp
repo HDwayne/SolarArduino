@@ -89,7 +89,7 @@ void AzimuthController::moveFullRight()
   Serial.println(F("-> Full right position reached"));
 }
 
-void AzimuthController::moveToAngle(float targetAngle)
+float AzimuthController::moveToAngle(float targetAngle)
 {
   Serial.println(F("\n\t--- Adjusting Azimuth ---\n"));
 
@@ -103,7 +103,7 @@ void AzimuthController::moveToAngle(float targetAngle)
       moveFullLeft();
     }
 
-    return;
+    return currentAzimuth;
   }
 
   float azimuthDifference = fabs(targetAngle - currentAzimuth);
@@ -112,7 +112,7 @@ void AzimuthController::moveToAngle(float targetAngle)
   if (timeToMove < azimuthTimeThreshold)
   {
     Serial.println(F("[INFO] Time to move is less than the minimal required time. Cannot adjust azimuth."));
-    return;
+    return currentAzimuth;
   }
 
   Serial.print(F("[INFO] Azimuth difference: "));
@@ -155,6 +155,8 @@ void AzimuthController::moveToAngle(float targetAngle)
   Serial.println(currentAzimuth, 2);
 
   Serial.println(F("\n\t--- End of Azimuth Adjustment ---\n"));
+
+  return currentAzimuth;
 }
 
 // ----------------- Motor control functions -------------------

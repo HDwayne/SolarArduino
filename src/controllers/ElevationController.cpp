@@ -63,7 +63,7 @@ void ElevationController::calibrate()
   Serial.println(F("\n\t--- Elevation Calibration Procedure Completed ---\n"));
 }
 
-void ElevationController::moveToAngle(float targetAzimuth, float targetElevation)
+float ElevationController::moveToAngle(float targetAzimuth, float targetElevation)
 {
   Serial.println(F("\n\t--- Adjusting Elevation ---\n"));
 
@@ -84,7 +84,7 @@ void ElevationController::moveToAngle(float targetAzimuth, float targetElevation
         moveToMinElevation();
     }
 
-    return;
+    return currentElevation;
   }
 
   float azimuthDifference = fabs(targetElevation - currentElevation);
@@ -93,7 +93,7 @@ void ElevationController::moveToAngle(float targetAzimuth, float targetElevation
   if (timeToMove < elevationTimeThreshold)
   {
     Serial.println(F("[INFO] Time to move is less than the minimal required time. Cannot adjust elevation."));
-    return;
+    return currentElevation;
   }
 
   Serial.print(F("[INFO] Elevation difference: "));
@@ -126,6 +126,8 @@ void ElevationController::moveToAngle(float targetAzimuth, float targetElevation
   Serial.println(currentElevation, 2);
 
   Serial.println(F("\n\t--- End of Elevation Adjustment ---\n"));
+
+  return currentElevation;
 }
 
 void ElevationController::moveToMaxElevation()

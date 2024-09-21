@@ -59,7 +59,8 @@ void setup()
   Serial.println(F("\n\t--- System Initialization Completed ---\n"));
 }
 
-void loop() {
+void loop()
+{
   unsigned long currentMillis = millis();
 
 #if defined(MODULE_MQTT_H)
@@ -153,8 +154,18 @@ void updatePanel()
   Serial.print(solarPosition.altitudeRefract, 2);
   Serial.println(F("°"));
 
-  elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
-  azimuthController.moveToAngle(solarPosition.azimuthRefract);
+  float newelevation = elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
+  float newazimuth = azimuthController.moveToAngle(solarPosition.azimuthRefract);
+
+#if defined(MODULE_MQTT_H)
+  mqttModule.updateField(SOLAR_AZIMUTH, &solarPosition.azimuthRefract);
+  mqttModule.updateField(SOLAR_ELEVATION, &solarPosition.altitudeRefract);
+  mqttModule.updateField(PANEL_AZIMUTH, &newelevation);
+  mqttModule.updateField(PANEL_ELEVATION, &newazimuth);
+  mqttModule.updateField(LAST_PANEL_ADJUSTMENT_TIME, &lastPanelAdjustmentTime);
+  DateTime nextPanelAdjustmentTime = lastPanelAdjustmentTime.unixtime() + UPDATE_PANEL_ADJUSTMENT_INTERVAL * 60;
+  mqttModule.updateField(NEXT_PANEL_ADJUSTMENT_TIME, &nextPanelAdjustmentTime);
+#endif // MODULE_MQTT_H
 
   Serial.println(F("\n\t--- Solar Panel Position Updated ---\n"));
 }
@@ -207,7 +218,8 @@ void JoystickMode()
 
 // ----------------- Anenometer control functions ---------------------
 
-void AnenometerMode(){
+void AnenometerMode()
+{
   Serial.println(F("\nEntering Anenometer Mode"));
 
   elevationController.moveToMaxElevation();
@@ -220,7 +232,7 @@ void AnenometerMode(){
     if (anenometerModule.isTriggered())
     {
       Serial.println(F("Anenometer triggered, resetting countdown"));
-      
+
       countdownStart = millis();
       countdownEnd = countdownStart + AnenometerSafeDuration;
     }

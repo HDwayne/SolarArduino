@@ -20,8 +20,10 @@ struct MQTTModuleConfig
 
 enum MQTTFields
 {
-  PANEL_POSITION,
-  SOLAR_POSITION,
+  PANEL_AZIMUTH,
+  PANEL_ELEVATION,
+  SOLAR_AZIMUTH,
+  SOLAR_ELEVATION,
   LAST_PANEL_ADJUSTMENT_TIME,
   NEXT_PANEL_ADJUSTMENT_TIME,
   PANEL_STATUS,
@@ -51,36 +53,45 @@ private:
   String messages[NUM_MQTT_FIELDS];
 
   const char *MQTTFieldsNames[NUM_MQTT_FIELDS] = {
-      "panel_position",
-      "solar_position",
+      "panel_azimuth",
+      "panel_elevation",
+      "solar_azimuth",
+      "solar_elevation",
       "last_adjustment_time",
       "next_adjustment_time",
       "panel_status"};
 
   const char *MQTTFieldsUnits[NUM_MQTT_FIELDS] = {
-      "",
-      "",
-      "",
+      "°",
+      "°",
+      "°",
+      "°",
       "",
       ""};
 
   const char *MQTTFieldsIcons[NUM_MQTT_FIELDS] = {
-      "mdi:solar-power",
-      "mdi:weather-sunset-up",
+      "mdi:compass-outline",
+      "mdi:compass-outline",
+      "mdi:compass-outline",
+      "mdi:compass-outline",
       "mdi:clock",
       "mdi:clock",
       "mdi:power"};
 
   const char *MQTTFieldsClasses[NUM_MQTT_FIELDS] = {
-      "enum",
-      "enum",
+      "angle",
+      "angle",
+      "angle",
+      "angle",
       "timestamp",
       "timestamp",
       "power"};
 
   const char *MQTTFieldsTopics[NUM_MQTT_FIELDS] = {
-      "panel_position",
-      "solar_position",
+      "panel_azimuth",
+      "panel_elevation",
+      "solar_azimuth",
+      "solar_elevation",
       "last_adjustment_time",
       "next_adjustment_time",
       "panel_status"};
