@@ -134,6 +134,7 @@ void updatePanel()
 {
   Serial.println(F("\n\t--- Updating Solar Panel Position ---\n"));
   lastPanelAdjustmentTime = rtcModule.getDateTimeUTC();
+  DateTime lastPanelAdjustmentTimeLocal = rtcModule.getDateTimeLocal();
 
   currentTime.year = lastPanelAdjustmentTime.year();
   currentTime.month = lastPanelAdjustmentTime.month();
@@ -160,11 +161,11 @@ void updatePanel()
 #if defined(MODULE_MQTT_H)
   mqttModule.updateField(SOLAR_AZIMUTH, &solarPosition.azimuthRefract);
   mqttModule.updateField(SOLAR_ELEVATION, &solarPosition.altitudeRefract);
-  mqttModule.updateField(PANEL_AZIMUTH, &newelevation);
-  mqttModule.updateField(PANEL_ELEVATION, &newazimuth);
-  mqttModule.updateField(LAST_PANEL_ADJUSTMENT_TIME, &lastPanelAdjustmentTime);
-  DateTime nextPanelAdjustmentTime = lastPanelAdjustmentTime.unixtime() + UPDATE_PANEL_ADJUSTMENT_INTERVAL * 60;
-  mqttModule.updateField(NEXT_PANEL_ADJUSTMENT_TIME, &nextPanelAdjustmentTime);
+  mqttModule.updateField(PANEL_AZIMUTH, &newazimuth);
+  mqttModule.updateField(PANEL_ELEVATION, &newelevation);
+  mqttModule.updateField(LAST_PANEL_ADJUSTMENT_TIME, &lastPanelAdjustmentTimeLocal);
+  DateTime nextPanelAdjustmentTimeLocal = lastPanelAdjustmentTimeLocal.unixtime() + UPDATE_PANEL_ADJUSTMENT_INTERVAL * 60;
+  mqttModule.updateField(NEXT_PANEL_ADJUSTMENT_TIME, &nextPanelAdjustmentTimeLocal);
 #endif // MODULE_MQTT_H
 
   Serial.println(F("\n\t--- Solar Panel Position Updated ---\n"));
