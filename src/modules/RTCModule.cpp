@@ -16,20 +16,26 @@ void RTCModule::init()
     while (1)
       ; // Stop the program
   }
+
+  info();
 }
 
-void RTCModule::adjustUTC(const char *date, const char *time)
+void RTCModule::adjustFromUTC(const char *date, const char *time)
 {
-  DateTime dateHeureUTC(date, time);
-  rtc.adjust(dateHeureUTC);
+  DateTime DateTimeUTC(date, time);
+  rtc.adjust(DateTimeUTC);
+
+  info();
 }
 
-void RTCModule::adjustLocal(const char *date, const char *time)
+void RTCModule::adjustFromLocal(const char *date, const char *time)
 {
-  DateTime dateHeureUTC(date, time);
-  int nbreDheuresAretrancherOuAjouter = estOnEnHeureDeEte(dateHeureUTC) ? nombreDheuresArajouterOuEnleverEnEte : nombreDheuresArajouterOuEnleverEnHiver;
-  DateTime dateHeureLocale(dateHeureUTC + TimeSpan(0, nbreDheuresAretrancherOuAjouter, 0, 0));
-  rtc.adjust(dateHeureLocale);
+  DateTime DateTimeLocal(date, time);
+  int delta = estOnEnHeureDeEte(DateTimeLocal) ? DeltaHoursSummer : DeltaHoursWinter;
+  DateTime DateTimeUTC = DateTimeLocal - TimeSpan(0, delta, 0, 0);
+  rtc.adjust(DateTimeUTC);
+
+  info();
 }
 
 DateTime RTCModule::getDateTimeUTC()
@@ -39,20 +45,18 @@ DateTime RTCModule::getDateTimeUTC()
 
 DateTime RTCModule::getDateTimeLocal()
 {
-  DateTime dateHeureDuDS3231 = rtc.now();
-  int nbreDheuresAajouterOuRetirer = estOnEnHeureDeEte(dateHeureDuDS3231) ? nombreDheuresArajouterOuEnleverEnEte : nombreDheuresArajouterOuEnleverEnHiver;
-  return dateHeureDuDS3231 + TimeSpan(0, nbreDheuresAajouterOuRetirer, 0, 0);
+  DateTime DateTimeUTC = rtc.now();
+  int delta = estOnEnHeureDeEte(DateTimeUTC) ? DeltaHoursSummer : DeltaHoursWinter;
+  return DateTimeUTC + TimeSpan(0, delta, 0, 0);
 }
 
-// ----------------- RTC private functions -----------------
-
-void RTCModule::print(DateTime dt)
+void RTCModule::printDateTime(const DateTime &dt)
 {
-  Serial.print(joursDeLaSemaine[dt.dayOfTheWeek()]);
+  Serial.print(dayOfWeek[dt.dayOfTheWeek() - 1]);
   Serial.print(" ");
   Serial.print(dt.day());
   Serial.print(" ");
-  Serial.print(moisDeLannee[dt.month() - 1]);
+  Serial.print(mounthOfYear[dt.month() - 1]);
   Serial.print(" ");
   Serial.print(dt.year());
   Serial.print(" ");
@@ -63,7 +67,37 @@ void RTCModule::print(DateTime dt)
   Serial.print(dt.second());
 }
 
-bool RTCModule::estOnEnHeureDeEte(DateTime dateHeureAanalyser)
+// ----------------- RTC private functions -----------------
+
+void RTCModule::info()
+{
+  Serial.println(F("settings for the RTC module :"));
+  Serial.print(F("   → Delta time in winter : "));
+  if (DeltaHoursWinter > 0)
+    Serial.print(F("+"));
+  Serial.print(DeltaHoursWinter);
+  Serial.print(F(" H"));
+  Serial.println();
+  Serial.print(F("   → Delta time in summer : "));
+  if (DeltaHoursSummer > 0)
+    Serial.print(F("+"));
+  Serial.print(DeltaHoursSummer);
+  Serial.print(F(" H"));
+  Serial.println();
+  Serial.println();
+
+  Serial.println(F("Date/Hour (Local) : "));
+  Serial.print(F("   → "));
+  printDateTime(getDateTimeLocal());
+  Serial.println();
+
+  Serial.println(F("Date/Hour (UTC) : "));
+  Serial.print(F("   → "));
+  printDateTime(getDateTimeUTC());
+  Serial.println();
+}
+
+bool RTCModule::estOnEnHeureDeEte(const DateTime &dateHeureAanalyser)
 {
   // https://github.com/JeromeTGH/Programmes-autour-du-DS-3231/blob/main/prgArduino-3-ExempleAvecHeureEteHiver/prgArduino-3-ExempleAvecHeureEteHiver.ino?pseSrc=pgTutoDs3231
   // THIS FUNCTION IS IN FRENCH, AS IT IS SPECIFIC TO THE FRENCH TIMEZONE

@@ -39,9 +39,6 @@ constexpr uint8_t JOYSTICK_BUTTON_PIN = GPIO_NUM_25; // ESP32 pin connected to S
 // Constants
 constexpr uint8_t UPDATE_PANEL_ADJUSTMENT_INTERVAL = 20; // Update panel every 15 minutes
 
-// Timezone
-constexpr int8_t TIMEZONE = 2; // FR: UTC+1 in winter, UTC+2 in summer
-
 // Solar Tracking Settings
 constexpr double ST_LATITUDE = 43.8045;  // Latitude of the solar panel (in degrees)
 constexpr double ST_LONGITUDE = 1.3883;  // Longitude of the solar panel (in degrees)

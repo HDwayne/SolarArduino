@@ -25,12 +25,14 @@ void setup()
   // Initialize the system components
   Serial.println(F("\n\t--- System Initialization ---\n"));
 
-  // Initialize Modules
-#if defined(MODULE_RTC_H)
   rtcModule.init();
-  rtcModule.adjustLocal(__DATE__, __TIME__);
-#endif // MODULE_RTC_H
+  if (rtcModule.lostPower())
+  {
+    // TODO GET from NTP
+    rtcModule.adjustFromLocal(__DATE__, __TIME__);
+  }
 
+  // Initialize Modules
 #if defined(MODULE_WIFI_H)
   wifiModule.init();
 #endif // MODULE_WIFI_H
@@ -120,42 +122,20 @@ void calibratePanel()
 void updatePanel()
 {
   Serial.println(F("\n\t--- Updating Solar Panel Position ---\n"));
-  lastPanelAdjustmentTime = rtcModule.getDateTimeLocal();
+  lastPanelAdjustmentTime = rtcModule.getDateTimeUTC();
 
   currentTime.year = lastPanelAdjustmentTime.year();
   currentTime.month = lastPanelAdjustmentTime.month();
   currentTime.day = lastPanelAdjustmentTime.day();
-  currentTime.hour = lastPanelAdjustmentTime.hour() - TIMEZONE;
+  currentTime.hour = lastPanelAdjustmentTime.hour();
   currentTime.minute = lastPanelAdjustmentTime.minute();
   currentTime.second = lastPanelAdjustmentTime.second();
 
   SolTrack(currentTime, locationData, &solarPosition, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
 
-  Serial.print(F("Date: "));
-  Serial.print(currentTime.year);
-  Serial.print(F("-"));
-  if (currentTime.month < 10)
-    Serial.print(F("0")); // Zero padding for single digit months
-  Serial.print(currentTime.month);
-  Serial.print(F("-"));
-  if (currentTime.day < 10)
-    Serial.print(F("0")); // Zero padding for single digit days
-  Serial.println(currentTime.day);
-
-  Serial.print(F("Time: "));
-  if (currentTime.hour + TIMEZONE < 10)
-    Serial.print(F("0")); // Zero padding for single digit hours
-  Serial.print(currentTime.hour + TIMEZONE);
-  Serial.print(F(":"));
-  if (currentTime.minute < 10)
-    Serial.print(F("0")); // Zero padding for single digit minutes
-  Serial.print(currentTime.minute);
-  Serial.print(F(":"));
-  if (currentTime.second < 10)
-    Serial.print(F("0")); // Zero padding for single digit seconds
-  Serial.println(currentTime.second);
-
   Serial.println();
+
+  rtcModule.printDateTime(lastPanelAdjustmentTime);
 
   Serial.print(F("Corrected Azimuth: "));
   Serial.print(solarPosition.azimuthRefract, 2);
