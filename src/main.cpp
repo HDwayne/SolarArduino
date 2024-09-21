@@ -8,9 +8,6 @@ struct STPosition solarPosition; // Struct for solar position variables
 // Initialize time variable
 DateTime lastPanelAdjustmentTime;
 
-// RTC Module
-RTC_DS1307 rtc;
-
 unsigned long lastPanelAdjustmentMillis = 0;
 const unsigned long panelAdjustmentIntervalMillis = 60000; // check every minute
 
@@ -28,6 +25,13 @@ void setup()
   // Initialize the system components
   Serial.println(F("\n\t--- System Initialization ---\n"));
 
+  rtcModule.init();
+  if (rtcModule.lostPower())
+  {
+    // TODO GET from NTP
+    rtcModule.adjustFromLocal(__DATE__, __TIME__);
+  }
+
   // Initialize Modules
 #if defined(MODULE_WIFI_H)
   wifiModule.init();
@@ -36,9 +40,6 @@ void setup()
 #if defined(MODULE_MQTT_H)
   mqttModule.init();
 #endif // MODULE_MQTT_H
-
-  // Initialize the RTC module
-  initRTC();
 
   // initialize joystick
   initJoystick();
@@ -80,7 +81,7 @@ void loop()
   {
     lastPanelAdjustmentMillis = currentMillis;
 
-    DateTime now = rtc.now();
+    DateTime now = rtcModule.getDateTimeLocal();
     uint32_t secc = now.unixtime() - lastPanelAdjustmentTime.unixtime();
     uint16_t minutesDiff = secc / 60;
 
@@ -94,29 +95,6 @@ void loop()
       Serial.print(F("."));
     }
   }
-}
-
-// ----------------- RTC functions -----------------------------
-
-void initRTC()
-{
-  if (!rtc.begin())
-  {
-    Serial.println(F("[ERROR] RTC initialization failed!"));
-    while (1)
-      ; // Halt if RTC initialization fails
-  }
-
-  if (!rtc.isrunning())
-  {
-    Serial.println(F("[ERROR] RTC is not running."));
-    // Set the RTC time to the compile time
-    // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-    while (1)
-      ; // Halt if RTC is not running
-  }
-
-  Serial.print(F("[INFO] RTC is running"));
 }
 
 // ----------------- Panel control functions ---------------------
@@ -144,42 +122,20 @@ void calibratePanel()
 void updatePanel()
 {
   Serial.println(F("\n\t--- Updating Solar Panel Position ---\n"));
-  lastPanelAdjustmentTime = rtc.now();
+  lastPanelAdjustmentTime = rtcModule.getDateTimeUTC();
 
   currentTime.year = lastPanelAdjustmentTime.year();
   currentTime.month = lastPanelAdjustmentTime.month();
   currentTime.day = lastPanelAdjustmentTime.day();
-  currentTime.hour = lastPanelAdjustmentTime.hour() - TIMEZONE;
+  currentTime.hour = lastPanelAdjustmentTime.hour();
   currentTime.minute = lastPanelAdjustmentTime.minute();
   currentTime.second = lastPanelAdjustmentTime.second();
 
   SolTrack(currentTime, locationData, &solarPosition, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
 
-  Serial.print(F("Date: "));
-  Serial.print(currentTime.year);
-  Serial.print(F("-"));
-  if (currentTime.month < 10)
-    Serial.print(F("0")); // Zero padding for single digit months
-  Serial.print(currentTime.month);
-  Serial.print(F("-"));
-  if (currentTime.day < 10)
-    Serial.print(F("0")); // Zero padding for single digit days
-  Serial.println(currentTime.day);
-
-  Serial.print(F("Time: "));
-  if (currentTime.hour + TIMEZONE < 10)
-    Serial.print(F("0")); // Zero padding for single digit hours
-  Serial.print(currentTime.hour + TIMEZONE);
-  Serial.print(F(":"));
-  if (currentTime.minute < 10)
-    Serial.print(F("0")); // Zero padding for single digit minutes
-  Serial.print(currentTime.minute);
-  Serial.print(F(":"));
-  if (currentTime.second < 10)
-    Serial.print(F("0")); // Zero padding for single digit seconds
-  Serial.println(currentTime.second);
-
   Serial.println();
+
+  rtcModule.printDateTime(lastPanelAdjustmentTime);
 
   Serial.print(F("Corrected Azimuth: "));
   Serial.print(solarPosition.azimuthRefract, 2);
