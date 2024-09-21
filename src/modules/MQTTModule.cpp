@@ -32,40 +32,49 @@ void MQTTModule::init()
   client.setServer(mqtt_server, mqtt_port);
   client.setBufferSize(512);
   WiFi.macAddress(macAddr);
-
-  // Créer un identifiant unique pour Home Assistant
   createDiscoveryUniqueID();
-
-  // Connexion au serveur MQTT
-  connect();
-
-  // Découverte Home Assistant
-  publishMQTTDiscovery();
 }
 
 // ----------------- public methods -----------------
 
-void MQTTModule::connect()
-{
-  while (!client.connected())
-  {
-    if (client.connect(device_name, mqtt_user, mqtt_password))
-    {
-      Serial.println("[MQTT] connected");
-    }
-    else
-    {
-      Serial.print("[MQTT] failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      delay(5000);
-    }
-  }
-}
-
 void MQTTModule::loop()
 {
-  client.loop();
+  if (!client.connected())
+  {
+    long now = millis();
+    if (now - lastReconnectAttempt > 5000)
+    {
+      lastReconnectAttempt = now;
+      if (reconnect())
+      {
+        lastReconnectAttempt = 0;
+      }
+    }
+  }
+  else
+  {
+    client.loop();
+
+    while (!messageQueue.empty())
+    {
+      String message = messageQueue.front();
+      int delimiterPos = message.indexOf(":");
+      String topic = message.substring(0, delimiterPos);
+      String payload = message.substring(delimiterPos + 1);
+
+      if (client.publish(topic.c_str(), payload.c_str(), true))
+      {
+        Serial.print("[MQTT] Published from buffer: ");
+        Serial.println(payload);
+        messageQueue.pop();
+      }
+      else
+      {
+        Serial.println("[MQTT] Failed to publish message from buffer");
+        break;
+      }
+    }
+  }
 }
 
 void MQTTModule::updateField(MQTTFields field, void *value)
@@ -74,7 +83,6 @@ void MQTTModule::updateField(MQTTFields field, void *value)
     return;
 
   char topic[128];
-
   sprintf(topic, "homeassistant/sensor/%s/%s/state", String(devUniqueID).c_str(), MQTTFieldsNames[field]);
 
   switch (field)
@@ -90,10 +98,9 @@ void MQTTModule::updateField(MQTTFields field, void *value)
     char buffer[512];
     serializeJson(doc, buffer);
 
-    Serial.print("[MQTT] Update message: ");
+    Serial.print("[MQTT] Queued message: ");
     Serial.println(buffer);
-
-    client.publish(topic, buffer, true);
+    messageQueue.push(String(topic) + ":" + String(buffer));
     break;
   }
   case LAST_PANEL_ADJUSTMENT_TIME:
@@ -106,6 +113,15 @@ void MQTTModule::updateField(MQTTFields field, void *value)
 }
 
 // ----------------- private methods -----------------
+
+bool MQTTModule::reconnect()
+{
+  if (client.connect(device_name, mqtt_user, mqtt_password))
+  {
+    publishMQTTDiscovery();
+  }
+  return client.connected();
+}
 
 void MQTTModule::createDiscoveryUniqueID()
 {
@@ -141,9 +157,6 @@ void MQTTModule::publishMQTTDiscovery()
     // Convertir le document JSON en chaîne
     char buffer[512];
     serializeJson(doc, buffer);
-
-    Serial.print("[MQTT] Discovery message: ");
-    Serial.println(buffer);
 
     // Définir le sujet pour MQTT Discovery (configuration Home Assistant)
     String configTopic = "homeassistant/sensor/" + String(devUniqueID) + "/" + MQTTFieldsNames[i] + "/config";

@@ -8,6 +8,7 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
+#include <queue>
 
 struct MQTTModuleConfig
 {
@@ -48,6 +49,8 @@ private:
 
   WiFiClient espClient;
 
+  std::queue<String> messageQueue;
+
   const char *MQTTFieldsNames[NUM_MQTT_FIELDS] = {
       "panel_position",
       "solar_position",
@@ -86,7 +89,6 @@ private:
   char devUniqueID[64];
   long lastReconnectAttempt = 0;
 
-  void connect();
   bool reconnect();
   void createDiscoveryUniqueID();
   void publishMQTTDiscovery();
