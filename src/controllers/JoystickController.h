@@ -12,10 +12,7 @@ struct joystickControllerConfig
   uint32_t buttonDebounce;
   int8_t vrxPin;
   int8_t vryPin;
-  int16_t leftThreshold;
-  int16_t rightThreshold;
-  int16_t upThreshold;
-  int16_t downThreshold;
+  int16_t threshold;
 };
 
 class JoystickController
@@ -54,6 +51,10 @@ public:
   bool isPressed();
   void clearCommand();
   void executeCommand();
+
+private:
+  int xCenter = 0;
+  int yCenter = 0;
 };
 
 extern JoystickController joystickController;
