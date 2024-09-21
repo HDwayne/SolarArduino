@@ -16,6 +16,7 @@
 #include "controllers/JoystickController.h"
 
 #include "modules/RTCModule.h"
+#include "modules/AnemometerModule.h"
 
 #if defined(ESP32)
 #include "modules/WifiModule.h"
