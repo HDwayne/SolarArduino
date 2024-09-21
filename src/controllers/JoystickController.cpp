@@ -27,7 +27,9 @@ JoystickController::JoystickController(const joystickControllerConfig &config)
     button->setDebounceTime(config.buttonDebounce);
     vrxPin = config.vrxPin;
     vryPin = config.vryPin;
-    prevCommand = COMMAND_NO;
+
+    pinMode(vrxPin, INPUT);
+    pinMode(vryPin, INPUT);
 
     xCenter = analogRead(vrxPin);
     yCenter = analogRead(vryPin);
@@ -36,6 +38,16 @@ JoystickController::JoystickController(const joystickControllerConfig &config)
     rightThreshold = xCenter + config.threshold;
     upThreshold = yCenter - config.threshold;
     downThreshold = yCenter + config.threshold;
+
+    prevCommand = COMMAND_NO;
+
+    onLeft = NULL;
+    onRight = NULL;
+    onUp = NULL;
+    onDown = NULL;
+
+    onLeaveLR = NULL;
+    onLeaveUD = NULL;
 }
 
 // ---------------- Private Methods ----------------
