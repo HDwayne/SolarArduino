@@ -30,5 +30,6 @@ void calibratePanel();
 void updatePanel();
 void initJoystick();
 void JoystickMode();
+void AnenometerMode();
 
 #endif // SOLAR_TRACKER_H
