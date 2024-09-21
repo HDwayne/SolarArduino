@@ -81,7 +81,7 @@ void loop()
   {
     lastPanelAdjustmentMillis = currentMillis;
 
-    DateTime now = rtcModule.getDateTimeLocal();
+    DateTime now = rtcModule.getDateTimeUTC();
     uint32_t secc = now.unixtime() - lastPanelAdjustmentTime.unixtime();
     uint16_t minutesDiff = secc / 60;
 
