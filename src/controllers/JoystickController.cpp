@@ -15,10 +15,7 @@ joystickControllerConfig joystickConfig = {
     JOYSTICK_BUTTON_DEBOUNCE,
     JOYSTICK_VRX_PIN,
     JOYSTICK_VRY_PIN,
-    JOYSTICK_LEFT_THRESHOLD,
-    JOYSTICK_RIGHT_THRESHOLD,
-    JOYSTICK_UP_THRESHOLD,
-    JOYSTICK_DOWN_THRESHOLD};
+    JOYSTICK_THRESHOLD};
 
 JoystickController joystickController(joystickConfig);
 
@@ -30,11 +27,15 @@ JoystickController::JoystickController(const joystickControllerConfig &config)
     button->setDebounceTime(config.buttonDebounce);
     vrxPin = config.vrxPin;
     vryPin = config.vryPin;
-    leftThreshold = config.leftThreshold;
-    rightThreshold = config.rightThreshold;
-    upThreshold = config.upThreshold;
-    downThreshold = config.downThreshold;
     prevCommand = COMMAND_NO;
+
+    xCenter = analogRead(vrxPin);
+    yCenter = analogRead(vryPin);
+
+    leftThreshold = xCenter - config.threshold;
+    rightThreshold = xCenter + config.threshold;
+    upThreshold = yCenter - config.threshold;
+    downThreshold = yCenter + config.threshold;
 }
 
 // ---------------- Private Methods ----------------
