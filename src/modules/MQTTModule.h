@@ -61,15 +61,6 @@ private:
       "next_adjustment_time",
       "panel_status"};
 
-  const char *MQTTFieldsClasses[NUM_MQTT_FIELDS] = {
-      "None",
-      "None",
-      "None",
-      "None",
-      "timestamp",
-      "timestamp",
-      "None"};
-
   const char *MQTTFieldsTopics[NUM_MQTT_FIELDS] = {
       "panel_azimuth",
       "panel_elevation",
@@ -78,6 +69,15 @@ private:
       "last_adjustment_time",
       "next_adjustment_time",
       "panel_status"};
+
+  const char *valueTemplates[NUM_MQTT_FIELDS] = {
+      "{{ value | float }}",        // Pour PANEL_AZIMUTH : Convertir la valeur en float
+      "{{ value | float }}",        // Pour PANEL_ELEVATION : Convertir la valeur en float
+      "{{ value | float }}",        // Pour SOLAR_AZIMUTH : Convertir la valeur en float
+      "{{ value | float }}",        // Pour SOLAR_ELEVATION : Convertir la valeur en float
+      "{{ value | as_timestamp }}", // Pour LAST_PANEL_ADJUSTMENT_TIME : Convertir la valeur en timestamp ISO 8601
+      "{{ value | as_timestamp }}", // Pour NEXT_PANEL_ADJUSTMENT_TIME : Convertir la valeur en timestamp ISO 8601
+      ""};
 
   char devUniqueID[64];
   long lastReconnectAttempt = 0;

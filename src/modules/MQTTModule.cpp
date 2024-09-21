@@ -156,7 +156,7 @@ void MQTTModule::publishMQTTDiscovery()
     doc["name"] = MQTTFieldsNames[i];
     doc["state_topic"] = "homeassistant/sensor/" + String(devUniqueID) + "/" + MQTTFieldsNames[i] + "/state";
     doc["unique_id"] = String(devUniqueID) + "_" + MQTTFieldsTopics[i];
-    doc["device_class"] = MQTTFieldsClasses[i];
+    doc["value_template"] = valueTemplates[i];
     doc["device"]["identifiers"] = devUniqueID;
     doc["device"]["name"] = "Solar Tracker";
     doc["device"]["model"] = "ESP32 Solar Tracker";
