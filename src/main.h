@@ -15,6 +15,8 @@
 #include "controllers/ElevationController.h"
 #include "controllers/JoystickController.h"
 
+#include "modules/RTCModule.h"
+
 #if defined(ESP32)
 #include "modules/WifiModule.h"
 #include "modules/MQTTModule.h"

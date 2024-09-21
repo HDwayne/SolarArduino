@@ -8,9 +8,6 @@ struct STPosition solarPosition; // Struct for solar position variables
 // Initialize time variable
 DateTime lastPanelAdjustmentTime;
 
-// RTC Module
-RTC_DS1307 rtc;
-
 unsigned long lastPanelAdjustmentMillis = 0;
 const unsigned long panelAdjustmentIntervalMillis = 60000; // check every minute
 
@@ -29,6 +26,11 @@ void setup()
   Serial.println(F("\n\t--- System Initialization ---\n"));
 
   // Initialize Modules
+#if defined(MODULE_RTC_H)
+  rtcModule.init();
+  rtcModule.adjustLocal(__DATE__, __TIME__);
+#endif // MODULE_RTC_H
+
 #if defined(MODULE_WIFI_H)
   wifiModule.init();
 #endif // MODULE_WIFI_H
@@ -36,9 +38,6 @@ void setup()
 #if defined(MODULE_MQTT_H)
   mqttModule.init();
 #endif // MODULE_MQTT_H
-
-  // Initialize the RTC module
-  initRTC();
 
   // initialize joystick
   initJoystick();
@@ -80,7 +79,7 @@ void loop()
   {
     lastPanelAdjustmentMillis = currentMillis;
 
-    DateTime now = rtc.now();
+    DateTime now = rtcModule.getDateTimeLocal();
     uint32_t secc = now.unixtime() - lastPanelAdjustmentTime.unixtime();
     uint16_t minutesDiff = secc / 60;
 
@@ -94,29 +93,6 @@ void loop()
       Serial.print(F("."));
     }
   }
-}
-
-// ----------------- RTC functions -----------------------------
-
-void initRTC()
-{
-  if (!rtc.begin())
-  {
-    Serial.println(F("[ERROR] RTC initialization failed!"));
-    while (1)
-      ; // Halt if RTC initialization fails
-  }
-
-  if (!rtc.isrunning())
-  {
-    Serial.println(F("[ERROR] RTC is not running."));
-    // Set the RTC time to the compile time
-    // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-    while (1)
-      ; // Halt if RTC is not running
-  }
-
-  Serial.print(F("[INFO] RTC is running"));
 }
 
 // ----------------- Panel control functions ---------------------
@@ -144,7 +120,7 @@ void calibratePanel()
 void updatePanel()
 {
   Serial.println(F("\n\t--- Updating Solar Panel Position ---\n"));
-  lastPanelAdjustmentTime = rtc.now();
+  lastPanelAdjustmentTime = rtcModule.getDateTimeLocal();
 
   currentTime.year = lastPanelAdjustmentTime.year();
   currentTime.month = lastPanelAdjustmentTime.month();
