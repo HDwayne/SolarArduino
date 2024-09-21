@@ -16,6 +16,7 @@
 #include "controllers/JoystickController.h"
 
 #include "modules/RTCModule.h"
+#include "modules/AnemometerModule.h"
 
 #if defined(ESP32)
 #include "modules/WifiModule.h"
@@ -29,5 +30,6 @@ void calibratePanel();
 void updatePanel();
 void initJoystick();
 void JoystickMode();
+void AnenometerMode();
 
 #endif // SOLAR_TRACKER_H

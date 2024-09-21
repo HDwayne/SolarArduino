@@ -59,12 +59,22 @@ void setup()
   Serial.println(F("\n\t--- System Initialization Completed ---\n"));
 }
 
-void loop()
-{
+void loop() {
   unsigned long currentMillis = millis();
+
 #if defined(MODULE_MQTT_H)
   mqttModule.loop();
 #endif // MODULE_MQTT_H
+
+  if (anenometerModule.isTriggered())
+  {
+    AnenometerMode();
+
+    updatePanel();
+
+    while (anenometerModule.isTriggered())
+      ; // avoid multiple calls
+  }
 
   if (joystickController.isPressed())
   {
@@ -193,4 +203,29 @@ void JoystickMode()
   elevationController.disableMotor();
 
   Serial.println(F("Exiting Joystick Mode"));
+}
+
+// ----------------- Anenometer control functions ---------------------
+
+void AnenometerMode(){
+  Serial.println(F("\nEntering Anenometer Mode"));
+
+  elevationController.moveToMaxElevation();
+
+  unsigned long countdownStart = millis();
+  unsigned long countdownEnd = countdownStart + AnenometerSafeDuration;
+
+  while (millis() < countdownEnd)
+  {
+    if (anenometerModule.isTriggered())
+    {
+      Serial.println(F("Anenometer triggered, resetting countdown"));
+      
+      countdownStart = millis();
+      countdownEnd = countdownStart + AnenometerSafeDuration;
+    }
+    delay(100);
+  }
+
+  Serial.println(F("Exiting Anenometer Mode"));
 }

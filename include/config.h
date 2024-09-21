@@ -19,6 +19,8 @@ constexpr uint8_t ELEVATION_MOTOR_PWM_PIN_D = 9;  // Motor PWM pin for actuator 
 constexpr uint8_t JOYSTICK_VRX_PIN = A0;   // Arduino pin connected to VRX pin
 constexpr uint8_t JOYSTICK_VRY_PIN = A1;   // Arduino pin connected to VRY pin
 constexpr uint8_t JOYSTICK_BUTTON_PIN = 2; // Arduino pin connected to SW pin
+
+constexpr uint8_t ANENOMETER_BUTTON_PIN = 11;          // Anemometer button pin
 #elif defined(ESP32)
 constexpr uint8_t AZIMUTH_MOTOR_PIN_EN = GPIO_NUM_19;     // Motor enable pin
 constexpr uint8_t AZIMUTH_MOTOR_PWM_PIN_L = GPIO_NUM_18;  // Motor PWM pin (left)
@@ -32,6 +34,8 @@ constexpr uint8_t ELEVATION_MOTOR_PWM_PIN_D = GPIO_NUM_14; // Motor PWM pin for 
 constexpr uint8_t JOYSTICK_VRX_PIN = GPIO_NUM_32;    // ESP32 pin connected to VRX pin
 constexpr uint8_t JOYSTICK_VRY_PIN = GPIO_NUM_33;    // ESP32 pin connected to VRY pin
 constexpr uint8_t JOYSTICK_BUTTON_PIN = GPIO_NUM_25; // ESP32 pin connected to SW pin
+
+constexpr uint8_t ANENOMETER_BUTTON_PIN = GPIO_NUM_13;          // Anemometer button pin
 #else
 #error "Board not supported"
 #endif
@@ -72,12 +76,15 @@ constexpr float ELEVATION_ACTUATOR_LENGTH = 350.0; // Actuator length in mm
 #define FORCE_TIME_FULL_TRAVEL 95 // If you observe that the actuator does not reach the end positions (real and predicted can differ), you can force the full travel time in seconds
 
 // Joystick Settings
-constexpr uint32_t JOYSTICK_BUTTON_DEBOUNCE = 5000; // Debounce time in microseconds
+constexpr uint32_t JOYSTICK_BUTTON_DEBOUNCE = 5000; // Debounce time in milliseconds
 
 constexpr int16_t JOYSTICK_LEFT_THRESHOLD = 400;
 constexpr int16_t JOYSTICK_RIGHT_THRESHOLD = 800;
 constexpr int16_t JOYSTICK_UP_THRESHOLD = 400;
 constexpr int16_t JOYSTICK_DOWN_THRESHOLD = 800;
+
+// Anemometer Settings
+constexpr unsigned long AnenometerSafeDuration = 15 * 60 * 1000; // Anemometer safe duration in milliseconds (15 (minutes) * 60 (seconds) * 1000 (milliseconds))
 
 // MQTT Settings
 constexpr char MQTT_SERVER[] = "replace_with_your_mqtt_server";
