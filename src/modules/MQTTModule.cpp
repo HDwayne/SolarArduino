@@ -33,6 +33,9 @@ void MQTTModule::init()
   client.setBufferSize(512);
   WiFi.macAddress(macAddr);
   createDiscoveryUniqueID();
+
+  for (int i = 0; i < NUM_MQTT_FIELDS; i++)
+    messages[i] = "";
 }
 
 // ----------------- public methods -----------------
@@ -55,23 +58,24 @@ void MQTTModule::loop()
   {
     client.loop();
 
-    while (!messageQueue.empty())
+    for (int i = 0; i < NUM_MQTT_FIELDS; i++)
     {
-      String message = messageQueue.front();
-      int delimiterPos = message.indexOf(":");
-      String topic = message.substring(0, delimiterPos);
-      String payload = message.substring(delimiterPos + 1);
+      if (messages[i] != "") // Check if there's a pending message for this field
+      {
+        char topic[128];
+        sprintf(topic, "homeassistant/sensor/%s/%s/state", String(devUniqueID).c_str(), MQTTFieldsNames[i]);
 
-      if (client.publish(topic.c_str(), payload.c_str(), true))
-      {
-        Serial.print("[MQTT] Published from buffer: ");
-        Serial.println(payload);
-        messageQueue.pop();
-      }
-      else
-      {
-        Serial.println("[MQTT] Failed to publish message from buffer");
-        break;
+        if (client.publish(topic, messages[i].c_str(), true))
+        {
+          Serial.print("[MQTT] Published message: ");
+          Serial.println(messages[i]);
+
+          messages[i] = "";
+        }
+        else
+        {
+          Serial.println("[MQTT] Failed to publish message, will retry.");
+        }
       }
     }
   }
@@ -82,25 +86,23 @@ void MQTTModule::updateField(MQTTFields field, void *value)
   if (field == NUM_MQTT_FIELDS)
     return;
 
-  char topic[128];
-  sprintf(topic, "homeassistant/sensor/%s/%s/state", String(devUniqueID).c_str(), MQTTFieldsNames[field]);
-
   switch (field)
   {
   case SOLAR_POSITION:
   {
     STPosition *val = (STPosition *)value;
-    JsonDocument doc;
+    StaticJsonDocument<256> doc;
 
     doc["azimuth"] = val->azimuthRefract;
     doc["altitude"] = val->altitudeRefract;
 
-    char buffer[512];
+    char buffer[256];
     serializeJson(doc, buffer);
 
-    Serial.print("[MQTT] Queued message: ");
+    Serial.print("[MQTT] Updating field: ");
     Serial.println(buffer);
-    messageQueue.push(String(topic) + ":" + String(buffer));
+
+    messages[field] = String(buffer);
     break;
   }
   case LAST_PANEL_ADJUSTMENT_TIME:

@@ -8,7 +8,6 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
-#include <queue>
 
 struct MQTTModuleConfig
 {
@@ -49,7 +48,7 @@ private:
 
   WiFiClient espClient;
 
-  std::queue<String> messageQueue;
+  String messages[NUM_MQTT_FIELDS];
 
   const char *MQTTFieldsNames[NUM_MQTT_FIELDS] = {
       "panel_position",
