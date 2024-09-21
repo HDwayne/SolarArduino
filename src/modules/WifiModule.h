@@ -20,13 +20,14 @@ public:
   WifiModule(const WifiModuleConfig &ModuleConfig);
 
   void init();
-  byte *getMacAddr();
+  byte *getMacAddr() { return macAddr; }
 
 private:
   const char *ssid;
   const char *password;
-
   byte macAddr[6];
+
+  static void WiFiEvent(WiFiEvent_t event);
 };
 
 extern WifiModule wifiModule;

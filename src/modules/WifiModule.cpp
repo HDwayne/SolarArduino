@@ -20,28 +20,28 @@ WifiModule::WifiModule(const WifiModuleConfig &ModuleConfig)
 
 // ----------------- Wifi control functions -----------------
 
-byte *WifiModule::getMacAddr()
-{
-  return macAddr;
-}
-
 void WifiModule::init()
 {
   WiFi.mode(WIFI_STA);
+  WiFi.setAutoReconnect(true);
   WiFi.begin(ssid, password);
   WiFi.macAddress(macAddr);
-  WiFi.setAutoReconnect(true);
+  WiFi.onEvent(WiFiEvent);
+}
 
-  while (WiFi.waitForConnectResult() != WL_CONNECTED)
+void WifiModule::WiFiEvent(WiFiEvent_t event)
+{
+  switch (event)
   {
-    Serial.println("Connection Failed! Rebooting...");
-    delay(5000);
-    ESP.restart();
+  case SYSTEM_EVENT_STA_GOT_IP:
+    Serial.println("[WiFi] connected with IP: " + WiFi.localIP().toString());
+    break;
+  case SYSTEM_EVENT_STA_DISCONNECTED:
+    Serial.println("[WiFi] Disconnected from Wi-Fi, ESP32 will try to reconnect");
+    break;
+  default:
+    break;
   }
-
-  Serial.println("[WiFi] Connected to AP");
-  Serial.print("\tIP Address: ");
-  Serial.println(WiFi.localIP());
 }
 
 #endif // defined(ESP32)
