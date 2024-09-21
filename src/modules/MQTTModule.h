@@ -61,31 +61,14 @@ private:
       "next_adjustment_time",
       "panel_status"};
 
-  const char *MQTTFieldsUnits[NUM_MQTT_FIELDS] = {
-      "°",
-      "°",
-      "°",
-      "°",
-      "",
-      ""};
-
-  const char *MQTTFieldsIcons[NUM_MQTT_FIELDS] = {
-      "mdi:compass-outline",
-      "mdi:compass-outline",
-      "mdi:compass-outline",
-      "mdi:compass-outline",
-      "mdi:clock",
-      "mdi:clock",
-      "mdi:power"};
-
   const char *MQTTFieldsClasses[NUM_MQTT_FIELDS] = {
-      "angle",
-      "angle",
-      "angle",
-      "angle",
+      "None",
+      "None",
+      "None",
+      "None",
       "timestamp",
       "timestamp",
-      "power"};
+      "None"};
 
   const char *MQTTFieldsTopics[NUM_MQTT_FIELDS] = {
       "panel_azimuth",

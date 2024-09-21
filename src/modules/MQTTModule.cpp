@@ -112,7 +112,7 @@ void MQTTModule::updateField(MQTTFields field, void *value)
   {
     DateTime *val = (DateTime *)value;
     char buffer[64];
-    sprintf(buffer, "%04d-%02d-%02dT%02d:%02d:%02d", val->year(), val->month(), val->day(), val->hour(), val->minute(), val->second());
+    sprintf(buffer, "%04d-%02d-%02dT%02d:%02d:%02dZ", val->year(), val->month(), val->day(), val->hour(), val->minute(), val->second());
     messages[field] = String(buffer);
     break;
   }
@@ -157,8 +157,6 @@ void MQTTModule::publishMQTTDiscovery()
     doc["state_topic"] = "homeassistant/sensor/" + String(devUniqueID) + "/" + MQTTFieldsNames[i] + "/state";
     doc["unique_id"] = String(devUniqueID) + "_" + MQTTFieldsTopics[i];
     doc["device_class"] = MQTTFieldsClasses[i];
-    doc["icon"] = MQTTFieldsIcons[i];
-    doc["unit_of_measurement"] = MQTTFieldsUnits[i];
     doc["device"]["identifiers"] = devUniqueID;
     doc["device"]["name"] = "Solar Tracker";
     doc["device"]["model"] = "ESP32 Solar Tracker";
