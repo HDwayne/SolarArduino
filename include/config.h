@@ -77,7 +77,7 @@ constexpr float ELEVATION_ACTUATOR_LENGTH = 350.0; // Actuator length in mm
 
 // Joystick Settings
 constexpr uint32_t JOYSTICK_BUTTON_DEBOUNCE = 5000; // Debounce time in milliseconds
-constexpr uint16_t JOYSTICK_THRESHOLD = 150;        // Joystick threshold
+constexpr uint16_t JOYSTICK_THRESHOLD = 250;        // Joystick threshold
 // Anemometer Settings
 constexpr unsigned long AnenometerSafeDuration = 15 * 60 * 1000; // Anemometer safe duration in milliseconds (15 (minutes) * 60 (seconds) * 1000 (milliseconds))
 
