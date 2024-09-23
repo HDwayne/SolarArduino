@@ -226,7 +226,7 @@ void AnenometerMode()
   elevationController.moveToMaxElevation();
 
   unsigned long countdownStart = millis();
-  unsigned long countdownEnd = countdownStart + AnenometerSafeDuration;
+  unsigned long countdownEnd = countdownStart + ANENOMETER_SAFE_DURATION;
 
   while (millis() < countdownEnd)
   {
@@ -235,7 +235,7 @@ void AnenometerMode()
       Serial.println(F("Anenometer triggered, resetting countdown"));
 
       countdownStart = millis();
-      countdownEnd = countdownStart + AnenometerSafeDuration;
+      countdownEnd = countdownStart + ANENOMETER_SAFE_DURATION;
     }
     delay(100);
   }

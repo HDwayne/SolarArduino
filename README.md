@@ -2,7 +2,10 @@
 
 # Solar tracker with ARDUINO or ESP32 and soltrack-2.2 library
 
+> **Warning:** This project is still in development.
+
 This Solar Tracker is an embedded system that uses an Arduino or ESP32 microcontroller to track the sun's position and adjust the angle of a solar panel accordingly. By tracking the sun’s movement throughout the day, the Solar Tracker ensures the solar panel is always optimally positioned for maximum energy production.
+
 
 The system computes the sun’s position using the [SolTrack 2.2](https://github.com/MarcvdSluys/SolTrack) library. This project supports two microcontrollers: **Arduino** and **ESP32**.
 
@@ -96,15 +99,49 @@ At initialization, the system calibrates the actuator, setting the panel to a 90
 | **ELEVATION_ACTUATOR_LENGTH**     | 350 mm                      |
 | **FORCE_TIME_FULL_TRAVEL**        | Forced full travel time (in seconds) |
 
-### Joystick Control
+### Anemometer Control Overview
 
-Joystick control is available for both azimuth and elevation adjustments. The system reads the joystick’s direction and adjusts the panel’s position accordingly.
-It could be useful for manual adjustments or testing.
+![Anemometer](/img/anemometre.JPG "Anemometer")
 
-### Anemometer
+The **anemometer** is a 3-wire sensor that operates independently from the solar tracker. It monitors wind speeds and ensures the safety of the solar panel during high wind conditions. When the wind speed exceeds **5 m/s**, the anemometer activates a relay, sending an alarm signal to the solar tracker.
+
+The solar tracker continuously monitors the alarm signal through a dedicated **GPIO pin**. If the wind speed exceeds 5 m/s, the tracker moves the solar panel to a **safety position** for **15 minutes**. If the wind speed remains high and the alarm is triggered again during this countdown, the 15-minute timer resets. The panel remains in the safety position until wind conditions stabilize.
+
+#### Pin Configuration for Anemometer
+
+| **Component**              | **Arduino**           | **ESP32**          |
+|----------------------------|-----------------------|--------------------|
+| Wind Alarm Detection Pin    | Pin 11                | GPIO 13            |
+
+#### Key Parameters in `config.h`
+
+| **Parameter**               | **Value**                    |
+|-----------------------------|------------------------------|
+| **ANEMOMETER_BUTTON_PIN**    | Pin for alarm detection       |
+| **ANEMOMETER_SAFE_DURATION** | 15 minutes (900,000 ms)       |
+
+Here’s an updated version of the **Joystick Control Overview**:
+
+---
+
+### Joystick Control Overview
+
+The **joystick** allows manual control of the solar panel's movement. By moving the joystick, the user can command the system to adjust the panel’s azimuth (horizontal) and elevation (vertical) angles, according to the inputs detected on the VRX and VRY pins. Additionally, user have to press the joystick button for 5 seconds to enable the joystick control. Same action to disable it.
 
 
+#### Pin Configuration for Joystick
 
+| **Component**            | **Arduino**           | **ESP32**          |
+|--------------------------|-----------------------|--------------------|
+| VRX Pin (Horizontal)      | A0                    | GPIO 32            |
+| VRY Pin (Vertical)        | A1                    | GPIO 33            |
+| Button Pin (Switch)       | Pin 2                 | GPIO 25            |
+
+### MQTT Support Overview
+
+The **MQTT protocol** is used to communicate with the Home Assistant platform. The solar tracker publishes data to the MQTT broker, which is then read by Home Assistant to display the solar panel’s information. The system has been made with automatic discovery, allowing Home Assistant to recognize the solar tracker and its entities.
+
+![MQTT](/img/mqtt.PNG "MQTT")
 
 # Special thanks to the SolTrack library
 
