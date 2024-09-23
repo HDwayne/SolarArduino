@@ -141,7 +141,7 @@ The **joystick** allows manual control of the solar panel's movement. By moving 
 
 The **MQTT protocol** is used to communicate with the Home Assistant platform. The solar tracker publishes data to the MQTT broker, which is then read by Home Assistant to display the solar panel’s information. The system has been made with automatic discovery, allowing Home Assistant to recognize the solar tracker and its entities.
 
-![MQTT](/img/mqtt.PNG "MQTT")
+![MQTT](/img/mqtt.png "MQTT")
 
 # Special thanks to the SolTrack library
 
