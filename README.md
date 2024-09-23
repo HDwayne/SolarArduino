@@ -4,8 +4,9 @@
 
 > **Warning:** This project is still in development.
 
-This Solar Tracker is an embedded system that uses an Arduino or ESP32 microcontroller to track the sun's position and adjust the angle of a solar panel accordingly. By tracking the sun’s movement throughout the day, the Solar Tracker ensures the solar panel is always optimally positioned for maximum energy production.
+> **CAD files:** The SolidWorks files are available in the provided zip file. You can use them to simulate the panel's movement and 3D print the required parts. The software is designed to be adaptable to any solar panel, so feel free to modify it to suit your specific needs.
 
+This Solar Tracker is an embedded system that uses an Arduino or ESP32 microcontroller to track the sun's position and adjust the angle of a solar panel accordingly. By tracking the sun’s movement throughout the day, the Solar Tracker ensures the solar panel is always optimally positioned for maximum energy production.
 
 The system computes the sun’s position using the [SolTrack 2.2](https://github.com/MarcvdSluys/SolTrack) library. This project supports two microcontrollers: **Arduino** and **ESP32**.
 
@@ -142,6 +143,22 @@ The **joystick** allows manual control of the solar panel's movement. By moving 
 The **MQTT protocol** is used to communicate with the Home Assistant platform. The solar tracker publishes data to the MQTT broker, which is then read by Home Assistant to display the solar panel’s information. The system has been made with automatic discovery, allowing Home Assistant to recognize the solar tracker and its entities.
 
 ![MQTT](/img/mqtt.png "MQTT")
+
+# Hardware Used
+
+This is a non-exhaustive list of the components used in this project:
+
+| **Component**                 | **Link**                                              |
+|-------------------------------|-------------------------------------------------------|
+| ESP32 Devkit                  | [https://www.amazon.fr/dp/B0CLD28SHQ](https://www.amazon.fr/dp/B0CLD28SHQ)    |
+| ESP32 Expansion Board         | Delivered with the ESP32 Devkit                       |
+| 2x BTS7960 Motor Drivers      | [https://www.amazon.fr/dp/B09MHNG2JS](https://www.amazon.fr/dp/B09MHNG2JS) |
+| RTC DS3231                    | [https://www.amazon.fr/dp/B077XN4LL4](https://www.amazon.fr/dp/B077XN4LL4)      |
+| Joystick                      | N/A                                                   |
+| Anemometer                    | N/A                                                   |
+| DC Motor 12V                  | N/A                                                   |
+| Linear Actuator               | [https://www.amazon.fr/dp/B0CWN28GFL](https://www.amazon.fr/dp/B0CWN28GFL) |
+| Limit Switch TZ-8122          | N/A                                                   |
 
 # Special thanks to the SolTrack library
 
