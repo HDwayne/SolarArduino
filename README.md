@@ -155,7 +155,7 @@ This is a non-exhaustive list of the components used in this project:
 | 2x BTS7960 Motor Drivers      | [https://www.amazon.fr/dp/B09MHNG2JS](https://www.amazon.fr/dp/B09MHNG2JS) |
 | RTC DS3231                    | [https://www.amazon.fr/dp/B077XN4LL4](https://www.amazon.fr/dp/B077XN4LL4)      |
 | Joystick                      | N/A                                                   |
-| Anemometer                    | N/A                                                   |
+| Anemometer                    | [https://amzn.eu/d/ea2Sudf](https://amzn.eu/d/ea2Sudf) |
 | DC Motor 12V                  | N/A                                                   |
 | Linear Actuator               | [https://www.amazon.fr/dp/B0CWN28GFL](https://www.amazon.fr/dp/B0CWN28GFL) |
 | Limit Switch TZ-8122          | N/A                                                   |
