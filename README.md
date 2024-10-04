@@ -156,9 +156,9 @@ This is a non-exhaustive list of the components used in this project:
 | RTC DS3231                    | [https://www.amazon.fr/dp/B077XN4LL4](https://www.amazon.fr/dp/B077XN4LL4)      |
 | Joystick                      | N/A                                                   |
 | Anemometer                    | [https://amzn.eu/d/ea2Sudf](https://amzn.eu/d/ea2Sudf) |
-| DC Motor 12V                  | N/A                                                   |
+| DC Motor 12V                  | [https://amzn.eu/d/i2e7lmb](https://amzn.eu/d/i2e7lmb)  |
 | Linear Actuator               | [https://www.amazon.fr/dp/B0CWN28GFL](https://www.amazon.fr/dp/B0CWN28GFL) |
-| Limit Switch TZ-8122          | N/A                                                   |
+| Limit Switch TZ-8122          |  [https://amzn.eu/d/7rvahQ4](https://amzn.eu/d/7rvahQ4)    |
 
 # Special thanks to the SolTrack library
 
