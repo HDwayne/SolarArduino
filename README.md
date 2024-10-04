@@ -154,7 +154,7 @@ This is a non-exhaustive list of the components used in this project:
 | ESP32 Expansion Board         | Delivered with the ESP32 Devkit                       |
 | 2x BTS7960 Motor Drivers      | [https://www.amazon.fr/dp/B09MHNG2JS](https://www.amazon.fr/dp/B09MHNG2JS) |
 | RTC DS3231                    | [https://www.amazon.fr/dp/B077XN4LL4](https://www.amazon.fr/dp/B077XN4LL4)      |
-| Joystick                      | N/A                                                   |
+| Joystick                      | [https://amzn.eu/d/ecQA6IR](https://amzn.eu/d/ecQA6IR)    |
 | Anemometer                    | [https://amzn.eu/d/ea2Sudf](https://amzn.eu/d/ea2Sudf) |
 | DC Motor 12V                  | [https://amzn.eu/d/i2e7lmb](https://amzn.eu/d/i2e7lmb)  |
 | Linear Actuator               | [https://www.amazon.fr/dp/B0CWN28GFL](https://www.amazon.fr/dp/B0CWN28GFL) |
