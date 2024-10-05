@@ -39,6 +39,8 @@ int8_t AzimuthController::calibrate()
 {
   Serial.println(F("\n\t--- Starting Calibration Procedure ---\n"));
 
+  fullRotationDuration = AZIMUTH_TIME_MAX_BEFORE_CALIBRATION;
+
   moveFullRight();
 
   if (isError)

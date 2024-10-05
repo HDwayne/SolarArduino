@@ -62,6 +62,15 @@ constexpr float AZIMUTH_DEG_MAX = 275.0;       // Maximum azimuth value (degrees
 constexpr float AZIMUTH_DEG_MIN = 90.0;        // Minimum azimuth value (degrees)
 constexpr uint32_t AZIMUTH_TIME_THRESHOLD = 0; // Threshold in milliseconds to trigger motor adjustment (minimum rotation time)
 
+/*
+To prevent the motor from running indefinitely if the limit switch fails,
+we set a maximum time before entering error mode. This time is the total
+duration for a full rotation (left and right) plus a 5% margin.
+Unfortunately, before calibration, the full rotation time is unknown.
+Therefore, we define a maximum time before calibration to avoid the motor running indefinitely.
+*/
+constexpr uint32_t AZIMUTH_TIME_MAX_BEFORE_CALIBRATION = 3 * 60 * 1000;
+
 // Elevation Settings
 constexpr uint8_t ELEVATION_MOTOR_PWM_SPEED = 255; // Maximum PWM speed for the motor driver (DO NOT CHANGE else calculations will be wrong)
 

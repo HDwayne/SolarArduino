@@ -262,12 +262,14 @@ void AnenometerMode()
 void errorMode()
 {
   Serial.println(F("\n\t--- Entering Error Mode ---\n"));
+  elevationController.moveToMaxElevation();
 
 #if defined(ESP32)
   Serial.println(F("Entering Deep Sleep Mode"));
   esp_deep_sleep_start();
 #endif // ESP32
 
+  Serial.println(F("\n\tEntering infinite loop"));
   while (true)
     delay(1000);
 }
