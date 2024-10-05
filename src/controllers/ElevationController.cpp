@@ -71,9 +71,9 @@ float ElevationController::moveToAngle(float targetAzimuth, float targetElevatio
   {
     Serial.println(F("[INFO] Solar elevation is out of tracking range. Cannot adjust elevation."));
 
-    if (targetAzimuth > azimuthDegMax || targetAzimuth < azimuthDegMin)
+    if (targetAzimuth > azimuthDegMax || targetAzimuth < azimuthDegMin || targetElevation <= 0.0)
     {
-      Serial.println(F("[INFO] Solar azimuth is also out of tracking range."));
+      Serial.println(F("[INFO] Solar azimuth is also out of tracking range or sun below the horizon. Stopping elevation adjustment."));
       if (currentElevation != elevationDegMax)
         moveToMaxElevation();
     }

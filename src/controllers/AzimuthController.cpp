@@ -89,13 +89,13 @@ void AzimuthController::moveFullRight()
   Serial.println(F("-> Full right position reached"));
 }
 
-float AzimuthController::moveToAngle(float targetAngle)
+float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
 {
   Serial.println(F("\n\t--- Adjusting Azimuth ---\n"));
 
-  if (targetAngle < azimuthDegMin || targetAngle > azimuthDegMax)
+  if (targetAzimuth < azimuthDegMin || targetAzimuth > azimuthDegMax || targetElevation <= 0.0)
   {
-    Serial.println(F("[INFO] Solar azimuth is out of the tracking range. Cannot adjust azimuth."));
+    Serial.println(F("[INFO] Solar azimuth is out of the tracking range or sun below the horizon. Cannot adjust azimuth."));
 
     if (currentAzimuth != 0.0)
     {
@@ -106,7 +106,7 @@ float AzimuthController::moveToAngle(float targetAngle)
     return currentAzimuth;
   }
 
-  float azimuthDifference = fabs(targetAngle - currentAzimuth);
+  float azimuthDifference = fabs(targetAzimuth - currentAzimuth);
   float timeToMove = azimuthDifference / degreesPerMs; // Time in milliseconds
 
   if (timeToMove < azimuthTimeThreshold)
@@ -124,7 +124,7 @@ float AzimuthController::moveToAngle(float targetAngle)
   motorController.Enable();
 
   // Determine the direction of movement and move the motor
-  if (targetAngle > currentAzimuth)
+  if (targetAzimuth > currentAzimuth)
   {
     Serial.println(F("[ADJUST] Moving motor to the right to align with the sun."));
     currentAzimuth += azimuthDifference;

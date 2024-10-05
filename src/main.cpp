@@ -156,7 +156,7 @@ void updatePanel()
   Serial.println(F("°"));
 
   float newelevation = elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
-  float newazimuth = azimuthController.moveToAngle(solarPosition.azimuthRefract);
+  float newazimuth = azimuthController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
 
 #if defined(MODULE_MQTT_H)
   mqttModule.updateField(SOLAR_AZIMUTH, &solarPosition.azimuthRefract);
