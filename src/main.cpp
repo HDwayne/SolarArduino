@@ -115,7 +115,11 @@ void resetPanelPosition()
   Serial.println(F("\n\t--- Resetting Solar Panel Position ---\n"));
 
   elevationController.moveToMaxElevation();
-  azimuthController.moveFullLeft();
+  if (azimuthController.moveFullLeft() < 0)
+  {
+    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. "));
+    errorMode();
+  }
 
   Serial.println(F("\n\t--- Solar Panel Position Reset ---\n"));
 }
@@ -125,7 +129,11 @@ void calibratePanel()
   Serial.println(F("\n\t--- Starting Solar Panel Calibration ---\n"));
 
   elevationController.calibrate();
-  azimuthController.calibrate();
+  if (azimuthController.calibrate() < 0)
+  {
+    Serial.println(F("[ERROR] An error occurred during azimuth calibration. "));
+    errorMode();
+  }
 
   Serial.println(F("\n\t--- Solar Panel Calibration Completed ---\n"));
 }
@@ -157,6 +165,12 @@ void updatePanel()
 
   float newelevation = elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
   float newazimuth = azimuthController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
+
+  if (newazimuth < 0)
+  {
+    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. "));
+    errorMode();
+  }
 
 #if defined(MODULE_MQTT_H)
   mqttModule.updateField(SOLAR_AZIMUTH, &solarPosition.azimuthRefract);
@@ -241,4 +255,19 @@ void AnenometerMode()
   }
 
   Serial.println(F("Exiting Anenometer Mode"));
+}
+
+// ----------------- ESP32 Error mode ---------------------
+
+void errorMode()
+{
+  Serial.println(F("\n\t--- Entering Error Mode ---\n"));
+
+#if defined(ESP32)
+  Serial.println(F("Entering Deep Sleep Mode"));
+  esp_deep_sleep_start();
+#endif // ESP32
+
+  while (true)
+    delay(1000);
 }

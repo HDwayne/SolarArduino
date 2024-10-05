@@ -35,15 +35,28 @@ AzimuthController::AzimuthController(const AzimuthControllerConfig &config)
 
 // ----------------- Azimuth control functions -----------------
 
-void AzimuthController::calibrate()
+int8_t AzimuthController::calibrate()
 {
   Serial.println(F("\n\t--- Starting Calibration Procedure ---\n"));
 
   moveFullRight();
+
+  if (isError)
+  {
+    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. Calibration failed."));
+    return -1;
+  }
+
   delay(3000);
 
   unsigned long pressStartTime = millis();
   moveFullLeft();
+
+  if (isError)
+  {
+    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. Calibration failed."));
+    return -1;
+  }
 
   fullRotationDuration = millis() - pressStartTime;
   Serial.print(F("\n\tCalibration Duration: "));
@@ -57,9 +70,11 @@ void AzimuthController::calibrate()
   Serial.println(F("°/ms\n"));
 
   Serial.println(F("\n\t--- Calibration procedure completed. ---\n"));
+
+  return 0;
 }
 
-void AzimuthController::moveFullLeft()
+int8_t AzimuthController::moveFullLeft()
 {
   Serial.println(F("-> Moving to full left position"));
   motorController.Enable();
@@ -70,11 +85,18 @@ void AzimuthController::moveFullLeft()
 
   motorController.Disable();
 
+  if (isError)
+  {
+    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. "));
+    return -1;
+  }
+
   currentAzimuth = 0.0;
   Serial.println(F("-> Full left position reached"));
+  return 0;
 }
 
-void AzimuthController::moveFullRight()
+int8_t AzimuthController::moveFullRight()
 {
   Serial.println(F("-> Moving to full right position"));
   motorController.Enable();
@@ -85,10 +107,22 @@ void AzimuthController::moveFullRight()
 
   motorController.Disable();
 
+  if (isError)
+  {
+    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. "));
+    return -1;
+  }
+
   currentAzimuth = 360.0;
   Serial.println(F("-> Full right position reached"));
+  return 0;
 }
 
+/*
+Function to move the solar panel to a specific azimuth angle.
+Returns the current azimuth angle after adjustment.
+Returns -1.0 if an error occurred.
+*/
 float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
 {
   Serial.println(F("\n\t--- Adjusting Azimuth ---\n"));
@@ -101,6 +135,13 @@ float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
     {
       Serial.println(F("[INFO] Moving to the initial position."));
       moveFullLeft();
+
+      if (isError)
+      {
+        Serial.println(F("[ERROR] An error occurred during azimuth adjustment. "));
+        Serial.println(F("\n\t--- End of Azimuth Adjustment ---\n"));
+        return -1.0;
+      }
     }
 
     return currentAzimuth;
@@ -129,7 +170,7 @@ float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
     Serial.println(F("[ADJUST] Moving motor to the right to align with the sun."));
     currentAzimuth += azimuthDifference;
     startMotorRight();
-    if (waitForLimitSwitchOrDelay(timeToMove))
+    if (waitForLimitSwitchOrDelay(timeToMove) == LIMIT_SWITCH_TRIGGERED)
     {
       Serial.println(F("[WARNING] Limit switch was pressed during adjustment."));
       currentAzimuth = 360.0;
@@ -140,7 +181,7 @@ float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
     Serial.println(F("[ADJUST] Moving motor to the left to align with the sun."));
     currentAzimuth -= azimuthDifference;
     startMotorLeft();
-    if (waitForLimitSwitchOrDelay(timeToMove))
+    if (waitForLimitSwitchOrDelay(timeToMove) == LIMIT_SWITCH_TRIGGERED)
     {
       Serial.println(F("[WARNING] Limit switch was pressed during adjustment."));
       currentAzimuth = 0.0;
@@ -150,6 +191,13 @@ float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
   // Stop the motor after adjustment
   stopMotor();
   motorController.Disable();
+
+  if (isError)
+  {
+    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. "));
+    Serial.println(F("\n\t--- End of Azimuth Adjustment ---\n"));
+    return -1.0;
+  }
 
   Serial.print(F("[ADJUST] Azimuth aligned. Current azimuth: "));
   Serial.println(currentAzimuth, 2);
@@ -163,12 +211,18 @@ float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
 
 void AzimuthController::startMotorLeft()
 {
+  if (isError)
+    return;
+
   Serial.println(F("[MOTOR] Starting motor. Direction: left."));
   motorController.TurnLeft(motorPwmSpeed);
 }
 
 void AzimuthController::startMotorRight()
 {
+  if (isError)
+    return;
+
   Serial.println(F("[MOTOR] Starting motor. Direction: right."));
   motorController.TurnRight(motorPwmSpeed);
 }
@@ -181,34 +235,43 @@ void AzimuthController::stopMotor()
 
 // ----------------- Limit Switch control functions ------------------
 
-// function blocks until the Limit Switch is reached
-void AzimuthController::waitForLimitSwitch()
+/*
+Function to wait for the limit switch to be pressed.
+Returns:
+- LIMIT_SWITCH_TRIGGERED: If the limit switch was pressed.
+- ERROR_FULL_ROTATION_EXCEEDED: If the full rotation time was exceeded.
+*/
+int8_t AzimuthController::waitForLimitSwitch()
 {
+  return waitForLimitSwitchOrDelay(0);
+}
+
+/*
+Function to wait for the limit switch to be pressed or a delay time to be reached.
+Returns:
+- LIMIT_SWITCH_TRIGGERED: If the limit switch was pressed.
+- DELAY_TRIGGERED: If the delay time was reached.
+- ERROR_FULL_ROTATION_EXCEEDED: If the full rotation time was exceeded.
+*/
+int8_t AzimuthController::waitForLimitSwitchOrDelay(uint32_t delayTime)
+{
+  uint32_t startTime = millis();
   while (true)
   {
     limitSwitch.loop();
     if (limitSwitch.isPressed())
     {
-      Serial.println(F("[SWITCH] Limit switch pressed."));
-      break;
+      return LIMIT_SWITCH_TRIGGERED;
     }
-  }
-  limitSwitch.loop();
-}
-
-// function blocks until the Limit Switch is reached or the delay time has passed. Returns true if the Limit Switch was pressed.
-bool AzimuthController::waitForLimitSwitchOrDelay(uint32_t delayTime)
-{
-  uint32_t startTime = millis();
-  while (millis() - startTime < delayTime)
-  {
-    limitSwitch.loop();
-    if (limitSwitch.isPressed())
+    if (delayTime > 0 && millis() - startTime >= delayTime)
     {
-      Serial.println(F("[SWITCH] Limit switch pressed."));
-      return true;
+      return DELAY_TRIGGERED;
+    }
+    if (millis() - startTime >= fullRotationDuration * 1.05)
+    {
+      Serial.println(F("[ERROR] Full rotation time exceeded. SHOULD NOT HAPPEN!."));
+      isError = true;
+      return ERROR_FULL_ROTATION_EXCEEDED;
     }
   }
-  limitSwitch.loop();
-  return false;
 }

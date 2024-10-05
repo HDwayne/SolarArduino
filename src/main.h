@@ -19,6 +19,7 @@
 #include "modules/AnemometerModule.h"
 
 #if defined(ESP32)
+#include "esp_sleep.h"
 #include "modules/WifiModule.h"
 #include "modules/MQTTModule.h"
 #endif
@@ -31,5 +32,6 @@ void updatePanel();
 void initJoystick();
 void JoystickMode();
 void AnenometerMode();
+void errorMode();
 
 #endif // SOLAR_TRACKER_H

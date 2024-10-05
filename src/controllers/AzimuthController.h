@@ -5,6 +5,10 @@
 #include <ezButton.h>
 #include <BTS7960.h>
 
+#define DELAY_TRIGGERED 0
+#define LIMIT_SWITCH_TRIGGERED 1
+#define ERROR_FULL_ROTATION_EXCEEDED -1
+
 struct AzimuthControllerConfig
 {
   uint8_t motorEnPin;
@@ -24,9 +28,9 @@ public:
   AzimuthController(const AzimuthControllerConfig &config);
 
   // Calibration and movement methods
-  void calibrate();
-  void moveFullLeft();
-  void moveFullRight();
+  int8_t calibrate();
+  int8_t moveFullLeft();
+  int8_t moveFullRight();
   float moveToAngle(float targetAzimuth, float targetElevation);
   void startMotorLeft();
   void startMotorRight();
@@ -56,9 +60,11 @@ private:
   const float azimuthDegMin;
   const uint32_t azimuthTimeThreshold;
 
+  bool isError = false;
+
   // Utility methods
-  void waitForLimitSwitch();
-  bool waitForLimitSwitchOrDelay(uint32_t delayTime);
+  int8_t waitForLimitSwitch();
+  int8_t waitForLimitSwitchOrDelay(uint32_t delayTime);
 };
 
 extern AzimuthController azimuthController;
