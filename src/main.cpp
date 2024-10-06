@@ -66,16 +66,12 @@ void setup()
   locationData.temperature = configModule.getSTTemperature();
 
   // Calibrate the solar panel
-  Serial.println(F("\n\t--- Starting Solar Panel Calibration ---\n"));
-
-  elevationController.calibrate();
+  elevationController.init();
   if (azimuthController.init() < 0)
   {
     Serial.println(F("[ERROR] An error occurred during azimuth calibration. "));
     errorMode();
   }
-
-  Serial.println(F("\n\t--- Solar Panel Calibration Completed ---\n"));
 
   // Update the solar panel position
   updatePanel();
