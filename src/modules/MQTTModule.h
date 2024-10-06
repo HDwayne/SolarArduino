@@ -9,15 +9,6 @@
 #include <ArduinoJson.h>
 #include <WiFi.h>
 
-struct MQTTModuleConfig
-{
-  const char *mqtt_server;   // Adresse du serveur MQTT
-  uint16_t mqtt_port;        // Port du serveur MQTT (par défaut 1883)
-  const char *mqtt_user;     // Nom d'utilisateur (si requis)
-  const char *mqtt_password; // Mot de passe (si requis)
-  const char *device_name;   // Nom unique du périphérique
-};
-
 enum MQTTFields
 {
   PANEL_AZIMUTH,
@@ -33,7 +24,7 @@ enum MQTTFields
 class MQTTModule
 {
 public:
-  MQTTModule(const MQTTModuleConfig &config);
+  MQTTModule();
   void init();
   void updateField(MQTTFields field, void *value);
   void loop();

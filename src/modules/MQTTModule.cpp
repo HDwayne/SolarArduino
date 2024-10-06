@@ -5,31 +5,22 @@
 #include "SolTrack.h"
 #include <RTClib.h>
 
-MQTTModuleConfig mqtttModuleConfig = {
-    .mqtt_server = configModule.getMQTTServer(),
-    .mqtt_port = configModule.getMQTTPort(),
-    .mqtt_user = configModule.getMQTTUser(),
-    .mqtt_password = configModule.getMQTTPassword(),
-    .device_name = configModule.getDeviceName()};
-
-MQTTModule mqttModule(mqtttModuleConfig);
+MQTTModule mqttModule();
 
 // ----------------- Constructeur -----------------
 
-MQTTModule::MQTTModule(const MQTTModuleConfig &config)
-    : client(espClient),
-      mqtt_server(config.mqtt_server),
-      mqtt_port(config.mqtt_port),
-      mqtt_user(config.mqtt_user),
-      mqtt_password(config.mqtt_password),
-      device_name(config.device_name)
-{
-}
+MQTTModule::MQTTModule() : client(espClient) {}
 
 // ----------------- Initialisation -----------------
 
 void MQTTModule::init()
 {
+  mqtt_server = configModule.getMQTTServer();
+  mqtt_port = configModule.getMQTTPort();
+  mqtt_user = configModule.getMQTTUser();
+  mqtt_password = configModule.getMQTTPassword();
+  device_name = configModule.getDeviceName();
+
   client.setServer(mqtt_server, mqtt_port);
   client.setBufferSize(512);
   WiFi.macAddress(macAddr);
