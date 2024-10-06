@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Solar Tracker Configuration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; }
+        .section { margin-bottom: 30px; }
+        .section h2 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input[type=text], input[type=number], input[type=password] {
+            width: 100%; padding: 8px; box-sizing: border-box; margin-top: 5px;
+        }
+        input[type=checkbox] { margin-top: 10px; }
+        input[type=submit], button {
+            background-color: #4CAF50; color: white; padding: 10px 15px; margin-top: 20px;
+            border: none; cursor: pointer; width: 100%;
+        }
+        input[type=submit]:hover, button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Solar Tracker Configuration</h1>
+    <form action="/saveConfig" method="POST">
+        <!-- PINS Section -->
+        <div class="section">
+            <h2>PINS</h2>
+            <label for="azimuthMotorPinEn">Azimuth Motor Pin EN:</label>
+            <input type="number" id="azimuthMotorPinEn" name="azimuthMotorPinEn" value="{{azimuthMotorPinEn}}">
+
+            <label for="azimuthMotorPwmPinL">Azimuth Motor PWM Pin L:</label>
+            <input type="number" id="azimuthMotorPwmPinL" name="azimuthMotorPwmPinL" value="{{azimuthMotorPwmPinL}}">
+
+            <label for="azimuthMotorPwmPinR">Azimuth Motor PWM Pin R:</label>
+            <input type="number" id="azimuthMotorPwmPinR" name="azimuthMotorPwmPinR" value="{{azimuthMotorPwmPinR}}">
+
+            <label for="azimuthLimitSwitchPin">Azimuth Limit Switch Pin:</label>
+            <input type="number" id="azimuthLimitSwitchPin" name="azimuthLimitSwitchPin" value="{{azimuthLimitSwitchPin}}">
+
+            <label for="elevationMotorPinEn">Elevation Motor Pin EN:</label>
+            <input type="number" id="elevationMotorPinEn" name="elevationMotorPinEn" value="{{elevationMotorPinEn}}">
+
+            <label for="elevationMotorPwmPinU">Elevation Motor PWM Pin U:</label>
+            <input type="number" id="elevationMotorPwmPinU" name="elevationMotorPwmPinU" value="{{elevationMotorPwmPinU}}">
+
+            <label for="elevationMotorPwmPinD">Elevation Motor PWM Pin D:</label>
+            <input type="number" id="elevationMotorPwmPinD" name="elevationMotorPwmPinD" value="{{elevationMotorPwmPinD}}">
+
+            <label for="joystickVrxPin">Joystick VRX Pin:</label>
+            <input type="number" id="joystickVrxPin" name="joystickVrxPin" value="{{joystickVrxPin}}">
+
+            <label for="joystickVryPin">Joystick VRY Pin:</label>
+            <input type="number" id="joystickVryPin" name="joystickVryPin" value="{{joystickVryPin}}">
+
+            <label for="joystickButtonPin">Joystick Button Pin:</label>
+            <input type="number" id="joystickButtonPin" name="joystickButtonPin" value="{{joystickButtonPin}}">
+
+            <label for="anenometerButtonPin">Anemometer Button Pin:</label>
+            <input type="number" id="anenometerButtonPin" name="anenometerButtonPin" value="{{anenometerButtonPin}}">
+        </div>
+
+        <!-- Constants Section -->
+        <div class="section">
+            <h2>Constants</h2>
+            <label for="updatePanelAdjustmentInterval">Update Panel Adjustment Interval:</label>
+            <input type="number" id="updatePanelAdjustmentInterval" name="updatePanelAdjustmentInterval" value="{{updatePanelAdjustmentInterval}}">
+        </div>
+
+        <!-- Solar Tracking Settings Section -->
+        <div class="section">
+            <h2>Solar Tracking Settings</h2>
+            <label for="stLatitude">Latitude (degrees):</label>
+            <input type="text" id="stLatitude" name="stLatitude" value="{{stLatitude}}">
+
+            <label for="stLongitude">Longitude (degrees):</label>
+            <input type="text" id="stLongitude" name="stLongitude" value="{{stLongitude}}">
+
+            <label for="stPressure">Atmospheric Pressure (kPa):</label>
+            <input type="text" id="stPressure" name="stPressure" value="{{stPressure}}">
+
+            <label for="stTemperature">Atmospheric Temperature (K):</label>
+            <input type="text" id="stTemperature" name="stTemperature" value="{{stTemperature}}">
+        </div>
+
+        <!-- Solar Track Options Section -->
+        <div class="section">
+            <h2>Solar Track Options</h2>
+            <label>
+                <input type="checkbox" name="useDegrees" {{useDegreesChecked}}>
+                Use Degrees
+            </label>
+            <label>
+                <input type="checkbox" name="useNorthEqualsZero" {{useNorthEqualsZeroChecked}}>
+                Use North Equals Zero
+            </label>
+            <label>
+                <input type="checkbox" name="computeRefrEquatorial" {{computeRefrEquatorialChecked}}>
+                Compute Refraction Equatorial
+            </label>
+            <label>
+                <input type="checkbox" name="computeDistance" {{computeDistanceChecked}}>
+                Compute Distance
+            </label>
+        </div>
+
+        <!-- Azimuth Settings Section -->
+        <div class="section">
+            <h2>Azimuth Settings</h2>
+            <label for="azimuthMotorPWMSpeed">Motor PWM Speed:</label>
+            <input type="number" id="azimuthMotorPWMSpeed" name="azimuthMotorPWMSpeed" value="{{azimuthMotorPWMSpeed}}">
+
+            <label for="azimuthDegMax">Maximum Azimuth (degrees):</label>
+            <input type="text" id="azimuthDegMax" name="azimuthDegMax" value="{{azimuthDegMax}}">
+
+            <label for="azimuthDegMin">Minimum Azimuth (degrees):</label>
+            <input type="text" id="azimuthDegMin" name="azimuthDegMin" value="{{azimuthDegMin}}">
+
+            <label for="azimuthTimeThreshold">Azimuth Time Threshold (ms):</label>
+            <input type="number" id="azimuthTimeThreshold" name="azimuthTimeThreshold" value="{{azimuthTimeThreshold}}">
+
+            <label for="azimuthTimeMaxBeforeCalibration">Max Time Before Calibration (ms):</label>
+            <input type="number" id="azimuthTimeMaxBeforeCalibration" name="azimuthTimeMaxBeforeCalibration" value="{{azimuthTimeMaxBeforeCalibration}}">
+        </div>
+
+        <!-- Elevation Settings Section -->
+        <div class="section">
+            <h2>Elevation Settings</h2>
+            <label for="elevationMotorPWMSpeed">Motor PWM Speed:</label>
+            <input type="number" id="elevationMotorPWMSpeed" name="elevationMotorPWMSpeed" value="{{elevationMotorPWMSpeed}}">
+
+            <label for="elevationDegMax">Maximum Elevation (degrees):</label>
+            <input type="text" id="elevationDegMax" name="elevationDegMax" value="{{elevationDegMax}}">
+
+            <label for="elevationDegMin">Minimum Elevation (degrees):</label>
+            <input type="text" id="elevationDegMin" name="elevationDegMin" value="{{elevationDegMin}}">
+
+            <label for="elevationTimeThreshold">Elevation Time Threshold (ms):</label>
+            <input type="number" id="elevationTimeThreshold" name="elevationTimeThreshold" value="{{elevationTimeThreshold}}">
+
+            <label for="elevationActuatorSpeed">Actuator Speed (mm/s):</label>
+            <input type="text" id="elevationActuatorSpeed" name="elevationActuatorSpeed" value="{{elevationActuatorSpeed}}">
+
+            <label for="elevationActuatorLength">Actuator Length (mm):</label>
+            <input type="text" id="elevationActuatorLength" name="elevationActuatorLength" value="{{elevationActuatorLength}}">
+
+            <label for="forceTimeFullTravel">Force Time Full Travel (s):</label>
+            <input type="number" id="forceTimeFullTravel" name="forceTimeFullTravel" value="{{forceTimeFullTravel}}">
+        </div>
+
+        <!-- Joystick Settings Section -->
+        <div class="section">
+            <h2>Joystick Settings</h2>
+            <label for="joystickButtonDebounce">Button Debounce Time (ms):</label>
+            <input type="number" id="joystickButtonDebounce" name="joystickButtonDebounce" value="{{joystickButtonDebounce}}">
+
+            <label for="joystickThreshold">Joystick Threshold:</label>
+            <input type="number" id="joystickThreshold" name="joystickThreshold" value="{{joystickThreshold}}">
+        </div>
+
+        <!-- Anemometer Settings Section -->
+        <div class="section">
+            <h2>Anemometer Settings</h2>
+            <label for="anenometerSafeDuration">Safe Duration (ms):</label>
+            <input type="number" id="anenometerSafeDuration" name="anenometerSafeDuration" value="{{anenometerSafeDuration}}">
+        </div>
+
+        <!-- MQTT Settings Section -->
+        <div class="section">
+            <h2>MQTT Settings</h2>
+            <label for="deviceName">Device Name:</label>
+            <input type="text" id="deviceName" name="deviceName" value="{{deviceName}}">
+
+            <label for="mqttServer">MQTT Server:</label>
+            <input type="text" id="mqttServer" name="mqttServer" value="{{mqttServer}}">
+
+            <label for="mqttPort">MQTT Port:</label>
+            <input type="number" id="mqttPort" name="mqttPort" value="{{mqttPort}}">
+
+            <label for="mqttUser">MQTT User:</label>
+            <input type="text" id="mqttUser" name="mqttUser" value="{{mqttUser}}">
+
+            <label for="mqttPassword">MQTT Password:</label>
+            <input type="password" id="mqttPassword" name="mqttPassword" value="{{mqttPassword}}">
+        </div>
+
+        <!-- NTP Settings Section -->
+        <div class="section">
+            <h2>NTP Settings</h2>
+            <label for="ntpServer1">NTP Server 1:</label>
+            <input type="text" id="ntpServer1" name="ntpServer1" value="{{ntpServer1}}">
+
+            <label for="ntpServer2">NTP Server 2:</label>
+            <input type="text" id="ntpServer2" name="ntpServer2" value="{{ntpServer2}}">
+
+            <label for="ntpServer3">NTP Server 3:</label>
+            <input type="text" id="ntpServer3" name="ntpServer3" value="{{ntpServer3}}">
+        </div>
+
+        <!-- Wi-Fi Credentials Section -->
+        <div class="section">
+            <h2>Wi-Fi Credentials</h2>
+            <label for="wifiSSID">Wi-Fi SSID:</label>
+            <input type="text" id="wifiSSID" name="wifiSSID" value="{{wifiSSID}}">
+
+            <label for="wifiPassword">Wi-Fi Password:</label>
+            <input type="password" id="wifiPassword" name="wifiPassword" value="{{wifiPassword}}">
+        </div>
+
+        <input type="submit" value="Save Configuration">
+    </form>
+
+    <button onclick="refreshPage()">Refresh Values</button>
+
+    <script>
+        function refreshPage() {
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>

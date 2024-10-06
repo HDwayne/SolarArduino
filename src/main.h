@@ -23,6 +23,7 @@
 #include "modules/WifiModule.h"
 #include "modules/MQTTModule.h"
 #include "modules/OTAModule.h"
+#include "modules/WebServerModule.h"
 #endif
 
 // Function Prototypes
