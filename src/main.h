@@ -22,6 +22,7 @@
 #include "esp_sleep.h"
 #include "modules/WifiModule.h"
 #include "modules/MQTTModule.h"
+#include "modules/OTAModule.h"
 #endif
 
 // Function Prototypes

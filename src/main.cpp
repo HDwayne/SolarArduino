@@ -46,6 +46,10 @@ void setup()
   mqttModule.init();
 #endif // MODULE_MQTT_H
 
+#if defined(MODULE_OTA_H)
+  otaModule.init();
+#endif // MODULE_OTA_H
+
   // initialize joystick
   initJoystick();
 
@@ -71,6 +75,10 @@ void loop()
 #if defined(MODULE_MQTT_H)
   mqttModule.loop();
 #endif // MODULE_MQTT_H
+
+#if defined(MODULE_OTA_H)
+  otaModule.loop();
+#endif // MODULE_OTA_H
 
   if (anenometerModule.isTriggered())
   {
