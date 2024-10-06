@@ -1,16 +1,17 @@
 #include "AnemometerModule.h"
 #include "ConfigModule.h"
 
-AnenometerModuleConfig anenometerConfig = {
-    configModule.getAnenometerButtonPin()};
-
-AnenometerModule anenometerModule(anenometerConfig);
+AnenometerModule anenometerModule();
 
 // ----------------- Anenometer Module Constructor -----------------
 
-AnenometerModule::AnenometerModule(const AnenometerModuleConfig &config)
+AnenometerModule::AnenometerModule() {}
+
+// ----------------- Anenometer Module Initialisation -----------------
+
+void AnenometerModule::init()
 {
-  button = new ezButton(config.buttonPin);
+  button = new ezButton(configModule.getAnenometerButtonPin());
   button->setDebounceTime(250);
 }
 
