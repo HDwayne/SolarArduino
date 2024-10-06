@@ -497,4 +497,6 @@ void ConfigModule::printConfig()
   Serial.printf("NTP_SERVER1: %s\n", configData.NTP_SERVER1);
   Serial.printf("NTP_SERVER2: %s\n", configData.NTP_SERVER2);
   Serial.printf("NTP_SERVER3: %s\n", configData.NTP_SERVER3);
+  Serial.printf("WIFI_SSID: %s\n", configData.WIFI_SSID);
+  Serial.printf("WIFI_PASSWORD: %s\n", configData.WIFI_PASSWORD);
 }

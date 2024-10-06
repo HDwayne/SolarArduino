@@ -110,7 +110,7 @@ void WebServerModule::handleConfigPage(AsyncWebServerRequest *request)
   html.replace("{{mqttServer}}", configModule.getMQTTServer());
   html.replace("{{mqttPort}}", String(configModule.getMQTTPort()));
   html.replace("{{mqttUser}}", configModule.getMQTTUser());
-  // html.replace("{{mqttPassword}}", configModule.getMQTTPassword());
+  html.replace("{{mqttPassword}}", configModule.getMQTTPassword());
   html.replace("{{deviceName}}", configModule.getDeviceName());
 
   // NTP Settings
@@ -120,7 +120,7 @@ void WebServerModule::handleConfigPage(AsyncWebServerRequest *request)
 
   // Wi-Fi Credentials
   html.replace("{{wifiSSID}}", configModule.getWIFISSID());
-  // html.replace("{{wifiPassword}}", configModule.getWIFIPassword());
+  html.replace("{{wifiPassword}}", configModule.getWIFIPassword());
 
   request->send(200, "text/html", html);
 }
