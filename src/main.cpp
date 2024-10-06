@@ -25,6 +25,11 @@ void setup()
   // Initialize the system components
   Serial.println(F("\n\t--- System Initialization ---\n"));
 
+  // Initialize Modules
+#if defined(MODULE_WIFI_H)
+  wifiModule.init();
+#endif // MODULE_WIFI_H
+
   rtcModule.init();
   if (rtcModule.lostPower())
   {
@@ -36,11 +41,6 @@ void setup()
     // rtcModule.adjustFromLocal(__DATE__, __TIME__);
 #endif
   }
-
-  // Initialize Modules
-#if defined(MODULE_WIFI_H)
-  wifiModule.init();
-#endif // MODULE_WIFI_H
 
 #if defined(MODULE_MQTT_H)
   mqttModule.init();
