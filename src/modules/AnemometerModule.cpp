@@ -1,7 +1,7 @@
 #include "AnemometerModule.h"
 #include "ConfigModule.h"
 
-AnenometerModule anenometerModule();
+AnenometerModule anenometerModule;
 
 // ----------------- Anenometer Module Constructor -----------------
 

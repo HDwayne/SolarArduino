@@ -5,7 +5,7 @@
 #include "SolTrack.h"
 #include <RTClib.h>
 
-MQTTModule mqttModule();
+MQTTModule mqttModule;
 
 // ----------------- Constructeur -----------------
 

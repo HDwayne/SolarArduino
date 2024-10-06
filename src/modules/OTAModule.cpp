@@ -3,7 +3,7 @@
 #include "OTAModule.h"
 #include "ConfigModule.h"
 
-OTAModule otaModule();
+OTAModule otaModule;
 
 // ----------------- OTA Module Constructor -----------------
 
