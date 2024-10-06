@@ -28,7 +28,9 @@ void setup()
   // Initialize Modules
   configModule.begin();
 
+#if defined(MODULE_ANENOMETER_H)
   anenometerModule.init();
+#endif // MODULE_ANENOMETER_H
 
 #if defined(MODULE_WIFI_H)
   wifiModule.init();
@@ -84,6 +86,7 @@ void loop()
   otaModule.loop();
 #endif // MODULE_OTA_H
 
+#if defined(MODULE_ANENOMETER_H)
   if (anenometerModule.isTriggered())
   {
     AnenometerMode();
@@ -93,6 +96,7 @@ void loop()
     while (anenometerModule.isTriggered())
       ; // avoid multiple calls
   }
+#endif // MODULE_ANENOMETER_H
 
   if (joystickController.isPressed())
   {
