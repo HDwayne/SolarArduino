@@ -1,18 +1,18 @@
 #include "ElevationController.h"
-#include "config.h"
+#include "modules/ConfigModule.h"
 
 ElevationControllerConfig elevationConfig = {
-    ELEVATION_MOTOR_PIN_EN,
-    ELEVATION_MOTOR_PWM_PIN_U,
-    ELEVATION_MOTOR_PWM_PIN_D,
-    ELEVATION_MOTOR_PWM_SPEED,
-    AZIMUTH_DEG_MAX,
-    AZIMUTH_DEG_MIN,
-    ELEVATION_DEG_MAX,
-    ELEVATION_DEG_MIN,
-    ELEVATION_TIME_THRESHOLD,
-    ELEVATION_ACTUATOR_SPEED,
-    ELEVATION_ACTUATOR_LENGTH};
+    configModule.getElevationMotorPinEn(),
+    configModule.getElevationMotorPwmPinU(),
+    configModule.getElevationMotorPwmPinD(),
+    configModule.getElevationMotorPWMSpeed(),
+    configModule.getAzimuthDegMax(),
+    configModule.getAzimuthDegMin(),
+    configModule.getElevationDegMax(),
+    configModule.getElevationDegMin(),
+    configModule.getElevationTimeThreshold(),
+    configModule.getElevationActuatorSpeed(),
+    configModule.getElevationActuatorLength()};
 
 ElevationController elevationController(elevationConfig);
 
@@ -43,7 +43,7 @@ void ElevationController::calibrate()
 {
   Serial.println(F("\n\t--- Starting Elevation Calibration Procedure ---\n"));
 
-#ifdef FORCE_TIME_FULL_TRAVEL
+#ifdef FORCE_TIME_FULL_TRAVEL // TODO
   actuatorFullTravelTime = FORCE_TIME_FULL_TRAVEL * 1000.0;
 #else
   actuatorFullTravelTime = (actuatorLength / actuatorSpeed) * 1000.0;

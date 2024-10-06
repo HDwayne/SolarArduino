@@ -26,6 +26,8 @@ void setup()
   Serial.println(F("\n\t--- System Initialization ---\n"));
 
   // Initialize Modules
+  configModule.begin();
+
 #if defined(MODULE_WIFI_H)
   wifiModule.init();
 #endif // MODULE_WIFI_H
@@ -54,10 +56,10 @@ void setup()
   initJoystick();
 
   // Set initial location data for solar calculations
-  locationData.latitude = ST_LATITUDE;
-  locationData.longitude = ST_LONGITUDE;
-  locationData.pressure = ST_PRESSURE;
-  locationData.temperature = ST_TEMPERATURE;
+  locationData.latitude = configModule.getSTLatitude();
+  locationData.longitude = configModule.getSTLongitude();
+  locationData.pressure = configModule.getSTPressure();
+  locationData.temperature = configModule.getSTTemperature();
 
   // Calibrate the solar panel
   calibratePanel();
@@ -109,7 +111,7 @@ void loop()
     uint32_t secc = now.unixtime() - lastPanelAdjustmentTime.unixtime();
     uint16_t minutesDiff = secc / 60;
 
-    if (minutesDiff >= UPDATE_PANEL_ADJUSTMENT_INTERVAL)
+    if (minutesDiff >= configModule.getUpdatePanelAdjustmentInterval())
     {
       Serial.print(F("\n\t--- New Solar Panel Adjustment ---\n"));
       updatePanel();
@@ -164,7 +166,7 @@ void updatePanel()
   currentTime.minute = lastPanelAdjustmentTime.minute();
   currentTime.second = lastPanelAdjustmentTime.second();
 
-  SolTrack(currentTime, locationData, &solarPosition, useDegrees, useNorthEqualsZero, computeRefrEquatorial, computeDistance);
+  SolTrack(currentTime, locationData, &solarPosition, configModule.getUseDegrees(), configModule.getUseNorthEqualsZero(), configModule.getComputeRefrEquatorial(), configModule.getComputeDistance());
 
   Serial.println();
 
@@ -191,7 +193,7 @@ void updatePanel()
   mqttModule.updateField(PANEL_AZIMUTH, &newazimuth);
   mqttModule.updateField(PANEL_ELEVATION, &newelevation);
   mqttModule.updateField(LAST_PANEL_ADJUSTMENT_TIME, &lastPanelAdjustmentTimeLocal);
-  DateTime nextPanelAdjustmentTimeLocal = lastPanelAdjustmentTimeLocal.unixtime() + UPDATE_PANEL_ADJUSTMENT_INTERVAL * 60;
+  DateTime nextPanelAdjustmentTimeLocal = lastPanelAdjustmentTimeLocal.unixtime() + configModule.getUpdatePanelAdjustmentInterval() * 60;
   mqttModule.updateField(NEXT_PANEL_ADJUSTMENT_TIME, &nextPanelAdjustmentTimeLocal);
 #endif // MODULE_MQTT_H
 
@@ -253,7 +255,7 @@ void AnenometerMode()
   elevationController.moveToMaxElevation();
 
   unsigned long countdownStart = millis();
-  unsigned long countdownEnd = countdownStart + ANENOMETER_SAFE_DURATION;
+  unsigned long countdownEnd = countdownStart + configModule.getAnenometerSafeDuration();
 
   while (millis() < countdownEnd)
   {
@@ -262,7 +264,7 @@ void AnenometerMode()
       Serial.println(F("Anenometer triggered, resetting countdown"));
 
       countdownStart = millis();
-      countdownEnd = countdownStart + ANENOMETER_SAFE_DURATION;
+      countdownEnd = countdownStart + configModule.getAnenometerSafeDuration();
     }
     delay(100);
   }

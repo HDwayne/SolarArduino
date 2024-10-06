@@ -8,7 +8,7 @@
 
 struct AnenometerModuleConfig
 {
-  int8_t buttonPin;
+  uint8_t buttonPin;
 };
 
 class AnenometerModule

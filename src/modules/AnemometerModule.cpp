@@ -1,8 +1,8 @@
 #include "AnemometerModule.h"
-#include "config.h"
+#include "ConfigModule.h"
 
 AnenometerModuleConfig anenometerConfig = {
-    ANENOMETER_BUTTON_PIN};
+    configModule.getAnenometerButtonPin()};
 
 AnenometerModule anenometerModule(anenometerConfig);
 

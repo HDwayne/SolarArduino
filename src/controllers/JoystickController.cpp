@@ -1,5 +1,5 @@
 #include "JoystickController.h"
-#include "config.h"
+#include "modules/ConfigModule.h"
 
 enum Command
 {
@@ -11,11 +11,11 @@ enum Command
 };
 
 joystickControllerConfig joystickConfig = {
-    JOYSTICK_BUTTON_PIN,
-    JOYSTICK_BUTTON_DEBOUNCE,
-    JOYSTICK_VRX_PIN,
-    JOYSTICK_VRY_PIN,
-    JOYSTICK_THRESHOLD};
+    configModule.getJoystickButtonPin(),
+    configModule.getJoystickButtonDebounce(),
+    configModule.getJoystickVrxPin(),
+    configModule.getJoystickVryPin(),
+    configModule.getJoystickThreshold()};
 
 JoystickController joystickController(joystickConfig);
 

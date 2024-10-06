@@ -1,15 +1,15 @@
 #include "AzimuthController.h"
-#include "config.h"
+#include "modules/ConfigModule.h"
 
 AzimuthControllerConfig azimuthConfig = {
-    AZIMUTH_MOTOR_PIN_EN,
-    AZIMUTH_MOTOR_PWM_PIN_L,
-    AZIMUTH_MOTOR_PWM_PIN_R,
-    AZIMUTH_MOTOR_PWM_SPEED,
-    AZIMUTH_LIMIT_SWITCH_PIN,
-    AZIMUTH_DEG_MAX,
-    AZIMUTH_DEG_MIN,
-    AZIMUTH_TIME_THRESHOLD};
+    configModule.getAzimuthMotorPinEn(),
+    configModule.getAzimuthMotorPwmPinL(),
+    configModule.getAzimuthMotorPwmPinR(),
+    configModule.getAzimuthMotorPWMSpeed(),
+    configModule.getAzimuthLimitSwitchPin(),
+    configModule.getAzimuthDegMax(),
+    configModule.getAzimuthDegMin(),
+    configModule.getAzimuthTimeThreshold()};
 
 AzimuthController azimuthController(azimuthConfig);
 
@@ -39,7 +39,7 @@ int8_t AzimuthController::calibrate()
 {
   Serial.println(F("\n\t--- Starting Calibration Procedure ---\n"));
 
-  fullRotationDuration = AZIMUTH_TIME_MAX_BEFORE_CALIBRATION;
+  fullRotationDuration = configModule.getAzimuthTimeMaxBeforeCalibration();
 
   moveFullRight();
 

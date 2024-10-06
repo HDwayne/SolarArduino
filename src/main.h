@@ -10,11 +10,11 @@
 #include "SolTrack.h"
 #include "ezButton.h"
 
-#include "config.h"
 #include "controllers/AzimuthController.h"
 #include "controllers/ElevationController.h"
 #include "controllers/JoystickController.h"
 
+#include "modules/ConfigModule.h"
 #include "modules/RTCModule.h"
 #include "modules/AnemometerModule.h"
 

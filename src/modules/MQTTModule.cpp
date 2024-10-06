@@ -1,16 +1,16 @@
 #if defined(ESP32)
 
 #include "MQTTModule.h"
-#include "config.h"
+#include "ConfigModule.h"
 #include "SolTrack.h"
 #include <RTClib.h>
 
 MQTTModuleConfig mqtttModuleConfig = {
-    .mqtt_server = MQTT_SERVER,
-    .mqtt_port = MQTT_PORT,
-    .mqtt_user = MQTT_USER,
-    .mqtt_password = MQTT_PASSWORD,
-    .device_name = DEVICE_NAME};
+    .mqtt_server = configModule.getMQTTServer(),
+    .mqtt_port = configModule.getMQTTPort(),
+    .mqtt_user = configModule.getMQTTUser(),
+    .mqtt_password = configModule.getMQTTPassword(),
+    .device_name = configModule.getDeviceName()};
 
 MQTTModule mqttModule(mqtttModuleConfig);
 

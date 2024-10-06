@@ -1,10 +1,10 @@
 #if defined(ESP32)
 
 #include "OTAModule.h"
-#include "config.h"
+#include "ConfigModule.h"
 
 OTAModuleConfig otaModuleConfig = {
-    .device_name = DEVICE_NAME};
+    .device_name = configModule.getDeviceName()};
 
 OTAModule otaModule(otaModuleConfig);
 
