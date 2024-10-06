@@ -1,45 +1,32 @@
 #include "AzimuthController.h"
-#include "config.h"
+#include "modules/ConfigModule.h"
 
-AzimuthControllerConfig azimuthConfig = {
-    AZIMUTH_MOTOR_PIN_EN,
-    AZIMUTH_MOTOR_PWM_PIN_L,
-    AZIMUTH_MOTOR_PWM_PIN_R,
-    AZIMUTH_MOTOR_PWM_SPEED,
-    AZIMUTH_LIMIT_SWITCH_PIN,
-    AZIMUTH_DEG_MAX,
-    AZIMUTH_DEG_MIN,
-    AZIMUTH_TIME_THRESHOLD};
-
-AzimuthController azimuthController(azimuthConfig);
+AzimuthController azimuthController;
 
 // ----------------- Azimuth Controller Constructor -----------------
 
-AzimuthController::AzimuthController(const AzimuthControllerConfig &config)
-    : motorPinEn(config.motorEnPin),
-      motorPinPwmL(config.motorPwmLeftPin),
-      motorPinPwmR(config.motorPwmRightPin),
-      motorPwmSpeed(config.motorSpeed),
-      limitSwitchPin(config.limitSwitchPin),
-      motorController(config.motorEnPin, config.motorPwmLeftPin, config.motorPwmRightPin),
-      limitSwitch(config.limitSwitchPin),
-      fullRotationDuration(0),
-      currentAzimuth(0.0),
-      degreesPerMs(0.0),
-      azimuthDegMax(config.maxAzimuth),
-      azimuthDegMin(config.minAzimuth),
-      azimuthTimeThreshold(config.timeThreshold)
-{
-  limitSwitch.setDebounceTime(100);
-}
+AzimuthController::AzimuthController() {}
 
 // ----------------- Azimuth control functions -----------------
 
-int8_t AzimuthController::calibrate()
+int8_t AzimuthController::init()
 {
-  Serial.println(F("\n\t--- Starting Calibration Procedure ---\n"));
+  motorPinEn = configModule.getAzimuthMotorPinEn();
+  motorPinPwmL = configModule.getAzimuthMotorPwmPinL();
+  motorPinPwmR = configModule.getAzimuthMotorPwmPinR();
+  motorPwmSpeed = configModule.getAzimuthMotorPWMSpeed();
+  limitSwitchPin = configModule.getAzimuthLimitSwitchPin();
+  motorController = new BTS7960(motorPinEn, motorPinPwmL, motorPinPwmR);
+  limitSwitch = new ezButton(limitSwitchPin);
+  limitSwitch->setDebounceTime(100);
+  fullRotationDuration = configModule.getAzimuthTimeMaxBeforeCalibration();
+  currentAzimuth = 0.0;
+  degreesPerMs = 0.0;
+  azimuthDegMax = configModule.getAzimuthDegMax();
+  azimuthDegMin = configModule.getAzimuthDegMin();
+  azimuthTimeThreshold = configModule.getAzimuthTimeThreshold();
 
-  fullRotationDuration = AZIMUTH_TIME_MAX_BEFORE_CALIBRATION;
+  Serial.println(F("\n\t--- Starting Initialization of Azimuth Controller ---\n"));
 
   moveFullRight();
 
@@ -79,13 +66,13 @@ int8_t AzimuthController::calibrate()
 int8_t AzimuthController::moveFullLeft()
 {
   Serial.println(F("-> Moving to full left position"));
-  motorController.Enable();
+  motorController->Enable();
 
   startMotorLeft();
   waitForLimitSwitch();
   stopMotor();
 
-  motorController.Disable();
+  motorController->Disable();
 
   if (isError)
   {
@@ -101,13 +88,13 @@ int8_t AzimuthController::moveFullLeft()
 int8_t AzimuthController::moveFullRight()
 {
   Serial.println(F("-> Moving to full right position"));
-  motorController.Enable();
+  motorController->Enable();
 
   startMotorRight();
   waitForLimitSwitch();
   stopMotor();
 
-  motorController.Disable();
+  motorController->Disable();
 
   if (isError)
   {
@@ -164,7 +151,7 @@ float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
   Serial.print(timeToMove);
   Serial.println(F(" ms"));
 
-  motorController.Enable();
+  motorController->Enable();
 
   // Determine the direction of movement and move the motor
   if (targetAzimuth > currentAzimuth)
@@ -192,7 +179,7 @@ float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
 
   // Stop the motor after adjustment
   stopMotor();
-  motorController.Disable();
+  motorController->Disable();
 
   if (isError)
   {
@@ -217,7 +204,7 @@ void AzimuthController::startMotorLeft()
     return;
 
   Serial.println(F("[MOTOR] Starting motor. Direction: left."));
-  motorController.TurnLeft(motorPwmSpeed);
+  motorController->TurnLeft(motorPwmSpeed);
 }
 
 void AzimuthController::startMotorRight()
@@ -226,13 +213,13 @@ void AzimuthController::startMotorRight()
     return;
 
   Serial.println(F("[MOTOR] Starting motor. Direction: right."));
-  motorController.TurnRight(motorPwmSpeed);
+  motorController->TurnRight(motorPwmSpeed);
 }
 
 void AzimuthController::stopMotor()
 {
   Serial.println(F("[MOTOR] Stopping motor."));
-  motorController.Stop();
+  motorController->Stop();
 }
 
 // ----------------- Limit Switch control functions ------------------
@@ -260,8 +247,8 @@ int8_t AzimuthController::waitForLimitSwitchOrDelay(uint32_t delayTime)
   uint32_t startTime = millis();
   while (true)
   {
-    limitSwitch.loop();
-    if (limitSwitch.isPressed())
+    limitSwitch->loop();
+    if (limitSwitch->isPressed())
     {
       return LIMIT_SWITCH_TRIGGERED;
     }

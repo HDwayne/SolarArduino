@@ -6,21 +6,12 @@
 
 typedef void (*CommandCallback)();
 
-struct joystickControllerConfig
-{
-  int8_t buttonPin;
-  uint32_t buttonDebounce;
-  int8_t vrxPin;
-  int8_t vryPin;
-  int16_t threshold;
-};
-
 class JoystickController
 {
 private:
   ezButton *button;
-  int8_t vrxPin;
-  int8_t vryPin;
+  uint8_t vrxPin;
+  uint8_t vryPin;
 
   int16_t leftThreshold;
   int16_t rightThreshold;
@@ -39,7 +30,8 @@ private:
   uint8_t getCommand();
 
 public:
-  JoystickController(const joystickControllerConfig &config);
+  JoystickController();
+  void init();
 
   void setOnLeft(CommandCallback callback) { onLeft = callback; }
   void setOnRight(CommandCallback callback) { onRight = callback; }

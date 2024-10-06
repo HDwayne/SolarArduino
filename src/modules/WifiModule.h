@@ -8,16 +8,10 @@
 #include <WiFi.h>
 #include <ESPmDNS.h>
 
-struct WifiModuleConfig
-{
-  const char *ssid;
-  const char *password;
-};
-
 class WifiModule
 {
 public:
-  WifiModule(const WifiModuleConfig &ModuleConfig);
+  WifiModule();
 
   void init();
   byte *getMacAddr() { return macAddr; }

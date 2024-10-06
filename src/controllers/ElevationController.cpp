@@ -1,53 +1,42 @@
 #include "ElevationController.h"
-#include "config.h"
+#include "modules/ConfigModule.h"
 
-ElevationControllerConfig elevationConfig = {
-    ELEVATION_MOTOR_PIN_EN,
-    ELEVATION_MOTOR_PWM_PIN_U,
-    ELEVATION_MOTOR_PWM_PIN_D,
-    ELEVATION_MOTOR_PWM_SPEED,
-    AZIMUTH_DEG_MAX,
-    AZIMUTH_DEG_MIN,
-    ELEVATION_DEG_MAX,
-    ELEVATION_DEG_MIN,
-    ELEVATION_TIME_THRESHOLD,
-    ELEVATION_ACTUATOR_SPEED,
-    ELEVATION_ACTUATOR_LENGTH};
-
-ElevationController elevationController(elevationConfig);
+ElevationController elevationController;
 
 // ----------------- Elevation Controller Constructor -----------------
 
-ElevationController::ElevationController(const ElevationControllerConfig &config)
-    : motorPinEn(config.motorEnPin),
-      motorPinPwmUp(config.motorPwmUpPin),
-      motorPinPwmDown(config.motorPwmDownPin),
-      motorPwmSpeed(config.motorPwmSpeed),
-      motorController(config.motorEnPin, config.motorPwmUpPin, config.motorPwmDownPin),
-      currentElevation(0.0),
-      actuatorSpeed(config.actuatorSpeed),
-      actuatorLength(config.actuatorLength),
-      actuatorFullTravelTime(0),
-      degreesPerMs(0.0),
-      azimuthDegMax(config.maxAzimuth),
-      azimuthDegMin(config.minAzimuth),
-      elevationDegMax(config.maxElevation),
-      elevationDegMin(config.minElevation),
-      elevationTimeThreshold(config.timeThreshold)
-{
-}
+ElevationController::ElevationController() {}
 
 // --------------------------------------------------
 
-void ElevationController::calibrate()
+void ElevationController::init()
 {
-  Serial.println(F("\n\t--- Starting Elevation Calibration Procedure ---\n"));
+  motorPinEn = configModule.getElevationMotorPinEn();
+  motorPinPwmUp = configModule.getElevationMotorPwmPinU();
+  motorPinPwmDown = configModule.getElevationMotorPwmPinD();
+  motorPwmSpeed = configModule.getElevationMotorPWMSpeed();
+  motorController = new BTS7960(motorPinEn, motorPinPwmUp, motorPinPwmDown);
+  currentElevation = 0.0;
+  actuatorSpeed = configModule.getElevationActuatorSpeed();
+  actuatorLength = configModule.getElevationActuatorLength();
+  actuatorFullTravelTime = 0;
+  degreesPerMs = 0.0;
+  azimuthDegMax = configModule.getAzimuthDegMax();
+  azimuthDegMin = configModule.getAzimuthDegMin();
+  elevationDegMax = configModule.getElevationDegMax();
+  elevationDegMin = configModule.getElevationDegMin();
+  elevationTimeThreshold = configModule.getElevationTimeThreshold();
 
-#ifdef FORCE_TIME_FULL_TRAVEL
-  actuatorFullTravelTime = FORCE_TIME_FULL_TRAVEL * 1000.0;
-#else
-  actuatorFullTravelTime = (actuatorLength / actuatorSpeed) * 1000.0;
-#endif
+  Serial.println(F("\n\t--- Starting Elevation Initialization Procedure ---\n"));
+
+  if (configModule.getForceTimeFullTravel() > 0)
+  {
+    actuatorFullTravelTime = configModule.getForceTimeFullTravel() * 1000.0;
+  }
+  else
+  {
+    actuatorFullTravelTime = (actuatorLength / actuatorSpeed) * 1000.0;
+  }
 
   Serial.print(F("\tThe actuator full travel time is: "));
   Serial.print(actuatorFullTravelTime);
@@ -60,7 +49,7 @@ void ElevationController::calibrate()
 
   moveToMaxElevation();
 
-  Serial.println(F("\n\t--- Elevation Calibration Procedure Completed ---\n"));
+  Serial.println(F("\n\t--- Elevation Initialization Procedure Completed ---\n"));
 }
 
 float ElevationController::moveToAngle(float targetAzimuth, float targetElevation)
@@ -102,7 +91,7 @@ float ElevationController::moveToAngle(float targetAzimuth, float targetElevatio
   Serial.print(timeToMove);
   Serial.println(F(" ms"));
 
-  motorController.Enable();
+  motorController->Enable();
 
   if (targetElevation > currentElevation)
   {
@@ -120,7 +109,7 @@ float ElevationController::moveToAngle(float targetAzimuth, float targetElevatio
   }
 
   stopActuator();
-  motorController.Disable();
+  motorController->Disable();
 
   Serial.print(F("[ADJUST] Elevation adjusted. Current elevation: "));
   Serial.println(currentElevation, 2);
@@ -133,13 +122,13 @@ float ElevationController::moveToAngle(float targetAzimuth, float targetElevatio
 void ElevationController::moveToMaxElevation()
 {
   Serial.println(F("-> Moving to max elevation position"));
-  motorController.Enable();
+  motorController->Enable();
 
   startActuatorUp();
   delay(actuatorFullTravelTime);
   stopActuator();
 
-  motorController.Disable();
+  motorController->Disable();
 
   currentElevation = elevationDegMax;
   Serial.println(F("-> Max elevation position reached"));
@@ -148,13 +137,13 @@ void ElevationController::moveToMaxElevation()
 void ElevationController::moveToMinElevation()
 {
   Serial.println(F("-> Moving to min elevation position"));
-  motorController.Enable();
+  motorController->Enable();
 
   startActuatorDown();
   delay(actuatorFullTravelTime);
   stopActuator();
 
-  motorController.Disable();
+  motorController->Disable();
 
   currentElevation = elevationDegMin;
   Serial.println(F("-> Min elevation position reached"));
@@ -165,17 +154,17 @@ void ElevationController::moveToMinElevation()
 void ElevationController::startActuatorUp()
 {
   Serial.println(F("[ACTUATOR] Starting actuator. Direction: up."));
-  motorController.TurnLeft(motorPwmSpeed);
+  motorController->TurnLeft(motorPwmSpeed);
 }
 
 void ElevationController::startActuatorDown()
 {
   Serial.println(F("[ACTUATOR] Starting actuator. Direction: down."));
-  motorController.TurnRight(motorPwmSpeed);
+  motorController->TurnRight(motorPwmSpeed);
 }
 
 void ElevationController::stopActuator()
 {
   Serial.println(F("[ACTUATOR] Stopping actuator."));
-  motorController.Stop();
+  motorController->Stop();
 }

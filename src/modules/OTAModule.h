@@ -8,15 +8,10 @@
 #include <WiFi.h>
 #include <ArduinoOTA.h>
 
-struct OTAModuleConfig
-{
-  const char *device_name; // Nom unique du périphérique
-};
-
 class OTAModule
 {
 public:
-  OTAModule(const OTAModuleConfig &config);
+  OTAModule();
 
   void init();
   void loop();

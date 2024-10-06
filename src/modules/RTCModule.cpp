@@ -1,5 +1,5 @@
 #include "RTCModule.h"
-#include "config.h"
+#include "ConfigModule.h"
 
 RTCModule rtcModule;
 
@@ -48,7 +48,7 @@ void RTCModule::adjustFromNTP()
     delay(1000);
   }
 
-  configTime(0, 0, NTP_SERVER1, NTP_SERVER2, NTP_SERVER3);
+  configTime(0, 0, configModule.getNTPServer1(), configModule.getNTPServer2(), configModule.getNTPServer3());
 
   struct tm timeinfo;
   while (!getLocalTime(&timeinfo))

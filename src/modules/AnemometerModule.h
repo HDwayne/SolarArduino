@@ -6,16 +6,11 @@
 #include <Arduino.h>
 #include <ezButton.h>
 
-struct AnenometerModuleConfig
-{
-  int8_t buttonPin;
-};
-
 class AnenometerModule
 {
 public:
-  AnenometerModule(const AnenometerModuleConfig &config);
-
+  AnenometerModule();
+  void init();
   bool isTriggered();
 
 private:
