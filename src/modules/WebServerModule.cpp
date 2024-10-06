@@ -343,6 +343,10 @@ void WebServerModule::handleSaveConfig(AsyncWebServerRequest *request)
   configModule.setComputeDistance(request->hasParam("computeDistance"));
 
   configModule.saveConfig();
+
+  // TODO: Some configuration changes require a reboot but not all
+  ESP.restart();
+
   request->redirect("/config");
 }
 
