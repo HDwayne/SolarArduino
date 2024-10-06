@@ -22,6 +22,7 @@ The system computes the sun’s position using the [SolTrack 2.2](https://github
 | **Joystick Control**                  | Supported             | Supported |
 | **Anemometer**                        | Supported             | Supported |
 | **Solar Position Calculation**        | Supported             | Supported |
+| **OTA Updates**                       | Not available         | Supported |
 
 # how it works
 
