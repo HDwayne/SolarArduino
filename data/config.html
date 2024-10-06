@@ -28,6 +28,9 @@
         <!-- PINS Section -->
         <div class="section">
             <h2>PINS</h2>
+
+            <p>Exercise caution when modifying the pin settings, as incorrect changes could lead to system malfunction or potential damage.</p>
+
             <label for="azimuthMotorPinEn">Azimuth Motor Pin EN:</label>
             <input type="number" id="azimuthMotorPinEn" name="azimuthMotorPinEn" value="{{azimuthMotorPinEn}}">
 
@@ -65,7 +68,7 @@
         <!-- Constants Section -->
         <div class="section">
             <h2>Constants</h2>
-            <label for="updatePanelAdjustmentInterval">Update Panel Adjustment Interval:</label>
+            <label for="updatePanelAdjustmentInterval">Update Panel Adjustment Interval (minutes):</label>
             <input type="number" id="updatePanelAdjustmentInterval" name="updatePanelAdjustmentInterval" value="{{updatePanelAdjustmentInterval}}">
         </div>
 
@@ -87,7 +90,7 @@
 
         <!-- Solar Track Options Section -->
         <div class="section">
-            <h2>Solar Track Options</h2>
+            <h2>SolTrack Library Options</h2>
             <label>
                 <input type="checkbox" name="useDegrees" {{useDegreesChecked}}>
                 Use Degrees
@@ -108,8 +111,8 @@
 
         <!-- Azimuth Settings Section -->
         <div class="section">
-            <h2>Azimuth Settings</h2>
-            <label for="azimuthMotorPWMSpeed">Motor PWM Speed:</label>
+            <h2>Azimuth Controller Settings</h2>
+            <label for="azimuthMotorPWMSpeed">Motor PWM Speed (0-255):</label>
             <input type="number" id="azimuthMotorPWMSpeed" name="azimuthMotorPWMSpeed" value="{{azimuthMotorPWMSpeed}}">
 
             <label for="azimuthDegMax">Maximum Azimuth (degrees):</label>
@@ -127,8 +130,8 @@
 
         <!-- Elevation Settings Section -->
         <div class="section">
-            <h2>Elevation Settings</h2>
-            <label for="elevationMotorPWMSpeed">Motor PWM Speed:</label>
+            <h2>Elevation Controller Settings</h2>
+            <label for="elevationMotorPWMSpeed">Motor PWM Speed (0-255):</label>
             <input type="number" id="elevationMotorPWMSpeed" name="elevationMotorPWMSpeed" value="{{elevationMotorPWMSpeed}}">
 
             <label for="elevationDegMax">Maximum Elevation (degrees):</label>
@@ -146,7 +149,7 @@
             <label for="elevationActuatorLength">Actuator Length (mm):</label>
             <input type="text" id="elevationActuatorLength" name="elevationActuatorLength" value="{{elevationActuatorLength}}">
 
-            <label for="forceTimeFullTravel">Force Time Full Travel (s):</label>
+            <label for="forceTimeFullTravel">Force Time Full Travel (s), 0 to disable:</label>
             <input type="number" id="forceTimeFullTravel" name="forceTimeFullTravel" value="{{forceTimeFullTravel}}">
         </div>
 

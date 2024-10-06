@@ -94,6 +94,18 @@ public:
   // Setters
   void setUpdatePanelAdjustmentInterval(uint8_t value);
 
+  void setAzimuthMotorPinEn(uint8_t value);
+  void setAzimuthMotorPwmPinL(uint8_t value);
+  void setAzimuthMotorPwmPinR(uint8_t value);
+  void setAzimuthLimitSwitchPin(uint8_t value);
+  void setElevationMotorPinEn(uint8_t value);
+  void setElevationMotorPwmPinU(uint8_t value);
+  void setElevationMotorPwmPinD(uint8_t value);
+  void setJoystickVrxPin(uint8_t value);
+  void setJoystickVryPin(uint8_t value);
+  void setJoystickButtonPin(uint8_t value);
+  void setAnenometerButtonPin(uint8_t value);
+
   void setSTLatitude(double value);
   void setSTLongitude(double value);
   void setSTPressure(double value);

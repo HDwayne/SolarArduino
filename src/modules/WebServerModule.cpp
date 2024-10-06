@@ -30,9 +30,13 @@ void WebServerModule::setupServer()
 {
   server.on("/config", HTTP_GET, std::bind(&WebServerModule::handleConfigPage, this, std::placeholders::_1));
 
-  // server.on("/saveConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveConfig, this, std::placeholders::_1));
+  server.on("/saveConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveConfig, this, std::placeholders::_1));
 
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("config.html");
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->redirect("/config"); });
+
   server.begin();
 }
 
@@ -121,31 +125,225 @@ void WebServerModule::handleConfigPage(AsyncWebServerRequest *request)
   request->send(200, "text/html", html);
 }
 
-// void WebServerModule::handleSaveConfig(AsyncWebServerRequest *request)
-//   int params = request->params();
-//   for (int i = 0; i < params; i++)
-//   {
-//     AsyncWebParameter *p = request->getParam(i);
-//     const char *paramName = p->name().c_str();
-//     const char *paramValue = p->value().c_str();
+void WebServerModule::handleSaveConfig(AsyncWebServerRequest *request)
+{
+  int params = request->params();
+  for (int i = 0; i < params; i++)
+  {
+    AsyncWebParameter *p = request->getParam(i);
+    const char *paramName = p->name().c_str();
+    const char *paramValue = p->value().c_str();
 
-//     if (strcmp(paramName, "deviceName") == 0)
-//     {
-//       configModule.setDeviceName(paramValue);
-//     }
-//     else if (strcmp(paramName, "mqttServer") == 0)
-//     {
-//       configModule.setMQTTServer(paramValue);
-//     }
-//     else if (strcmp(paramName, "mqttPort") == 0)
-//     {
-//       configModule.setMQTTPort(atoi(paramValue));
-//     }
-//   }
+    // PINS
+    if (strcmp(paramName, "azimuthMotorPinEn") == 0)
+    {
+      configModule.setAzimuthMotorPinEn(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "azimuthMotorPwmPinL") == 0)
+    {
+      configModule.setAzimuthMotorPwmPinL(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "azimuthMotorPwmPinR") == 0)
+    {
+      configModule.setAzimuthMotorPwmPinR(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "azimuthLimitSwitchPin") == 0)
+    {
+      configModule.setAzimuthLimitSwitchPin(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "elevationMotorPinEn") == 0)
+    {
+      configModule.setElevationMotorPinEn(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "elevationMotorPwmPinU") == 0)
+    {
+      configModule.setElevationMotorPwmPinU(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "elevationMotorPwmPinD") == 0)
+    {
+      configModule.setElevationMotorPwmPinD(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "joystickVrxPin") == 0)
+    {
+      configModule.setJoystickVrxPin(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "joystickVryPin") == 0)
+    {
+      configModule.setJoystickVryPin(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "joystickButtonPin") == 0)
+    {
+      configModule.setJoystickButtonPin(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "anenometerButtonPin") == 0)
+    {
+      configModule.setAnenometerButtonPin(atoi(paramValue));
+    }
 
-//   configModule.saveConfig();
+    // Constants
+    else if (strcmp(paramName, "updatePanelAdjustmentInterval") == 0)
+    {
+      configModule.setUpdatePanelAdjustmentInterval(atoi(paramValue));
+    }
 
-//   request->redirect("/config");
-// }
+    // Solar Tracking Settings
+    else if (strcmp(paramName, "stLatitude") == 0)
+    {
+      configModule.setSTLatitude(atof(paramValue));
+    }
+    else if (strcmp(paramName, "stLongitude") == 0)
+    {
+      configModule.setSTLongitude(atof(paramValue));
+    }
+    else if (strcmp(paramName, "stPressure") == 0)
+    {
+      configModule.setSTPressure(atof(paramValue));
+    }
+    else if (strcmp(paramName, "stTemperature") == 0)
+    {
+      configModule.setSTTemperature(atof(paramValue));
+    }
+
+    // Solar Track Options (Booleans)
+    else if (strcmp(paramName, "useDegrees") == 0)
+    {
+      configModule.setUseDegrees(true);
+    }
+    else if (strcmp(paramName, "useNorthEqualsZero") == 0)
+    {
+      configModule.setUseNorthEqualsZero(true);
+    }
+    else if (strcmp(paramName, "computeRefrEquatorial") == 0)
+    {
+      configModule.setComputeRefrEquatorial(true);
+    }
+    else if (strcmp(paramName, "computeDistance") == 0)
+    {
+      configModule.setComputeDistance(true);
+    }
+
+    // Azimuth Settings
+    else if (strcmp(paramName, "azimuthMotorPWMSpeed") == 0)
+    {
+      configModule.setAzimuthMotorPWMSpeed(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "azimuthDegMax") == 0)
+    {
+      configModule.setAzimuthDegMax(atof(paramValue));
+    }
+    else if (strcmp(paramName, "azimuthDegMin") == 0)
+    {
+      configModule.setAzimuthDegMin(atof(paramValue));
+    }
+    else if (strcmp(paramName, "azimuthTimeThreshold") == 0)
+    {
+      configModule.setAzimuthTimeThreshold(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "azimuthTimeMaxBeforeCalibration") == 0)
+    {
+      configModule.setAzimuthTimeMaxBeforeCalibration(atoi(paramValue));
+    }
+
+    // Elevation Settings
+    else if (strcmp(paramName, "elevationMotorPWMSpeed") == 0)
+    {
+      configModule.setElevationMotorPWMSpeed(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "elevationDegMax") == 0)
+    {
+      configModule.setElevationDegMax(atof(paramValue));
+    }
+    else if (strcmp(paramName, "elevationDegMin") == 0)
+    {
+      configModule.setElevationDegMin(atof(paramValue));
+    }
+    else if (strcmp(paramName, "elevationTimeThreshold") == 0)
+    {
+      configModule.setElevationTimeThreshold(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "elevationActuatorSpeed") == 0)
+    {
+      configModule.setElevationActuatorSpeed(atof(paramValue));
+    }
+    else if (strcmp(paramName, "elevationActuatorLength") == 0)
+    {
+      configModule.setElevationActuatorLength(atof(paramValue));
+    }
+    else if (strcmp(paramName, "forceTimeFullTravel") == 0)
+    {
+      configModule.setForceTimeFullTravel(atoi(paramValue));
+    }
+
+    // Joystick Settings
+    else if (strcmp(paramName, "joystickButtonDebounce") == 0)
+    {
+      configModule.setJoystickButtonDebounce(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "joystickThreshold") == 0)
+    {
+      configModule.setJoystickThreshold(atoi(paramValue));
+    }
+
+    // Anemometer Settings
+    else if (strcmp(paramName, "anenometerSafeDuration") == 0)
+    {
+      configModule.setAnenometerSafeDuration(atol(paramValue));
+    }
+
+    // MQTT Settings
+    else if (strcmp(paramName, "deviceName") == 0)
+    {
+      configModule.setDeviceName(paramValue);
+    }
+    else if (strcmp(paramName, "mqttServer") == 0)
+    {
+      configModule.setMQTTServer(paramValue);
+    }
+    else if (strcmp(paramName, "mqttPort") == 0)
+    {
+      configModule.setMQTTPort(atoi(paramValue));
+    }
+    else if (strcmp(paramName, "mqttUser") == 0)
+    {
+      configModule.setMQTTUser(paramValue);
+    }
+    else if (strcmp(paramName, "mqttPassword") == 0)
+    {
+      configModule.setMQTTPassword(paramValue);
+    }
+
+    // NTP Settings
+    else if (strcmp(paramName, "ntpServer1") == 0)
+    {
+      configModule.setNTPServer1(paramValue);
+    }
+    else if (strcmp(paramName, "ntpServer2") == 0)
+    {
+      configModule.setNTPServer2(paramValue);
+    }
+    else if (strcmp(paramName, "ntpServer3") == 0)
+    {
+      configModule.setNTPServer3(paramValue);
+    }
+
+    // Wi-Fi Credentials
+    else if (strcmp(paramName, "wifiSSID") == 0)
+    {
+      configModule.setWIFISSID(paramValue);
+    }
+    else if (strcmp(paramName, "wifiPassword") == 0)
+    {
+      configModule.setWIFIPassword(paramValue);
+    }
+  }
+
+  configModule.setUseDegrees(request->hasParam("useDegrees"));
+  configModule.setUseNorthEqualsZero(request->hasParam("useNorthEqualsZero"));
+  configModule.setComputeRefrEquatorial(request->hasParam("computeRefrEquatorial"));
+  configModule.setComputeDistance(request->hasParam("computeDistance"));
+
+  configModule.saveConfig();
+  request->redirect("/config");
+}
 
 #endif // defined(ESP32)

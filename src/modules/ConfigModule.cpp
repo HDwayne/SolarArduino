@@ -130,6 +130,61 @@ void ConfigModule::setDefaultConfig()
 
 // ------------------------ SETTERS ----------------------------------
 
+void ConfigModule::setAzimuthMotorPinEn(uint8_t value)
+{
+  configData.AZIMUTH_MOTOR_PIN_EN = value;
+}
+
+void ConfigModule::setAzimuthMotorPwmPinL(uint8_t value)
+{
+  configData.AZIMUTH_MOTOR_PWM_PIN_L = value;
+}
+
+void ConfigModule::setAzimuthMotorPwmPinR(uint8_t value)
+{
+  configData.AZIMUTH_MOTOR_PWM_PIN_R = value;
+}
+
+void ConfigModule::setAzimuthLimitSwitchPin(uint8_t value)
+{
+  configData.AZIMUTH_LIMIT_SWITCH_PIN = value;
+}
+
+void ConfigModule::setElevationMotorPinEn(uint8_t value)
+{
+  configData.ELEVATION_MOTOR_PIN_EN = value;
+}
+
+void ConfigModule::setElevationMotorPwmPinU(uint8_t value)
+{
+  configData.ELEVATION_MOTOR_PWM_PIN_U = value;
+}
+
+void ConfigModule::setElevationMotorPwmPinD(uint8_t value)
+{
+  configData.ELEVATION_MOTOR_PWM_PIN_D = value;
+}
+
+void ConfigModule::setJoystickVrxPin(uint8_t value)
+{
+  configData.JOYSTICK_VRX_PIN = value;
+}
+
+void ConfigModule::setJoystickVryPin(uint8_t value)
+{
+  configData.JOYSTICK_VRY_PIN = value;
+}
+
+void ConfigModule::setJoystickButtonPin(uint8_t value)
+{
+  configData.JOYSTICK_BUTTON_PIN = value;
+}
+
+void ConfigModule::setAnenometerButtonPin(uint8_t value)
+{
+  configData.ANENOMETER_BUTTON_PIN = value;
+}
+
 void ConfigModule::setUpdatePanelAdjustmentInterval(uint8_t value)
 {
   configData.UPDATE_PANEL_ADJUSTMENT_INTERVAL = value;
