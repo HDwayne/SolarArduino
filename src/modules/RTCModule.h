@@ -5,6 +5,11 @@
 
 #include <Arduino.h>
 #include <RTClib.h>
+#include "time.h"
+
+#if defined(ESP32)
+#include "WiFi.h"
+#endif // ESP32
 
 class RTCModule
 {
@@ -14,6 +19,9 @@ public:
   void init();
   void adjustFromUTC(const char *date, const char *time);
   void adjustFromLocal(const char *date, const char *time);
+#if defined(ESP32)
+  void adjustFromNTP();
+#endif // ESP32
   DateTime getDateTimeUTC();
   DateTime getDateTimeLocal();
   bool lostPower() { return rtc.lostPower(); }

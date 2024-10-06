@@ -97,4 +97,10 @@ constexpr char MQTT_USER[] = "";               // MQTT username
 constexpr char MQTT_PASSWORD[] = "";           // MQTT password
 constexpr char DEVICE_NAME[] = "SolarTracker"; // Device name
 
+// NTP Settings
+
+constexpr char NTP_SERVER1[] = "europe.pool.ntp.org";
+constexpr char NTP_SERVER2[] = "time.google.com";
+constexpr char NTP_SERVER3[] = "time.aws.com";
+
 #endif // CONFIG_H

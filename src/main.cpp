@@ -28,8 +28,13 @@ void setup()
   rtcModule.init();
   if (rtcModule.lostPower())
   {
-    // TODO GET from NTP
-    rtcModule.adjustFromLocal(__DATE__, __TIME__);
+#if defined(ESP32)
+    rtcModule.adjustFromNTP();
+#else
+    Serial.println(F("[ERROR] RTC module lost power and no NTP server available. Please set the date and time manually."));
+    errorMode();
+    // rtcModule.adjustFromLocal(__DATE__, __TIME__);
+#endif
   }
 
   // Initialize Modules

@@ -1,4 +1,5 @@
 #include "RTCModule.h"
+#include "config.h"
 
 RTCModule rtcModule;
 
@@ -37,6 +38,38 @@ void RTCModule::adjustFromLocal(const char *date, const char *time)
 
   info();
 }
+
+#if defined(ESP32)
+void RTCModule::adjustFromNTP()
+{
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    Serial.println("[RTCModule - NTP] WiFi not connected!");
+    delay(1000);
+  }
+
+  configTime(0, 0, NTP_SERVER1, NTP_SERVER2, NTP_SERVER3);
+
+  struct tm timeinfo;
+  while (!getLocalTime(&timeinfo))
+  {
+    Serial.println("[RTCModule - NTP] Failed to obtain time");
+    delay(1000);
+  }
+
+  DateTime DateTimeUTC(
+      timeinfo.tm_year + 1900,
+      timeinfo.tm_mon + 1,
+      timeinfo.tm_mday,
+      timeinfo.tm_hour,
+      timeinfo.tm_min,
+      timeinfo.tm_sec);
+
+  rtc.adjust(DateTimeUTC);
+  Serial.println("[RTCModule - NTP] RTC adjusted from NTP server");
+  info();
+}
+#endif // ESP32
 
 DateTime RTCModule::getDateTimeUTC()
 {
