@@ -56,8 +56,9 @@ void setup()
   otaModule.init();
 #endif // MODULE_OTA_H
 
-  // initialize joystick
+#if defined(JOYSTICK_CONTROLLER_H)
   initJoystick();
+#endif // JOYSTICK_CONTROLLER_H
 
   // Set initial location data for solar calculations
   locationData.latitude = configModule.getSTLatitude();
@@ -199,6 +200,7 @@ void updatePanel()
 
 // ----------------- Joystick control functions ---------------------
 
+#if defined(JOYSTICK_CONTROLLER_H)
 void initJoystick()
 {
   joystickController.init();
@@ -244,7 +246,7 @@ void JoystickMode()
 
   Serial.println(F("Exiting Joystick Mode"));
 }
-
+#endif // JOYSTICK_CONTROLLER_H
 // ----------------- Anenometer control functions ---------------------
 
 void AnenometerMode()

@@ -70,6 +70,10 @@ struct ConfigData
   char NTP_SERVER1[64];
   char NTP_SERVER2[64];
   char NTP_SERVER3[64];
+
+  // WIFI Credentials
+  char WIFI_SSID[32];
+  char WIFI_PASSWORD[32];
 };
 
 #if defined(ESP32)
@@ -129,6 +133,9 @@ public:
   void setNTPServer2(const char *value);
   void setNTPServer3(const char *value);
 
+  void setWIFISSID(const char *value);
+  void setWIFIPassword(const char *value);
+
   // Getters
   uint8_t getAzimuthMotorPinEn() { return configData.AZIMUTH_MOTOR_PIN_EN; }
   uint8_t getAzimuthMotorPwmPinL() { return configData.AZIMUTH_MOTOR_PWM_PIN_L; }
@@ -185,6 +192,9 @@ public:
   const char *getNTPServer1() { return configData.NTP_SERVER1; }
   const char *getNTPServer2() { return configData.NTP_SERVER2; }
   const char *getNTPServer3() { return configData.NTP_SERVER3; }
+
+  const char *getWIFISSID() { return configData.WIFI_SSID; }
+  const char *getWIFIPassword() { return configData.WIFI_PASSWORD; }
 
 private:
   void setDefaultConfig();
@@ -249,16 +259,6 @@ public:
   uint16_t getJoystickThreshold() { return configData.JOYSTICK_THRESHOLD; }
 
   unsigned long getAnenometerSafeDuration() { return configData.ANENOMETER_SAFE_DURATION; }
-
-  const char *getMQTTServer() { return configData.MQTT_SERVER; }
-  uint16_t getMQTTPort() { return configData.MQTT_PORT; }
-  const char *getMQTTUser() { return configData.MQTT_USER; }
-  const char *getMQTTPassword() { return configData.MQTT_PASSWORD; }
-  const char *getDeviceName() { return configData.DEVICE_NAME; }
-
-  const char *getNTPServer1() { return configData.NTP_SERVER1; }
-  const char *getNTPServer2() { return configData.NTP_SERVER2; }
-  const char *getNTPServer3() { return configData.NTP_SERVER3; }
 
 private:
   static const ConfigData configData; // Static constant configuration data

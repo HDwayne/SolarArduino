@@ -122,6 +122,10 @@ void ConfigModule::setDefaultConfig()
   strncpy(configData.NTP_SERVER1, "europe.pool.ntp.org", sizeof(configData.NTP_SERVER1));
   strncpy(configData.NTP_SERVER2, "time.google.com", sizeof(configData.NTP_SERVER2));
   strncpy(configData.NTP_SERVER3, "time.aws.com", sizeof(configData.NTP_SERVER3));
+
+  // WIFI Credentials
+  strncpy(configData.WIFI_SSID, "", sizeof(configData.WIFI_SSID));
+  strncpy(configData.WIFI_PASSWORD, "", sizeof(configData.WIFI_PASSWORD));
 }
 
 // ------------------------ SETTERS ----------------------------------
@@ -284,6 +288,16 @@ void ConfigModule::setNTPServer2(const char *value)
 void ConfigModule::setNTPServer3(const char *value)
 {
   strncpy(configData.NTP_SERVER3, value, sizeof(configData.NTP_SERVER3));
+}
+
+void ConfigModule::setWIFISSID(const char *value)
+{
+  strncpy(configData.WIFI_SSID, value, sizeof(configData.WIFI_SSID));
+}
+
+void ConfigModule::setWIFIPassword(const char *value)
+{
+  strncpy(configData.WIFI_PASSWORD, value, sizeof(configData.WIFI_PASSWORD));
 }
 
 // Declare the global instance of ConfigModule
