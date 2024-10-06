@@ -10,23 +10,20 @@ enum Command
     COMMAND_DOWN = 0x08
 };
 
-joystickControllerConfig joystickConfig = {
-    configModule.getJoystickButtonPin(),
-    configModule.getJoystickButtonDebounce(),
-    configModule.getJoystickVrxPin(),
-    configModule.getJoystickVryPin(),
-    configModule.getJoystickThreshold()};
-
-JoystickController joystickController(joystickConfig);
+JoystickController joystickController;
 
 // ----------------- Joystick Controller Constructor -----------------
 
-JoystickController::JoystickController(const joystickControllerConfig &config)
+JoystickController::JoystickController() {}
+
+// ----------------- Public Methods -----------------
+
+void JoystickController::init()
 {
-    button = new ezButton(config.buttonPin);
-    button->setDebounceTime(config.buttonDebounce);
-    vrxPin = config.vrxPin;
-    vryPin = config.vryPin;
+    button = new ezButton(configModule.getJoystickButtonPin());
+    button->setDebounceTime(configModule.getJoystickButtonDebounce());
+    vrxPin = configModule.getJoystickVrxPin();
+    vryPin = configModule.getJoystickVryPin();
 
     pinMode(vrxPin, INPUT);
     pinMode(vryPin, INPUT);
@@ -34,10 +31,12 @@ JoystickController::JoystickController(const joystickControllerConfig &config)
     xCenter = analogRead(vrxPin);
     yCenter = analogRead(vryPin);
 
-    leftThreshold = xCenter - config.threshold;
-    rightThreshold = xCenter + config.threshold;
-    upThreshold = yCenter - config.threshold;
-    downThreshold = yCenter + config.threshold;
+    uint8_t threshold = configModule.getJoystickThreshold();
+
+    leftThreshold = xCenter - threshold;
+    rightThreshold = xCenter + threshold;
+    upThreshold = yCenter - threshold;
+    downThreshold = yCenter + threshold;
 
     prevCommand = COMMAND_NO;
 

@@ -201,6 +201,8 @@ void updatePanel()
 
 void initJoystick()
 {
+  joystickController.init();
+
   joystickController.setOnDown([]()
                                { azimuthController.startMotorRight(); });
 
