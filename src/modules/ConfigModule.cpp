@@ -52,12 +52,23 @@ void ConfigModule::resetConfig()
   saveConfig();
 }
 
-// Set default configuration values
 void ConfigModule::setDefaultConfig()
 {
-  // Initialize configData with default values (same as in your config.h)
+  resetPinsConfig();
+  resetConstantsConfig();
+  resetSolarTrackingConfig();
+  resetSolTrackOptionsConfig();
+  resetAzimuthConfig();
+  resetElevationConfig();
+  resetJoystickConfig();
+  resetAnemometerConfig();
+  resetMQTTConfig();
+  resetNTPConfig();
+  resetWiFiConfig();
+}
 
-  // PINS
+void ConfigModule::resetPinsConfig()
+{
   configData.AZIMUTH_MOTOR_PIN_EN = GPIO_NUM_19;
   configData.AZIMUTH_MOTOR_PWM_PIN_L = GPIO_NUM_18;
   configData.AZIMUTH_MOTOR_PWM_PIN_R = GPIO_NUM_17;
@@ -72,30 +83,40 @@ void ConfigModule::setDefaultConfig()
   configData.JOYSTICK_BUTTON_PIN = GPIO_NUM_25;
 
   configData.ANENOMETER_BUTTON_PIN = GPIO_NUM_13;
+}
 
-  // Constants
+void ConfigModule::resetConstantsConfig()
+{
   configData.UPDATE_PANEL_ADJUSTMENT_INTERVAL = 20;
+}
 
-  // Solar Tracking Settings
+void ConfigModule::resetSolarTrackingConfig()
+{
   configData.ST_LATITUDE = 43.8045;
   configData.ST_LONGITUDE = 1.3883;
   configData.ST_PRESSURE = 101.0;
   configData.ST_TEMPERATURE = 283.0;
+}
 
-  // Solar Track Options
+void ConfigModule::resetSolTrackOptionsConfig()
+{
   configData.useDegrees = true;
   configData.useNorthEqualsZero = true;
   configData.computeRefrEquatorial = false;
   configData.computeDistance = false;
+}
 
-  // Azimuth Settings
+void ConfigModule::resetAzimuthConfig()
+{
   configData.AZIMUTH_MOTOR_PWM_SPEED = 100;
   configData.AZIMUTH_DEG_MAX = 275.0;
   configData.AZIMUTH_DEG_MIN = 90.0;
   configData.AZIMUTH_TIME_THRESHOLD = 0;
   configData.AZIMUTH_TIME_MAX_BEFORE_CALIBRATION = 180000;
+}
 
-  // Elevation Settings
+void ConfigModule::resetElevationConfig()
+{
   configData.ELEVATION_MOTOR_PWM_SPEED = 255;
   configData.ELEVATION_DEG_MAX = 90.0;
   configData.ELEVATION_DEG_MIN = 19.0;
@@ -103,29 +124,51 @@ void ConfigModule::setDefaultConfig()
   configData.ELEVATION_ACTUATOR_SPEED = 5.0;
   configData.ELEVATION_ACTUATOR_LENGTH = 350.0;
   configData.FORCE_TIME_FULL_TRAVEL = 95;
+}
 
-  // Joystick Settings
+void ConfigModule::resetJoystickConfig()
+{
   configData.JOYSTICK_BUTTON_DEBOUNCE = 5000;
   configData.JOYSTICK_THRESHOLD = 250;
+}
 
-  // Anemometer Settings
+void ConfigModule::resetAnemometerConfig()
+{
   configData.ANENOMETER_SAFE_DURATION = 900000;
+}
 
+void ConfigModule::resetMQTTConfig()
+{
   // MQTT Settings
-  strncpy(configData.MQTT_SERVER, "replace_with_your_mqtt_server", sizeof(configData.MQTT_SERVER));
+  strncpy(configData.MQTT_SERVER, "", sizeof(configData.MQTT_SERVER) - 1);
+  configData.MQTT_SERVER[sizeof(configData.MQTT_SERVER) - 1] = '\0';
   configData.MQTT_PORT = 1883;
   strncpy(configData.MQTT_USER, "", sizeof(configData.MQTT_USER));
+  configData.MQTT_USER[sizeof(configData.MQTT_USER) - 1] = '\0';
   strncpy(configData.MQTT_PASSWORD, "", sizeof(configData.MQTT_PASSWORD));
-  strncpy(configData.DEVICE_NAME, "SolarTracker", sizeof(configData.DEVICE_NAME));
+  configData.MQTT_PASSWORD[sizeof(configData.MQTT_PASSWORD) - 1] = '\0';
+  strncpy(configData.DEVICE_NAME, "SolarTracker", sizeof(configData.DEVICE_NAME) - 1);
+  configData.DEVICE_NAME[sizeof(configData.DEVICE_NAME) - 1] = '\0';
+}
 
+void ConfigModule::resetNTPConfig()
+{
   // NTP Settings
-  strncpy(configData.NTP_SERVER1, "europe.pool.ntp.org", sizeof(configData.NTP_SERVER1));
-  strncpy(configData.NTP_SERVER2, "time.google.com", sizeof(configData.NTP_SERVER2));
-  strncpy(configData.NTP_SERVER3, "time.aws.com", sizeof(configData.NTP_SERVER3));
+  strncpy(configData.NTP_SERVER1, "europe.pool.ntp.org", sizeof(configData.NTP_SERVER1) - 1);
+  configData.NTP_SERVER1[sizeof(configData.NTP_SERVER1) - 1] = '\0';
+  strncpy(configData.NTP_SERVER2, "time.google.com", sizeof(configData.NTP_SERVER2) - 1);
+  configData.NTP_SERVER2[sizeof(configData.NTP_SERVER2) - 1] = '\0';
+  strncpy(configData.NTP_SERVER3, "time.aws.com", sizeof(configData.NTP_SERVER3) - 1);
+  configData.NTP_SERVER3[sizeof(configData.NTP_SERVER3) - 1] = '\0';
+}
 
-  // WIFI Credentials
+void ConfigModule::resetWiFiConfig()
+{
+  // Wi-Fi Credentials
   strncpy(configData.WIFI_SSID, "", sizeof(configData.WIFI_SSID));
+  configData.WIFI_SSID[sizeof(configData.WIFI_SSID) - 1] = '\0';
   strncpy(configData.WIFI_PASSWORD, "", sizeof(configData.WIFI_PASSWORD));
+  configData.WIFI_PASSWORD[sizeof(configData.WIFI_PASSWORD) - 1] = '\0';
 }
 
 // ------------------------ SETTERS ----------------------------------

@@ -88,7 +88,20 @@ public:
   bool loadConfig();
   void saveConfig();
   ConfigData &getConfig();
-  void resetConfig(); // Resets to default configuration
+
+  void resetConfig();
+  void resetPinsConfig();
+  void resetConstantsConfig();
+  void resetSolarTrackingConfig();
+  void resetSolTrackOptionsConfig();
+  void resetAzimuthConfig();
+  void resetElevationConfig();
+  void resetJoystickConfig();
+  void resetAnemometerConfig();
+  void resetMQTTConfig();
+  void resetNTPConfig();
+  void resetWiFiConfig();
+
   void printConfig();
 
   // Setters

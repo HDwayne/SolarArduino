@@ -42,6 +42,18 @@ void WebServerModule::setupServer()
   server.on("/saveNTPConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveNTPConfig, this, std::placeholders::_1));
   server.on("/saveWiFiConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveWiFiConfig, this, std::placeholders::_1));
 
+  server.on("/resetPinsConfig", HTTP_POST, std::bind(&WebServerModule::handleResetPinsConfig, this, std::placeholders::_1));
+  server.on("/resetConstantsConfig", HTTP_POST, std::bind(&WebServerModule::handleResetConstantsConfig, this, std::placeholders::_1));
+  server.on("/resetSolarTrackingConfig", HTTP_POST, std::bind(&WebServerModule::handleResetSolarTrackingConfig, this, std::placeholders::_1));
+  server.on("/resetSolTrackOptionsConfig", HTTP_POST, std::bind(&WebServerModule::handleResetSolTrackOptionsConfig, this, std::placeholders::_1));
+  server.on("/resetAzimuthConfig", HTTP_POST, std::bind(&WebServerModule::handleResetAzimuthConfig, this, std::placeholders::_1));
+  server.on("/resetElevationConfig", HTTP_POST, std::bind(&WebServerModule::handleResetElevationConfig, this, std::placeholders::_1));
+  server.on("/resetJoystickConfig", HTTP_POST, std::bind(&WebServerModule::handleResetJoystickConfig, this, std::placeholders::_1));
+  server.on("/resetAnemometerConfig", HTTP_POST, std::bind(&WebServerModule::handleResetAnemometerConfig, this, std::placeholders::_1));
+  server.on("/resetMQTTConfig", HTTP_POST, std::bind(&WebServerModule::handleResetMQTTConfig, this, std::placeholders::_1));
+  server.on("/resetNTPConfig", HTTP_POST, std::bind(&WebServerModule::handleResetNTPConfig, this, std::placeholders::_1));
+  server.on("/resetWiFiConfig", HTTP_POST, std::bind(&WebServerModule::handleResetWiFiConfig, this, std::placeholders::_1));
+
   // Handler for system restart
   server.on("/restartSystem", HTTP_POST, std::bind(&WebServerModule::handleRestartSystem, this, std::placeholders::_1));
 
@@ -395,6 +407,84 @@ void WebServerModule::handleSaveWiFiConfig(AsyncWebServerRequest *request)
     configModule.setWIFIPassword(request->getParam("wifiPassword", true)->value().c_str());
   }
 
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+// Individual handlers for resetting configurations
+void WebServerModule::handleResetPinsConfig(AsyncWebServerRequest *request)
+{
+  configModule.resetPinsConfig();
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleResetConstantsConfig(AsyncWebServerRequest *request)
+{
+  configModule.resetConstantsConfig();
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleResetSolarTrackingConfig(AsyncWebServerRequest *request)
+{
+  configModule.resetSolarTrackingConfig();
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleResetSolTrackOptionsConfig(AsyncWebServerRequest *request)
+{
+  configModule.resetSolTrackOptionsConfig();
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleResetAzimuthConfig(AsyncWebServerRequest *request)
+{
+  configModule.resetAzimuthConfig();
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleResetElevationConfig(AsyncWebServerRequest *request)
+{
+  configModule.resetElevationConfig();
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleResetJoystickConfig(AsyncWebServerRequest *request)
+{
+  configModule.resetJoystickConfig();
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleResetAnemometerConfig(AsyncWebServerRequest *request)
+{
+  configModule.resetAnemometerConfig();
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleResetMQTTConfig(AsyncWebServerRequest *request)
+{
+  configModule.resetMQTTConfig();
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleResetNTPConfig(AsyncWebServerRequest *request)
+{
+  configModule.resetNTPConfig();
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleResetWiFiConfig(AsyncWebServerRequest *request)
+{
+  configModule.resetWiFiConfig();
   configModule.saveConfig();
   request->redirect("/");
 }

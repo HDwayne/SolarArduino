@@ -19,7 +19,10 @@ private:
 
   AsyncWebServer server;
 
+  void handleRestartSystem(AsyncWebServerRequest *request);
+
   void handleConfigPage(AsyncWebServerRequest *request);
+
   void handleSavePinsConfig(AsyncWebServerRequest *request);
   void handleSaveConstantsConfig(AsyncWebServerRequest *request);
   void handleSaveSolarTrackingConfig(AsyncWebServerRequest *request);
@@ -31,7 +34,18 @@ private:
   void handleSaveMQTTConfig(AsyncWebServerRequest *request);
   void handleSaveNTPConfig(AsyncWebServerRequest *request);
   void handleSaveWiFiConfig(AsyncWebServerRequest *request);
-  void handleRestartSystem(AsyncWebServerRequest *request);
+
+  void handleResetPinsConfig(AsyncWebServerRequest *request);
+  void handleResetConstantsConfig(AsyncWebServerRequest *request);
+  void handleResetSolarTrackingConfig(AsyncWebServerRequest *request);
+  void handleResetSolTrackOptionsConfig(AsyncWebServerRequest *request);
+  void handleResetAzimuthConfig(AsyncWebServerRequest *request);
+  void handleResetElevationConfig(AsyncWebServerRequest *request);
+  void handleResetJoystickConfig(AsyncWebServerRequest *request);
+  void handleResetAnemometerConfig(AsyncWebServerRequest *request);
+  void handleResetMQTTConfig(AsyncWebServerRequest *request);
+  void handleResetNTPConfig(AsyncWebServerRequest *request);
+  void handleResetWiFiConfig(AsyncWebServerRequest *request);
 };
 
 extern WebServerModule webServerModule;
