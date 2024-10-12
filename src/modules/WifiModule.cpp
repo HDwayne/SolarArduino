@@ -1,27 +1,21 @@
 #if defined(ESP32)
 
 #include "WifiModule.h"
-#include "credentials.h"
+#include "ConfigModule.h"
 
-WifiModuleConfig wifiModuleConfig = {
-    WIFI_SSID,
-    WIFI_PASSWORD,
-};
-
-WifiModule wifiModule(wifiModuleConfig);
+WifiModule wifiModule;
 
 // ----------------- Wifi Module Constructor -----------------
 
-WifiModule::WifiModule(const WifiModuleConfig &ModuleConfig)
-{
-  ssid = ModuleConfig.ssid;
-  password = ModuleConfig.password;
-}
+WifiModule::WifiModule() {}
 
 // ----------------- Wifi control functions -----------------
 
 void WifiModule::init()
 {
+  ssid = configModule.getWIFISSID();
+  password = configModule.getWIFIPassword();
+
   WiFi.mode(WIFI_STA);
   WiFi.setAutoReconnect(true);
   WiFi.begin(ssid, password);

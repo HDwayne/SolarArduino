@@ -23,6 +23,7 @@ The system computes the sun’s position using the [SolTrack 2.2](https://github
 | **Anemometer**                        | Supported             | Supported |
 | **Solar Position Calculation**        | Supported             | Supported |
 | **OTA Updates**                       | Not available         | Supported |
+| **Web Server**                        | Not available         | Supported |
 
 # how it works
 
@@ -144,6 +145,14 @@ The **joystick** allows manual control of the solar panel's movement. By moving 
 The **MQTT protocol** is used to communicate with the Home Assistant platform. The solar tracker publishes data to the MQTT broker, which is then read by Home Assistant to display the solar panel’s information. The system has been made with automatic discovery, allowing Home Assistant to recognize the solar tracker and its entities.
 
 ![MQTT](/img/mqtt.png "MQTT")
+
+### Web Server Overview
+
+The **ESP32** version of the solar tracker includes a **web server** that allows users to configure the system via a web interface.
+
+> **Warning:** Work with caution when using the web server, as it can override forever default settings. You cuold for example lost the Wi-Fi connection and never be able to reconnect until erase the flash memory.
+
+![Web Server](/img/web_server.png "Web Server")
 
 # Hardware Used
 

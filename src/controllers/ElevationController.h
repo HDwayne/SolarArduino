@@ -4,37 +4,23 @@
 #include <Arduino.h>
 #include <BTS7960.h>
 
-struct ElevationControllerConfig
-{
-  uint8_t motorEnPin;
-  uint8_t motorPwmUpPin;
-  uint8_t motorPwmDownPin;
-  uint8_t motorPwmSpeed;
-  float maxAzimuth;
-  float minAzimuth;
-  float maxElevation;
-  float minElevation;
-  uint32_t timeThreshold;
-  float actuatorSpeed;
-  float actuatorLength;
-};
-
 class ElevationController
 {
 public:
   // Constructor
-  ElevationController(const ElevationControllerConfig &config);
+  ElevationController();
 
   // Movement methods
-  void calibrate();
+  void init();
   float moveToAngle(float targetAzimuth, float targetElevation);
   void moveToMaxElevation();
   void moveToMinElevation();
   void startActuatorUp();
   void startActuatorDown();
   void stopActuator();
-  void enableMotor() { motorController.Enable(); }
-  void disableMotor() { motorController.Disable(); }
+  void enableMotor() { motorController->Enable(); }
+  void disableMotor() { motorController->Disable(); }
+  float getCurrentElevation() { return currentElevation; }
 
 private:
   // Pin Definitions
@@ -44,7 +30,7 @@ private:
   uint8_t motorPwmSpeed;   // Motor PWM speed
 
   // Motor Controller
-  BTS7960 motorController;
+  BTS7960 *motorController;
 
   // Variables
   float currentElevation; // Current elevation position of the solar panel
@@ -56,11 +42,11 @@ private:
   float degreesPerMs;              // Degrees the actuator moves per millisecond
 
   // Constants
-  const float azimuthDegMax;
-  const float azimuthDegMin;
-  const float elevationDegMax;
-  const float elevationDegMin;
-  const uint32_t elevationTimeThreshold;
+  float azimuthDegMax;
+  float azimuthDegMin;
+  float elevationDegMax;
+  float elevationDegMin;
+  uint32_t elevationTimeThreshold;
 };
 
 extern ElevationController elevationController;

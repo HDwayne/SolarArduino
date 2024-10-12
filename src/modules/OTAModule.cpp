@@ -1,26 +1,22 @@
 #if defined(ESP32)
 
 #include "OTAModule.h"
-#include "config.h"
+#include "ConfigModule.h"
 
-OTAModuleConfig otaModuleConfig = {
-    .device_name = DEVICE_NAME};
-
-OTAModule otaModule(otaModuleConfig);
+OTAModule otaModule;
 
 // ----------------- OTA Module Constructor -----------------
 
-OTAModule::OTAModule(const OTAModuleConfig &config)
-    : device_name(config.device_name)
-{
-  WiFi.macAddress(macAddr);
-  createDiscoveryUniqueID();
-}
+OTAModule::OTAModule() {}
 
 // ----------------- OTA control functions -----------------
 
 void OTAModule::init()
 {
+  device_name = configModule.getDeviceName();
+  WiFi.macAddress(macAddr);
+  createDiscoveryUniqueID();
+
   ArduinoOTA.setHostname(devUniqueID);
 
   ArduinoOTA
