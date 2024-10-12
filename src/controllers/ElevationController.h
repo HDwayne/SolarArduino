@@ -20,6 +20,7 @@ public:
   void stopActuator();
   void enableMotor() { motorController->Enable(); }
   void disableMotor() { motorController->Disable(); }
+  float getCurrentElevation() { return currentElevation; }
 
 private:
   // Pin Definitions

@@ -1,5 +1,7 @@
 #if defined(ESP32)
 
+#include "controllers/AzimuthController.h"
+#include "controllers/ElevationController.h"
 #include "WebServerModule.h"
 #include <SPIFFS.h>
 #include <WiFi.h>
@@ -77,11 +79,8 @@ void WebServerModule::handleConfigPage(AsyncWebServerRequest *request)
   // Replace placeholders with actual values
 
   // Overview placeholders
-  // html.replace("{{currentAzimuth}}", String(configModule.getCurrentAzimuth(), 2));
-  // html.replace("{{calculatedAzimuth}}", String(configModule.getCalculatedAzimuth(), 2));
-  // html.replace("{{currentElevation}}", String(configModule.getCurrentElevation(), 2));
-  // html.replace("{{calculatedElevation}}", String(configModule.getCalculatedElevation(), 2));
-  // html.replace("{{systemStatus}}", configModule.getSystemStatus());
+  html.replace("{{currentAzimuth}}", String(azimuthController.getCurrentAzimuth(), 2));
+  html.replace("{{currentElevation}}", String(elevationController.getCurrentElevation(), 2));
 
   // PINS
   html.replace("{{azimuthMotorPinEn}}", String(configModule.getAzimuthMotorPinEn()));

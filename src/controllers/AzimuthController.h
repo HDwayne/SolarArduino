@@ -25,6 +25,7 @@ public:
   void stopMotor();
   void enableMotor() { motorController->Enable(); }
   void disableMotor() { motorController->Disable(); }
+  float getCurrentAzimuth() { return currentAzimuth; }
 
 private:
   // Pin Definitions
