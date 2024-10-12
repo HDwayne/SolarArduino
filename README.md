@@ -150,7 +150,7 @@ The **MQTT protocol** is used to communicate with the Home Assistant platform. T
 
 The **ESP32** version of the solar tracker includes a **web server** that allows users to configure the system via a web interface.
 
-> **Warning:** Work with caution when using the web server, as it can override forever default settings. You cuold for example lost the Wi-Fi connection and never be able to reconnect until erase the flash memory.
+> **Warning:** Exercise caution when working with the web server, as it can permanently override default settings. For instance, you could lose the Wi-Fi connection and be unable to reconnect until the flash memory is erased.
 
 ![Web Server](/img/web_server.png "Web Server")
 
