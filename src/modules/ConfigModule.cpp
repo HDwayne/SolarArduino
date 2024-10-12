@@ -92,8 +92,8 @@ void ConfigModule::resetConstantsConfig()
 
 void ConfigModule::resetSolarTrackingConfig()
 {
-  configData.ST_LATITUDE = 43.8045;
-  configData.ST_LONGITUDE = 1.3883;
+  configData.ST_LATITUDE = 1.1234;
+  configData.ST_LONGITUDE = 1.1234;
   configData.ST_PRESSURE = 101.0;
   configData.ST_TEMPERATURE = 283.0;
 }
@@ -123,7 +123,7 @@ void ConfigModule::resetElevationConfig()
   configData.ELEVATION_TIME_THRESHOLD = 0;
   configData.ELEVATION_ACTUATOR_SPEED = 5.0;
   configData.ELEVATION_ACTUATOR_LENGTH = 350.0;
-  configData.FORCE_TIME_FULL_TRAVEL = 95;
+  configData.FORCE_TIME_FULL_TRAVEL = 0;
 }
 
 void ConfigModule::resetJoystickConfig()
