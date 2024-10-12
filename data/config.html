@@ -1,11 +1,62 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Solar Tracker Configuration</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         h1 { text-align: center; }
+
+        /* Tab styles */
+        .tab {
+            display: flex;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #4CAF50;
+            background-color: #e9ecef;
+        }
+        .tab button {
+            background-color: inherit;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 20px;
+            transition: 0.3s;
+            font-size: 16px;
+            flex: 1;
+            text-align: center;
+            margin: 5px;
+            border-radius: 5px;
+            color: #333;
+        }
+        .tab button:hover {
+            background-color: #d4d4d4;
+            color: #000;
+        }
+        .tab button.active {
+            border-bottom: 3px solid #4CAF50;
+            background-color: #c8e6c9;
+            color: #000;
+        }
+
+        /* Responsive tabs */
+        @media screen and (max-width: 600px) {
+            .tab {
+                flex-direction: column;
+            }
+            .tab button {
+                width: 100%;
+                text-align: left;
+                margin: 5px 0;
+            }
+        }
+
+        /* Tab content */
+        .tabcontent {
+            display: none;
+            padding: 20px 0;
+        }
+
         .section { margin-bottom: 30px; }
         .section h2 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
         label { display: block; margin-top: 10px; font-weight: bold; }
@@ -20,206 +71,345 @@
         input[type=submit]:hover, button:hover {
             background-color: #45a049;
         }
+
+        /* Overview styles */
+        .overview-item {
+            margin-bottom: 15px;
+        }
+        .overview-item span {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <h1>Solar Tracker Configuration</h1>
-    <form action="/saveConfig" method="POST">
-        <!-- PINS Section -->
-        <div class="section">
-            <h2>PINS</h2>
 
-            <p>Exercise caution when modifying the pin settings, as incorrect changes could lead to system malfunction or potential damage.</p>
+    <!-- Tabs -->
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'Overview')" id="defaultOpen">Overview</button>
+        <button class="tablinks" onclick="openTab(event, 'Pins')">Pins</button>
+        <button class="tablinks" onclick="openTab(event, 'Constants')">Constants</button>
+        <button class="tablinks" onclick="openTab(event, 'SolarTracking')">Solar Tracking</button>
+        <button class="tablinks" onclick="openTab(event, 'SolarTrackOptions')">SolTrack Options</button>
+        <button class="tablinks" onclick="openTab(event, 'AzimuthSettings')">Azimuth Settings</button>
+        <button class="tablinks" onclick="openTab(event, 'ElevationSettings')">Elevation Settings</button>
+        <button class="tablinks" onclick="openTab(event, 'JoystickSettings')">Joystick Settings</button>
+        <button class="tablinks" onclick="openTab(event, 'AnemometerSettings')">Anemometer Settings</button>
+        <button class="tablinks" onclick="openTab(event, 'MQTTSettings')">MQTT Settings</button>
+        <button class="tablinks" onclick="openTab(event, 'NTPSettings')">NTP Settings</button>
+        <button class="tablinks" onclick="openTab(event, 'WiFiSettings')">Wi-Fi Settings</button>
+    </div>
 
-            <label for="azimuthMotorPinEn">Azimuth Motor Pin EN:</label>
-            <input type="number" id="azimuthMotorPinEn" name="azimuthMotorPinEn" value="{{azimuthMotorPinEn}}">
-
-            <label for="azimuthMotorPwmPinL">Azimuth Motor PWM Pin L:</label>
-            <input type="number" id="azimuthMotorPwmPinL" name="azimuthMotorPwmPinL" value="{{azimuthMotorPwmPinL}}">
-
-            <label for="azimuthMotorPwmPinR">Azimuth Motor PWM Pin R:</label>
-            <input type="number" id="azimuthMotorPwmPinR" name="azimuthMotorPwmPinR" value="{{azimuthMotorPwmPinR}}">
-
-            <label for="azimuthLimitSwitchPin">Azimuth Limit Switch Pin:</label>
-            <input type="number" id="azimuthLimitSwitchPin" name="azimuthLimitSwitchPin" value="{{azimuthLimitSwitchPin}}">
-
-            <label for="elevationMotorPinEn">Elevation Motor Pin EN:</label>
-            <input type="number" id="elevationMotorPinEn" name="elevationMotorPinEn" value="{{elevationMotorPinEn}}">
-
-            <label for="elevationMotorPwmPinU">Elevation Motor PWM Pin U:</label>
-            <input type="number" id="elevationMotorPwmPinU" name="elevationMotorPwmPinU" value="{{elevationMotorPwmPinU}}">
-
-            <label for="elevationMotorPwmPinD">Elevation Motor PWM Pin D:</label>
-            <input type="number" id="elevationMotorPwmPinD" name="elevationMotorPwmPinD" value="{{elevationMotorPwmPinD}}">
-
-            <label for="joystickVrxPin">Joystick VRX Pin:</label>
-            <input type="number" id="joystickVrxPin" name="joystickVrxPin" value="{{joystickVrxPin}}">
-
-            <label for="joystickVryPin">Joystick VRY Pin:</label>
-            <input type="number" id="joystickVryPin" name="joystickVryPin" value="{{joystickVryPin}}">
-
-            <label for="joystickButtonPin">Joystick Button Pin:</label>
-            <input type="number" id="joystickButtonPin" name="joystickButtonPin" value="{{joystickButtonPin}}">
-
-            <label for="anenometerButtonPin">Anemometer Button Pin:</label>
-            <input type="number" id="anenometerButtonPin" name="anenometerButtonPin" value="{{anenometerButtonPin}}">
+    <!-- Overview Tab -->
+    <div id="Overview" class="tabcontent">
+        <h2>System Overview</h2>
+        <div class="overview-item">
+            <span>Current Azimuth:</span> {{currentAzimuth}}°
         </div>
-
-        <!-- Constants Section -->
-        <div class="section">
-            <h2>Constants</h2>
-            <label for="updatePanelAdjustmentInterval">Update Panel Adjustment Interval (minutes):</label>
-            <input type="number" id="updatePanelAdjustmentInterval" name="updatePanelAdjustmentInterval" value="{{updatePanelAdjustmentInterval}}">
+        <div class="overview-item">
+            <span>Calculated Azimuth:</span> {{calculatedAzimuth}}°
         </div>
-
-        <!-- Solar Tracking Settings Section -->
-        <div class="section">
-            <h2>Solar Tracking Settings</h2>
-            <label for="stLatitude">Latitude (degrees):</label>
-            <input type="text" id="stLatitude" name="stLatitude" value="{{stLatitude}}">
-
-            <label for="stLongitude">Longitude (degrees):</label>
-            <input type="text" id="stLongitude" name="stLongitude" value="{{stLongitude}}">
-
-            <label for="stPressure">Atmospheric Pressure (kPa):</label>
-            <input type="text" id="stPressure" name="stPressure" value="{{stPressure}}">
-
-            <label for="stTemperature">Atmospheric Temperature (K):</label>
-            <input type="text" id="stTemperature" name="stTemperature" value="{{stTemperature}}">
+        <div class="overview-item">
+            <span>Current Elevation:</span> {{currentElevation}}°
         </div>
-
-        <!-- Solar Track Options Section -->
-        <div class="section">
-            <h2>SolTrack Library Options</h2>
-            <label>
-                <input type="checkbox" name="useDegrees" {{useDegreesChecked}}>
-                Use Degrees
-            </label>
-            <label>
-                <input type="checkbox" name="useNorthEqualsZero" {{useNorthEqualsZeroChecked}}>
-                Use North Equals Zero
-            </label>
-            <label>
-                <input type="checkbox" name="computeRefrEquatorial" {{computeRefrEquatorialChecked}}>
-                Compute Refraction Equatorial
-            </label>
-            <label>
-                <input type="checkbox" name="computeDistance" {{computeDistanceChecked}}>
-                Compute Distance
-            </label>
+        <div class="overview-item">
+            <span>Calculated Elevation:</span> {{calculatedElevation}}°
         </div>
-
-        <!-- Azimuth Settings Section -->
-        <div class="section">
-            <h2>Azimuth Controller Settings</h2>
-            <label for="azimuthMotorPWMSpeed">Motor PWM Speed (0-255):</label>
-            <input type="number" id="azimuthMotorPWMSpeed" name="azimuthMotorPWMSpeed" value="{{azimuthMotorPWMSpeed}}">
-
-            <label for="azimuthDegMax">Maximum Azimuth (degrees):</label>
-            <input type="text" id="azimuthDegMax" name="azimuthDegMax" value="{{azimuthDegMax}}">
-
-            <label for="azimuthDegMin">Minimum Azimuth (degrees):</label>
-            <input type="text" id="azimuthDegMin" name="azimuthDegMin" value="{{azimuthDegMin}}">
-
-            <label for="azimuthTimeThreshold">Azimuth Time Threshold (ms):</label>
-            <input type="number" id="azimuthTimeThreshold" name="azimuthTimeThreshold" value="{{azimuthTimeThreshold}}">
-
-            <label for="azimuthTimeMaxBeforeCalibration">Max Time Before Calibration (ms):</label>
-            <input type="number" id="azimuthTimeMaxBeforeCalibration" name="azimuthTimeMaxBeforeCalibration" value="{{azimuthTimeMaxBeforeCalibration}}">
+        <div class="overview-item">
+            <span>System Status:</span> {{systemStatus}}
         </div>
+        <button onclick="restartSystem()">Restart System</button>
+        <button onclick="refreshPage()">Refresh Values</button>
+    </div>
 
-        <!-- Elevation Settings Section -->
-        <div class="section">
-            <h2>Elevation Controller Settings</h2>
-            <label for="elevationMotorPWMSpeed">Motor PWM Speed (0-255):</label>
-            <input type="number" id="elevationMotorPWMSpeed" name="elevationMotorPWMSpeed" value="{{elevationMotorPWMSpeed}}">
+    <!-- Pins Tab -->
+    <div id="Pins" class="tabcontent">
+        <form action="/savePinsConfig" method="POST">
+            <div class="section">
+                <h2>Pins Configuration</h2>
+                <p>Exercise caution when modifying the pin settings, as incorrect changes could lead to system malfunction or potential damage.</p>
 
-            <label for="elevationDegMax">Maximum Elevation (degrees):</label>
-            <input type="text" id="elevationDegMax" name="elevationDegMax" value="{{elevationDegMax}}">
+                <label for="azimuthMotorPinEn">Azimuth Motor Pin EN:</label>
+                <input type="number" id="azimuthMotorPinEn" name="azimuthMotorPinEn" value="{{azimuthMotorPinEn}}">
 
-            <label for="elevationDegMin">Minimum Elevation (degrees):</label>
-            <input type="text" id="elevationDegMin" name="elevationDegMin" value="{{elevationDegMin}}">
+                <label for="azimuthMotorPwmPinL">Azimuth Motor PWM Pin L:</label>
+                <input type="number" id="azimuthMotorPwmPinL" name="azimuthMotorPwmPinL" value="{{azimuthMotorPwmPinL}}">
 
-            <label for="elevationTimeThreshold">Elevation Time Threshold (ms):</label>
-            <input type="number" id="elevationTimeThreshold" name="elevationTimeThreshold" value="{{elevationTimeThreshold}}">
+                <label for="azimuthMotorPwmPinR">Azimuth Motor PWM Pin R:</label>
+                <input type="number" id="azimuthMotorPwmPinR" name="azimuthMotorPwmPinR" value="{{azimuthMotorPwmPinR}}">
 
-            <label for="elevationActuatorSpeed">Actuator Speed (mm/s):</label>
-            <input type="text" id="elevationActuatorSpeed" name="elevationActuatorSpeed" value="{{elevationActuatorSpeed}}">
+                <label for="azimuthLimitSwitchPin">Azimuth Limit Switch Pin:</label>
+                <input type="number" id="azimuthLimitSwitchPin" name="azimuthLimitSwitchPin" value="{{azimuthLimitSwitchPin}}">
 
-            <label for="elevationActuatorLength">Actuator Length (mm):</label>
-            <input type="text" id="elevationActuatorLength" name="elevationActuatorLength" value="{{elevationActuatorLength}}">
+                <label for="elevationMotorPinEn">Elevation Motor Pin EN:</label>
+                <input type="number" id="elevationMotorPinEn" name="elevationMotorPinEn" value="{{elevationMotorPinEn}}">
 
-            <label for="forceTimeFullTravel">Force Time Full Travel (s), 0 to disable:</label>
-            <input type="number" id="forceTimeFullTravel" name="forceTimeFullTravel" value="{{forceTimeFullTravel}}">
-        </div>
+                <label for="elevationMotorPwmPinU">Elevation Motor PWM Pin U:</label>
+                <input type="number" id="elevationMotorPwmPinU" name="elevationMotorPwmPinU" value="{{elevationMotorPwmPinU}}">
 
-        <!-- Joystick Settings Section -->
-        <div class="section">
-            <h2>Joystick Settings</h2>
-            <label for="joystickButtonDebounce">Button Debounce Time (ms):</label>
-            <input type="number" id="joystickButtonDebounce" name="joystickButtonDebounce" value="{{joystickButtonDebounce}}">
+                <label for="elevationMotorPwmPinD">Elevation Motor PWM Pin D:</label>
+                <input type="number" id="elevationMotorPwmPinD" name="elevationMotorPwmPinD" value="{{elevationMotorPwmPinD}}">
 
-            <label for="joystickThreshold">Joystick Threshold:</label>
-            <input type="number" id="joystickThreshold" name="joystickThreshold" value="{{joystickThreshold}}">
-        </div>
+                <label for="joystickVrxPin">Joystick VRX Pin:</label>
+                <input type="number" id="joystickVrxPin" name="joystickVrxPin" value="{{joystickVrxPin}}">
 
-        <!-- Anemometer Settings Section -->
-        <div class="section">
-            <h2>Anemometer Settings</h2>
-            <label for="anenometerSafeDuration">Safe Duration (ms):</label>
-            <input type="number" id="anenometerSafeDuration" name="anenometerSafeDuration" value="{{anenometerSafeDuration}}">
-        </div>
+                <label for="joystickVryPin">Joystick VRY Pin:</label>
+                <input type="number" id="joystickVryPin" name="joystickVryPin" value="{{joystickVryPin}}">
 
-        <!-- MQTT Settings Section -->
-        <div class="section">
-            <h2>MQTT Settings</h2>
-            <label for="deviceName">Device Name:</label>
-            <input type="text" id="deviceName" name="deviceName" value="{{deviceName}}">
+                <label for="joystickButtonPin">Joystick Button Pin:</label>
+                <input type="number" id="joystickButtonPin" name="joystickButtonPin" value="{{joystickButtonPin}}">
 
-            <label for="mqttServer">MQTT Server:</label>
-            <input type="text" id="mqttServer" name="mqttServer" value="{{mqttServer}}">
+                <label for="anenometerButtonPin">Anemometer Button Pin:</label>
+                <input type="number" id="anenometerButtonPin" name="anenometerButtonPin" value="{{anenometerButtonPin}}">
 
-            <label for="mqttPort">MQTT Port:</label>
-            <input type="number" id="mqttPort" name="mqttPort" value="{{mqttPort}}">
+                <input type="submit" value="Save Pins Configuration">
+            </div>
+        </form>
+    </div>
 
-            <label for="mqttUser">MQTT User:</label>
-            <input type="text" id="mqttUser" name="mqttUser" value="{{mqttUser}}">
+    <!-- Constants Tab -->
+    <div id="Constants" class="tabcontent">
+        <form action="/saveConstantsConfig" method="POST">
+            <div class="section">
+                <h2>Constants</h2>
+                <label for="updatePanelAdjustmentInterval">Update Panel Adjustment Interval (minutes):</label>
+                <input type="number" id="updatePanelAdjustmentInterval" name="updatePanelAdjustmentInterval" value="{{updatePanelAdjustmentInterval}}">
+                <input type="submit" value="Save Constants">
+            </div>
+        </form>
+    </div>
 
-            <label for="mqttPassword">MQTT Password:</label>
-            <input type="password" id="mqttPassword" name="mqttPassword" value="{{mqttPassword}}">
-        </div>
+    <!-- Solar Tracking Tab -->
+    <div id="SolarTracking" class="tabcontent">
+        <form action="/saveSolarTrackingConfig" method="POST">
+            <div class="section">
+                <h2>Solar Tracking Settings</h2>
+                <label for="stLatitude">Latitude (degrees):</label>
+                <input type="text" id="stLatitude" name="stLatitude" value="{{stLatitude}}">
 
-        <!-- NTP Settings Section -->
-        <div class="section">
-            <h2>NTP Settings</h2>
-            <label for="ntpServer1">NTP Server 1:</label>
-            <input type="text" id="ntpServer1" name="ntpServer1" value="{{ntpServer1}}">
+                <label for="stLongitude">Longitude (degrees):</label>
+                <input type="text" id="stLongitude" name="stLongitude" value="{{stLongitude}}">
 
-            <label for="ntpServer2">NTP Server 2:</label>
-            <input type="text" id="ntpServer2" name="ntpServer2" value="{{ntpServer2}}">
+                <label for="stPressure">Atmospheric Pressure (kPa):</label>
+                <input type="text" id="stPressure" name="stPressure" value="{{stPressure}}">
 
-            <label for="ntpServer3">NTP Server 3:</label>
-            <input type="text" id="ntpServer3" name="ntpServer3" value="{{ntpServer3}}">
-        </div>
+                <label for="stTemperature">Atmospheric Temperature (K):</label>
+                <input type="text" id="stTemperature" name="stTemperature" value="{{stTemperature}}">
 
-        <!-- Wi-Fi Credentials Section -->
-        <div class="section">
-            <h2>Wi-Fi Credentials</h2>
-            <label for="wifiSSID">Wi-Fi SSID:</label>
-            <input type="text" id="wifiSSID" name="wifiSSID" value="{{wifiSSID}}">
+                <input type="submit" value="Save Solar Tracking Settings">
+            </div>
+        </form>
+    </div>
 
-            <label for="wifiPassword">Wi-Fi Password:</label>
-            <input type="password" id="wifiPassword" name="wifiPassword" value="{{wifiPassword}}">
-        </div>
+    <!-- SolTrack Options Tab -->
+    <div id="SolarTrackOptions" class="tabcontent">
+        <form action="/saveSolTrackOptions" method="POST">
+            <div class="section">
+                <h2>SolTrack Library Options</h2>
+                <label>
+                    <input type="checkbox" name="useDegrees" {{useDegreesChecked}}>
+                    Use Degrees
+                </label>
+                <label>
+                    <input type="checkbox" name="useNorthEqualsZero" {{useNorthEqualsZeroChecked}}>
+                    Use North Equals Zero
+                </label>
+                <label>
+                    <input type="checkbox" name="computeRefrEquatorial" {{computeRefrEquatorialChecked}}>
+                    Compute Refraction Equatorial
+                </label>
+                <label>
+                    <input type="checkbox" name="computeDistance" {{computeDistanceChecked}}>
+                    Compute Distance
+                </label>
+                <input type="submit" value="Save SolTrack Options">
+            </div>
+        </form>
+    </div>
 
-        <input type="submit" value="Save Configuration">
-    </form>
+    <!-- Azimuth Settings Tab -->
+    <div id="AzimuthSettings" class="tabcontent">
+        <form action="/saveAzimuthConfig" method="POST">
+            <div class="section">
+                <h2>Azimuth Controller Settings</h2>
+                <label for="azimuthMotorPWMSpeed">Motor PWM Speed (0-255):</label>
+                <input type="number" id="azimuthMotorPWMSpeed" name="azimuthMotorPWMSpeed" value="{{azimuthMotorPWMSpeed}}">
 
-    <button onclick="refreshPage()">Refresh Values</button>
+                <label for="azimuthDegMax">Maximum Azimuth (degrees):</label>
+                <input type="text" id="azimuthDegMax" name="azimuthDegMax" value="{{azimuthDegMax}}">
+
+                <label for="azimuthDegMin">Minimum Azimuth (degrees):</label>
+                <input type="text" id="azimuthDegMin" name="azimuthDegMin" value="{{azimuthDegMin}}">
+
+                <label for="azimuthTimeThreshold">Azimuth Time Threshold (ms):</label>
+                <input type="number" id="azimuthTimeThreshold" name="azimuthTimeThreshold" value="{{azimuthTimeThreshold}}">
+
+                <label for="azimuthTimeMaxBeforeCalibration">Max Time Before Calibration (ms):</label>
+                <input type="number" id="azimuthTimeMaxBeforeCalibration" name="azimuthTimeMaxBeforeCalibration" value="{{azimuthTimeMaxBeforeCalibration}}">
+
+                <input type="submit" value="Save Azimuth Settings">
+            </div>
+        </form>
+    </div>
+
+    <!-- Elevation Settings Tab -->
+    <div id="ElevationSettings" class="tabcontent">
+        <form action="/saveElevationConfig" method="POST">
+            <div class="section">
+                <h2>Elevation Controller Settings</h2>
+                <label for="elevationMotorPWMSpeed">Motor PWM Speed (0-255):</label>
+                <input type="number" id="elevationMotorPWMSpeed" name="elevationMotorPWMSpeed" value="{{elevationMotorPWMSpeed}}">
+
+                <label for="elevationDegMax">Maximum Elevation (degrees):</label>
+                <input type="text" id="elevationDegMax" name="elevationDegMax" value="{{elevationDegMax}}">
+
+                <label for="elevationDegMin">Minimum Elevation (degrees):</label>
+                <input type="text" id="elevationDegMin" name="elevationDegMin" value="{{elevationDegMin}}">
+
+                <label for="elevationTimeThreshold">Elevation Time Threshold (ms):</label>
+                <input type="number" id="elevationTimeThreshold" name="elevationTimeThreshold" value="{{elevationTimeThreshold}}">
+
+                <label for="elevationActuatorSpeed">Actuator Speed (mm/s):</label>
+                <input type="text" id="elevationActuatorSpeed" name="elevationActuatorSpeed" value="{{elevationActuatorSpeed}}">
+
+                <label for="elevationActuatorLength">Actuator Length (mm):</label>
+                <input type="text" id="elevationActuatorLength" name="elevationActuatorLength" value="{{elevationActuatorLength}}">
+
+                <label for="forceTimeFullTravel">Force Time Full Travel (s), 0 to disable:</label>
+                <input type="number" id="forceTimeFullTravel" name="forceTimeFullTravel" value="{{forceTimeFullTravel}}">
+
+                <input type="submit" value="Save Elevation Settings">
+            </div>
+        </form>
+    </div>
+
+    <!-- Joystick Settings Tab -->
+    <div id="JoystickSettings" class="tabcontent">
+        <form action="/saveJoystickConfig" method="POST">
+            <div class="section">
+                <h2>Joystick Settings</h2>
+                <label for="joystickButtonDebounce">Button Debounce Time (ms):</label>
+                <input type="number" id="joystickButtonDebounce" name="joystickButtonDebounce" value="{{joystickButtonDebounce}}">
+
+                <label for="joystickThreshold">Joystick Threshold:</label>
+                <input type="number" id="joystickThreshold" name="joystickThreshold" value="{{joystickThreshold}}">
+
+                <input type="submit" value="Save Joystick Settings">
+            </div>
+        </form>
+    </div>
+
+    <!-- Anemometer Settings Tab -->
+    <div id="AnemometerSettings" class="tabcontent">
+        <form action="/saveAnemometerConfig" method="POST">
+            <div class="section">
+                <h2>Anemometer Settings</h2>
+                <label for="anenometerSafeDuration">Safe Duration (ms):</label>
+                <input type="number" id="anenometerSafeDuration" name="anenometerSafeDuration" value="{{anenometerSafeDuration}}">
+
+                <input type="submit" value="Save Anemometer Settings">
+            </div>
+        </form>
+    </div>
+
+    <!-- MQTT Settings Tab -->
+    <div id="MQTTSettings" class="tabcontent">
+        <form action="/saveMQTTConfig" method="POST">
+            <div class="section">
+                <h2>MQTT Settings</h2>
+                <label for="deviceName">Device Name:</label>
+                <input type="text" id="deviceName" name="deviceName" value="{{deviceName}}">
+
+                <label for="mqttServer">MQTT Server:</label>
+                <input type="text" id="mqttServer" name="mqttServer" value="{{mqttServer}}">
+
+                <label for="mqttPort">MQTT Port:</label>
+                <input type="number" id="mqttPort" name="mqttPort" value="{{mqttPort}}">
+
+                <label for="mqttUser">MQTT User:</label>
+                <input type="text" id="mqttUser" name="mqttUser" value="{{mqttUser}}">
+
+                <label for="mqttPassword">MQTT Password:</label>
+                <input type="password" id="mqttPassword" name="mqttPassword" value="{{mqttPassword}}">
+
+                <input type="submit" value="Save MQTT Settings">
+            </div>
+        </form>
+    </div>
+
+    <!-- NTP Settings Tab -->
+    <div id="NTPSettings" class="tabcontent">
+        <form action="/saveNTPConfig" method="POST">
+            <div class="section">
+                <h2>NTP Settings</h2>
+                <label for="ntpServer1">NTP Server 1:</label>
+                <input type="text" id="ntpServer1" name="ntpServer1" value="{{ntpServer1}}">
+
+                <label for="ntpServer2">NTP Server 2:</label>
+                <input type="text" id="ntpServer2" name="ntpServer2" value="{{ntpServer2}}">
+
+                <label for="ntpServer3">NTP Server 3:</label>
+                <input type="text" id="ntpServer3" name="ntpServer3" value="{{ntpServer3}}">
+
+                <input type="submit" value="Save NTP Settings">
+            </div>
+        </form>
+    </div>
+
+    <!-- Wi-Fi Settings Tab -->
+    <div id="WiFiSettings" class="tabcontent">
+        <form action="/saveWiFiConfig" method="POST">
+            <div class="section">
+                <h2>Wi-Fi Credentials</h2>
+                <p>Wrong Wi-Fi credentials can lead to the system being unreachable until full memory reset.</p>
+
+                <label for="wifiSSID">Wi-Fi SSID:</label>
+                <input type="text" id="wifiSSID" name="wifiSSID" value="{{wifiSSID}}">
+
+                <label for="wifiPassword">Wi-Fi Password:</label>
+                <input type="password" id="wifiPassword" name="wifiPassword" value="{{wifiPassword}}">
+
+                <input type="submit" value="Save Wi-Fi Settings">
+            </div>
+        </form>
+    </div>
 
     <script>
+        // Tab functionality
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // Set default tab open
+        document.getElementById("defaultOpen").click();
+
+        // Refresh page
         function refreshPage() {
             window.location.reload();
+        }
+
+        // Restart system function
+        function restartSystem() {
+            if (confirm("Are you sure you want to restart the system?")) {
+                fetch('/restartSystem', { method: 'POST' })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('System is restarting.');
+                        } else {
+                            alert('Failed to restart the system.');
+                        }
+                    });
+            }
         }
     </script>
 </body>

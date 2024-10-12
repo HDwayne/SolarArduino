@@ -28,14 +28,24 @@ void WebServerModule::initSPIFFS()
 
 void WebServerModule::setupServer()
 {
-  server.on("/config", HTTP_GET, std::bind(&WebServerModule::handleConfigPage, this, std::placeholders::_1));
+  server.on("/", HTTP_GET, std::bind(&WebServerModule::handleConfigPage, this, std::placeholders::_1));
 
-  server.on("/saveConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveConfig, this, std::placeholders::_1));
+  server.on("/savePinsConfig", HTTP_POST, std::bind(&WebServerModule::handleSavePinsConfig, this, std::placeholders::_1));
+  server.on("/saveConstantsConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveConstantsConfig, this, std::placeholders::_1));
+  server.on("/saveSolarTrackingConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveSolarTrackingConfig, this, std::placeholders::_1));
+  server.on("/saveSolTrackOptions", HTTP_POST, std::bind(&WebServerModule::handleSaveSolTrackOptions, this, std::placeholders::_1));
+  server.on("/saveAzimuthConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveAzimuthConfig, this, std::placeholders::_1));
+  server.on("/saveElevationConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveElevationConfig, this, std::placeholders::_1));
+  server.on("/saveJoystickConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveJoystickConfig, this, std::placeholders::_1));
+  server.on("/saveAnemometerConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveAnemometerConfig, this, std::placeholders::_1));
+  server.on("/saveMQTTConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveMQTTConfig, this, std::placeholders::_1));
+  server.on("/saveNTPConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveNTPConfig, this, std::placeholders::_1));
+  server.on("/saveWiFiConfig", HTTP_POST, std::bind(&WebServerModule::handleSaveWiFiConfig, this, std::placeholders::_1));
+
+  // Handler for system restart
+  server.on("/restartSystem", HTTP_POST, std::bind(&WebServerModule::handleRestartSystem, this, std::placeholders::_1));
 
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("config.html");
-
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->redirect("/config"); });
 
   server.begin();
 }
@@ -51,6 +61,15 @@ void WebServerModule::handleConfigPage(AsyncWebServerRequest *request)
 
   String html = file.readString();
   file.close();
+
+  // Replace placeholders with actual values
+
+  // Overview placeholders
+  // html.replace("{{currentAzimuth}}", String(configModule.getCurrentAzimuth(), 2));
+  // html.replace("{{calculatedAzimuth}}", String(configModule.getCalculatedAzimuth(), 2));
+  // html.replace("{{currentElevation}}", String(configModule.getCurrentElevation(), 2));
+  // html.replace("{{calculatedElevation}}", String(configModule.getCalculatedElevation(), 2));
+  // html.replace("{{systemStatus}}", configModule.getSystemStatus());
 
   // PINS
   html.replace("{{azimuthMotorPinEn}}", String(configModule.getAzimuthMotorPinEn()));
@@ -77,7 +96,7 @@ void WebServerModule::handleConfigPage(AsyncWebServerRequest *request)
   html.replace("{{stPressure}}", String(configModule.getSTPressure(), 2));
   html.replace("{{stTemperature}}", String(configModule.getSTTemperature(), 2));
 
-  // Solar Track Options
+  // SolTrack Options
   html.replace("{{useDegreesChecked}}", configModule.getUseDegrees() ? "checked" : "");
   html.replace("{{useNorthEqualsZeroChecked}}", configModule.getUseNorthEqualsZero() ? "checked" : "");
   html.replace("{{computeRefrEquatorialChecked}}", configModule.getComputeRefrEquatorial() ? "checked" : "");
@@ -125,229 +144,259 @@ void WebServerModule::handleConfigPage(AsyncWebServerRequest *request)
   request->send(200, "text/html", html);
 }
 
-void WebServerModule::handleSaveConfig(AsyncWebServerRequest *request)
+void WebServerModule::handleRestartSystem(AsyncWebServerRequest *request)
 {
-  int params = request->params();
-  for (int i = 0; i < params; i++)
+  request->send(200, "text/plain", "System is restarting...");
+  delay(1000);
+  ESP.restart();
+}
+
+// Individual handlers for saving configurations
+void WebServerModule::handleSavePinsConfig(AsyncWebServerRequest *request)
+{
+  // PINS
+  if (request->hasParam("azimuthMotorPinEn", true))
   {
-    AsyncWebParameter *p = request->getParam(i);
-    const char *paramName = p->name().c_str();
-    const char *paramValue = p->value().c_str();
-
-    // PINS
-    if (strcmp(paramName, "azimuthMotorPinEn") == 0)
-    {
-      configModule.setAzimuthMotorPinEn(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "azimuthMotorPwmPinL") == 0)
-    {
-      configModule.setAzimuthMotorPwmPinL(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "azimuthMotorPwmPinR") == 0)
-    {
-      configModule.setAzimuthMotorPwmPinR(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "azimuthLimitSwitchPin") == 0)
-    {
-      configModule.setAzimuthLimitSwitchPin(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "elevationMotorPinEn") == 0)
-    {
-      configModule.setElevationMotorPinEn(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "elevationMotorPwmPinU") == 0)
-    {
-      configModule.setElevationMotorPwmPinU(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "elevationMotorPwmPinD") == 0)
-    {
-      configModule.setElevationMotorPwmPinD(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "joystickVrxPin") == 0)
-    {
-      configModule.setJoystickVrxPin(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "joystickVryPin") == 0)
-    {
-      configModule.setJoystickVryPin(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "joystickButtonPin") == 0)
-    {
-      configModule.setJoystickButtonPin(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "anenometerButtonPin") == 0)
-    {
-      configModule.setAnenometerButtonPin(atoi(paramValue));
-    }
-
-    // Constants
-    else if (strcmp(paramName, "updatePanelAdjustmentInterval") == 0)
-    {
-      configModule.setUpdatePanelAdjustmentInterval(atoi(paramValue));
-    }
-
-    // Solar Tracking Settings
-    else if (strcmp(paramName, "stLatitude") == 0)
-    {
-      configModule.setSTLatitude(atof(paramValue));
-    }
-    else if (strcmp(paramName, "stLongitude") == 0)
-    {
-      configModule.setSTLongitude(atof(paramValue));
-    }
-    else if (strcmp(paramName, "stPressure") == 0)
-    {
-      configModule.setSTPressure(atof(paramValue));
-    }
-    else if (strcmp(paramName, "stTemperature") == 0)
-    {
-      configModule.setSTTemperature(atof(paramValue));
-    }
-
-    // Solar Track Options (Booleans)
-    else if (strcmp(paramName, "useDegrees") == 0)
-    {
-      configModule.setUseDegrees(true);
-    }
-    else if (strcmp(paramName, "useNorthEqualsZero") == 0)
-    {
-      configModule.setUseNorthEqualsZero(true);
-    }
-    else if (strcmp(paramName, "computeRefrEquatorial") == 0)
-    {
-      configModule.setComputeRefrEquatorial(true);
-    }
-    else if (strcmp(paramName, "computeDistance") == 0)
-    {
-      configModule.setComputeDistance(true);
-    }
-
-    // Azimuth Settings
-    else if (strcmp(paramName, "azimuthMotorPWMSpeed") == 0)
-    {
-      configModule.setAzimuthMotorPWMSpeed(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "azimuthDegMax") == 0)
-    {
-      configModule.setAzimuthDegMax(atof(paramValue));
-    }
-    else if (strcmp(paramName, "azimuthDegMin") == 0)
-    {
-      configModule.setAzimuthDegMin(atof(paramValue));
-    }
-    else if (strcmp(paramName, "azimuthTimeThreshold") == 0)
-    {
-      configModule.setAzimuthTimeThreshold(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "azimuthTimeMaxBeforeCalibration") == 0)
-    {
-      configModule.setAzimuthTimeMaxBeforeCalibration(atoi(paramValue));
-    }
-
-    // Elevation Settings
-    else if (strcmp(paramName, "elevationMotorPWMSpeed") == 0)
-    {
-      configModule.setElevationMotorPWMSpeed(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "elevationDegMax") == 0)
-    {
-      configModule.setElevationDegMax(atof(paramValue));
-    }
-    else if (strcmp(paramName, "elevationDegMin") == 0)
-    {
-      configModule.setElevationDegMin(atof(paramValue));
-    }
-    else if (strcmp(paramName, "elevationTimeThreshold") == 0)
-    {
-      configModule.setElevationTimeThreshold(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "elevationActuatorSpeed") == 0)
-    {
-      configModule.setElevationActuatorSpeed(atof(paramValue));
-    }
-    else if (strcmp(paramName, "elevationActuatorLength") == 0)
-    {
-      configModule.setElevationActuatorLength(atof(paramValue));
-    }
-    else if (strcmp(paramName, "forceTimeFullTravel") == 0)
-    {
-      configModule.setForceTimeFullTravel(atoi(paramValue));
-    }
-
-    // Joystick Settings
-    else if (strcmp(paramName, "joystickButtonDebounce") == 0)
-    {
-      configModule.setJoystickButtonDebounce(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "joystickThreshold") == 0)
-    {
-      configModule.setJoystickThreshold(atoi(paramValue));
-    }
-
-    // Anemometer Settings
-    else if (strcmp(paramName, "anenometerSafeDuration") == 0)
-    {
-      configModule.setAnenometerSafeDuration(atol(paramValue));
-    }
-
-    // MQTT Settings
-    else if (strcmp(paramName, "deviceName") == 0)
-    {
-      configModule.setDeviceName(paramValue);
-    }
-    else if (strcmp(paramName, "mqttServer") == 0)
-    {
-      configModule.setMQTTServer(paramValue);
-    }
-    else if (strcmp(paramName, "mqttPort") == 0)
-    {
-      configModule.setMQTTPort(atoi(paramValue));
-    }
-    else if (strcmp(paramName, "mqttUser") == 0)
-    {
-      configModule.setMQTTUser(paramValue);
-    }
-    else if (strcmp(paramName, "mqttPassword") == 0)
-    {
-      configModule.setMQTTPassword(paramValue);
-    }
-
-    // NTP Settings
-    else if (strcmp(paramName, "ntpServer1") == 0)
-    {
-      configModule.setNTPServer1(paramValue);
-    }
-    else if (strcmp(paramName, "ntpServer2") == 0)
-    {
-      configModule.setNTPServer2(paramValue);
-    }
-    else if (strcmp(paramName, "ntpServer3") == 0)
-    {
-      configModule.setNTPServer3(paramValue);
-    }
-
-    // Wi-Fi Credentials
-    else if (strcmp(paramName, "wifiSSID") == 0)
-    {
-      configModule.setWIFISSID(paramValue);
-    }
-    else if (strcmp(paramName, "wifiPassword") == 0)
-    {
-      configModule.setWIFIPassword(paramValue);
-    }
+    configModule.setAzimuthMotorPinEn(request->getParam("azimuthMotorPinEn", true)->value().toInt());
+  }
+  if (request->hasParam("azimuthMotorPwmPinL", true))
+  {
+    configModule.setAzimuthMotorPwmPinL(request->getParam("azimuthMotorPwmPinL", true)->value().toInt());
+  }
+  if (request->hasParam("azimuthMotorPwmPinR", true))
+  {
+    configModule.setAzimuthMotorPwmPinR(request->getParam("azimuthMotorPwmPinR", true)->value().toInt());
+  }
+  if (request->hasParam("azimuthLimitSwitchPin", true))
+  {
+    configModule.setAzimuthLimitSwitchPin(request->getParam("azimuthLimitSwitchPin", true)->value().toInt());
+  }
+  if (request->hasParam("elevationMotorPinEn", true))
+  {
+    configModule.setElevationMotorPinEn(request->getParam("elevationMotorPinEn", true)->value().toInt());
+  }
+  if (request->hasParam("elevationMotorPwmPinU", true))
+  {
+    configModule.setElevationMotorPwmPinU(request->getParam("elevationMotorPwmPinU", true)->value().toInt());
+  }
+  if (request->hasParam("elevationMotorPwmPinD", true))
+  {
+    configModule.setElevationMotorPwmPinD(request->getParam("elevationMotorPwmPinD", true)->value().toInt());
+  }
+  if (request->hasParam("joystickVrxPin", true))
+  {
+    configModule.setJoystickVrxPin(request->getParam("joystickVrxPin", true)->value().toInt());
+  }
+  if (request->hasParam("joystickVryPin", true))
+  {
+    configModule.setJoystickVryPin(request->getParam("joystickVryPin", true)->value().toInt());
+  }
+  if (request->hasParam("joystickButtonPin", true))
+  {
+    configModule.setJoystickButtonPin(request->getParam("joystickButtonPin", true)->value().toInt());
+  }
+  if (request->hasParam("anenometerButtonPin", true))
+  {
+    configModule.setAnenometerButtonPin(request->getParam("anenometerButtonPin", true)->value().toInt());
   }
 
-  configModule.setUseDegrees(request->hasParam("useDegrees"));
-  configModule.setUseNorthEqualsZero(request->hasParam("useNorthEqualsZero"));
-  configModule.setComputeRefrEquatorial(request->hasParam("computeRefrEquatorial"));
-  configModule.setComputeDistance(request->hasParam("computeDistance"));
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleSaveConstantsConfig(AsyncWebServerRequest *request)
+{
+  if (request->hasParam("updatePanelAdjustmentInterval", true))
+  {
+    configModule.setUpdatePanelAdjustmentInterval(request->getParam("updatePanelAdjustmentInterval", true)->value().toInt());
+  }
+
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleSaveSolarTrackingConfig(AsyncWebServerRequest *request)
+{
+  if (request->hasParam("stLatitude", true))
+  {
+    configModule.setSTLatitude(request->getParam("stLatitude", true)->value().toFloat());
+  }
+  if (request->hasParam("stLongitude", true))
+  {
+    configModule.setSTLongitude(request->getParam("stLongitude", true)->value().toFloat());
+  }
+  if (request->hasParam("stPressure", true))
+  {
+    configModule.setSTPressure(request->getParam("stPressure", true)->value().toFloat());
+  }
+  if (request->hasParam("stTemperature", true))
+  {
+    configModule.setSTTemperature(request->getParam("stTemperature", true)->value().toFloat());
+  }
+
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleSaveSolTrackOptions(AsyncWebServerRequest *request)
+{
+  configModule.setUseDegrees(request->hasParam("useDegrees", true));
+  configModule.setUseNorthEqualsZero(request->hasParam("useNorthEqualsZero", true));
+  configModule.setComputeRefrEquatorial(request->hasParam("computeRefrEquatorial", true));
+  configModule.setComputeDistance(request->hasParam("computeDistance", true));
+
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleSaveAzimuthConfig(AsyncWebServerRequest *request)
+{
+  if (request->hasParam("azimuthMotorPWMSpeed", true))
+  {
+    configModule.setAzimuthMotorPWMSpeed(request->getParam("azimuthMotorPWMSpeed", true)->value().toInt());
+  }
+  if (request->hasParam("azimuthDegMax", true))
+  {
+    configModule.setAzimuthDegMax(request->getParam("azimuthDegMax", true)->value().toFloat());
+  }
+  if (request->hasParam("azimuthDegMin", true))
+  {
+    configModule.setAzimuthDegMin(request->getParam("azimuthDegMin", true)->value().toFloat());
+  }
+  if (request->hasParam("azimuthTimeThreshold", true))
+  {
+    configModule.setAzimuthTimeThreshold(request->getParam("azimuthTimeThreshold", true)->value().toInt());
+  }
+  if (request->hasParam("azimuthTimeMaxBeforeCalibration", true))
+  {
+    configModule.setAzimuthTimeMaxBeforeCalibration(request->getParam("azimuthTimeMaxBeforeCalibration", true)->value().toInt());
+  }
+
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleSaveElevationConfig(AsyncWebServerRequest *request)
+{
+  if (request->hasParam("elevationMotorPWMSpeed", true))
+  {
+    configModule.setElevationMotorPWMSpeed(request->getParam("elevationMotorPWMSpeed", true)->value().toInt());
+  }
+  if (request->hasParam("elevationDegMax", true))
+  {
+    configModule.setElevationDegMax(request->getParam("elevationDegMax", true)->value().toFloat());
+  }
+  if (request->hasParam("elevationDegMin", true))
+  {
+    configModule.setElevationDegMin(request->getParam("elevationDegMin", true)->value().toFloat());
+  }
+  if (request->hasParam("elevationTimeThreshold", true))
+  {
+    configModule.setElevationTimeThreshold(request->getParam("elevationTimeThreshold", true)->value().toInt());
+  }
+  if (request->hasParam("elevationActuatorSpeed", true))
+  {
+    configModule.setElevationActuatorSpeed(request->getParam("elevationActuatorSpeed", true)->value().toFloat());
+  }
+  if (request->hasParam("elevationActuatorLength", true))
+  {
+    configModule.setElevationActuatorLength(request->getParam("elevationActuatorLength", true)->value().toFloat());
+  }
+  if (request->hasParam("forceTimeFullTravel", true))
+  {
+    configModule.setForceTimeFullTravel(request->getParam("forceTimeFullTravel", true)->value().toInt());
+  }
+
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleSaveJoystickConfig(AsyncWebServerRequest *request)
+{
+  if (request->hasParam("joystickButtonDebounce", true))
+  {
+    configModule.setJoystickButtonDebounce(request->getParam("joystickButtonDebounce", true)->value().toInt());
+  }
+  if (request->hasParam("joystickThreshold", true))
+  {
+    configModule.setJoystickThreshold(request->getParam("joystickThreshold", true)->value().toInt());
+  }
+
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleSaveAnemometerConfig(AsyncWebServerRequest *request)
+{
+  if (request->hasParam("anenometerSafeDuration", true))
+  {
+    configModule.setAnenometerSafeDuration(request->getParam("anenometerSafeDuration", true)->value().toInt());
+  }
+
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleSaveMQTTConfig(AsyncWebServerRequest *request)
+{
+  if (request->hasParam("deviceName", true))
+  {
+    configModule.setDeviceName(request->getParam("deviceName", true)->value().c_str());
+  }
+  if (request->hasParam("mqttServer", true))
+  {
+    configModule.setMQTTServer(request->getParam("mqttServer", true)->value().c_str());
+  }
+  if (request->hasParam("mqttPort", true))
+  {
+    configModule.setMQTTPort(request->getParam("mqttPort", true)->value().toInt());
+  }
+  if (request->hasParam("mqttUser", true))
+  {
+    configModule.setMQTTUser(request->getParam("mqttUser", true)->value().c_str());
+  }
+  if (request->hasParam("mqttPassword", true))
+  {
+    configModule.setMQTTPassword(request->getParam("mqttPassword", true)->value().c_str());
+  }
+
+  configModule.saveConfig();
+  request->redirect("/");
+}
+
+void WebServerModule::handleSaveNTPConfig(AsyncWebServerRequest *request)
+{
+  if (request->hasParam("ntpServer1", true))
+  {
+    configModule.setNTPServer1(request->getParam("ntpServer1", true)->value().c_str());
+  }
+  if (request->hasParam("ntpServer2", true))
+  {
+    configModule.setNTPServer2(request->getParam("ntpServer2", true)->value().c_str());
+  }
+  if (request->hasParam("ntpServer3", true))
+  {
+    configModule.setNTPServer3(request->getParam("ntpServer3", true)->value().c_str());
+  }
 
   configModule.saveConfig();
 
-  // TODO: Some configuration changes require a reboot but not all
-  ESP.restart();
+  request->redirect("/");
+}
 
-  request->redirect("/config");
+void WebServerModule::handleSaveWiFiConfig(AsyncWebServerRequest *request)
+{
+  if (request->hasParam("wifiSSID", true))
+  {
+    configModule.setWIFISSID(request->getParam("wifiSSID", true)->value().c_str());
+  }
+  if (request->hasParam("wifiPassword", true))
+  {
+    configModule.setWIFIPassword(request->getParam("wifiPassword", true)->value().c_str());
+  }
+
+  configModule.saveConfig();
+  request->redirect("/");
 }
 
 #endif // defined(ESP32)

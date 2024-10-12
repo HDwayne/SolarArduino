@@ -1,7 +1,7 @@
 #if defined(ESP32)
 
-#ifndef CONFIG_WEBSERVER_MODULE_H
-#define CONFIG_WEBSERVER_MODULE_H
+#ifndef MODULE_WEBSERVER_H
+#define MODULE_WEBSERVER_H
 
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
@@ -20,10 +20,21 @@ private:
   AsyncWebServer server;
 
   void handleConfigPage(AsyncWebServerRequest *request);
-  void handleSaveConfig(AsyncWebServerRequest *request);
+  void handleSavePinsConfig(AsyncWebServerRequest *request);
+  void handleSaveConstantsConfig(AsyncWebServerRequest *request);
+  void handleSaveSolarTrackingConfig(AsyncWebServerRequest *request);
+  void handleSaveSolTrackOptions(AsyncWebServerRequest *request);
+  void handleSaveAzimuthConfig(AsyncWebServerRequest *request);
+  void handleSaveElevationConfig(AsyncWebServerRequest *request);
+  void handleSaveJoystickConfig(AsyncWebServerRequest *request);
+  void handleSaveAnemometerConfig(AsyncWebServerRequest *request);
+  void handleSaveMQTTConfig(AsyncWebServerRequest *request);
+  void handleSaveNTPConfig(AsyncWebServerRequest *request);
+  void handleSaveWiFiConfig(AsyncWebServerRequest *request);
+  void handleRestartSystem(AsyncWebServerRequest *request);
 };
 
 extern WebServerModule webServerModule;
 
-#endif // CONFIG_WEBSERVER_MODULE_H
+#endif // MODULE_WEBSERVER_H
 #endif // defined(ESP32)

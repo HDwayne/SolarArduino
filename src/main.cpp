@@ -56,9 +56,9 @@ void setup()
   otaModule.init();
 #endif // MODULE_OTA_H
 
-#if defined(CONFIG_WEBSERVER_MODULE_H)
+#if defined(MODULE_WEBSERVER_H)
   webServerModule.begin();
-#endif // CONFIG_WEBSERVER_MODULE_H
+#endif // MODULE_WEBSERVER_H
 
 #if defined(JOYSTICK_CONTROLLER_H)
   initJoystick();
