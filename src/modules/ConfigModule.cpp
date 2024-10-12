@@ -425,10 +425,10 @@ const ConfigData ConfigModule::configData = {
     20, // UPDATE_PANEL_ADJUSTMENT_INTERVAL
 
     // Solar Tracking Settings
-    43.8045, // ST_LATITUDE
-    1.3883,  // ST_LONGITUDE
-    101.0,   // ST_PRESSURE
-    283.0,   // ST_TEMPERATURE
+    1.1234, // ST_LATITUDE
+    1.1234, // ST_LONGITUDE
+    101.0,  // ST_PRESSURE
+    283.0,  // ST_TEMPERATURE
 
     // Solar Track Options
     true,  // useDegrees
