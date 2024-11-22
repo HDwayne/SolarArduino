@@ -63,12 +63,12 @@ private:
       "panel_status"};
 
   const char *valueTemplates[NUM_MQTT_FIELDS] = {
-      "{{ value | float }}",        // Pour PANEL_AZIMUTH : Convertir la valeur en float
-      "{{ value | float }}",        // Pour PANEL_ELEVATION : Convertir la valeur en float
-      "{{ value | float }}",        // Pour SOLAR_AZIMUTH : Convertir la valeur en float
-      "{{ value | float }}",        // Pour SOLAR_ELEVATION : Convertir la valeur en float
-      "{{ value | as_timestamp }}", // Pour LAST_PANEL_ADJUSTMENT_TIME : Convertir la valeur en timestamp ISO 8601
-      "{{ value | as_timestamp }}", // Pour NEXT_PANEL_ADJUSTMENT_TIME : Convertir la valeur en timestamp ISO 8601
+      "{{ value | float }}",       // Pour PANEL_AZIMUTH : Convertir la valeur en float
+      "{{ value | float }}",       // Pour PANEL_ELEVATION : Convertir la valeur en float
+      "{{ value | float }}",       // Pour SOLAR_AZIMUTH : Convertir la valeur en float
+      "{{ value | float }}",       // Pour SOLAR_ELEVATION : Convertir la valeur en float
+      "{{ value | as_datetime }}", // Pour LAST_PANEL_ADJUSTMENT_TIME : Convertir la valeur en timestamp ISO 8601
+      "{{ value | as_datetime }}", // Pour NEXT_PANEL_ADJUSTMENT_TIME : Convertir la valeur en timestamp ISO 8601
       ""};
 
   char devUniqueID[64];
