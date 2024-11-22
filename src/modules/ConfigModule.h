@@ -2,6 +2,7 @@
 #define CONFIG_MODULE_H
 
 #include <Arduino.h>
+#include "utils/Logger.h"
 
 struct ConfigData
 {

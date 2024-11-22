@@ -8,6 +8,7 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
+#include "utils/Logger.h"
 
 enum MQTTFields
 {

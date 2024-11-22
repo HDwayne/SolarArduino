@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <ezButton.h>
 #include <BTS7960.h>
+#include "utils/Logger.h"
 
 #define DELAY_TRIGGERED 0
 #define LIMIT_SWITCH_TRIGGERED 1

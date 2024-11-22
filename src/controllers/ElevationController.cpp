@@ -27,7 +27,7 @@ void ElevationController::init()
   elevationDegMin = configModule.getElevationDegMin();
   elevationTimeThreshold = configModule.getElevationTimeThreshold();
 
-  Serial.println(F("\n\t--- Starting Elevation Initialization Procedure ---\n"));
+  Log.println(F("\n\t--- Starting Elevation Initialization Procedure ---\n"));
 
   if (configModule.getForceTimeFullTravel() > 0)
   {
@@ -38,37 +38,37 @@ void ElevationController::init()
     actuatorFullTravelTime = (actuatorLength / actuatorSpeed) * 1000.0;
   }
 
-  Serial.print(F("\tThe actuator full travel time is: "));
-  Serial.print(actuatorFullTravelTime);
-  Serial.println(F(" ms"));
+  Log.print(F("\tThe actuator full travel time is: "));
+  Log.print(actuatorFullTravelTime);
+  Log.println(F(" ms"));
 
   degreesPerMs = (elevationDegMax - elevationDegMin) / actuatorFullTravelTime;
-  Serial.print(F("\tDegrees per millisecond: "));
-  Serial.print(degreesPerMs, 6);
-  Serial.println(F("°/ms\n"));
+  Log.print(F("\tDegrees per millisecond: "));
+  Log.print(degreesPerMs, 6);
+  Log.println(F("°/ms\n"));
 
   moveToMaxElevation();
 
-  Serial.println(F("\n\t--- Elevation Initialization Procedure Completed ---\n"));
+  Log.println(F("\n\t--- Elevation Initialization Procedure Completed ---\n"));
 }
 
 float ElevationController::moveToAngle(float targetAzimuth, float targetElevation)
 {
-  Serial.println(F("\n\t--- Adjusting Elevation ---\n"));
+  Log.println(F("\n\t--- Adjusting Elevation ---\n"));
 
   if (targetElevation > elevationDegMax || targetElevation < elevationDegMin)
   {
-    Serial.println(F("[INFO] Solar elevation is out of tracking range. Cannot adjust elevation."));
+    Log.println(F("[INFO] Solar elevation is out of tracking range. Cannot adjust elevation."));
 
     if (targetAzimuth > azimuthDegMax || targetAzimuth < azimuthDegMin || targetElevation <= 0.0)
     {
-      Serial.println(F("[INFO] Solar azimuth is also out of tracking range or sun below the horizon. Stopping elevation adjustment."));
+      Log.println(F("[INFO] Solar azimuth is also out of tracking range or sun below the horizon. Stopping elevation adjustment."));
       if (currentElevation != elevationDegMax)
         moveToMaxElevation();
     }
     else
     {
-      Serial.println(F("[INFO] Adjusting azimuth to the nearest tracking position."));
+      Log.println(F("[INFO] Adjusting azimuth to the nearest tracking position."));
       if (currentElevation != elevationDegMin)
         moveToMinElevation();
     }
@@ -81,28 +81,28 @@ float ElevationController::moveToAngle(float targetAzimuth, float targetElevatio
 
   if (timeToMove < elevationTimeThreshold)
   {
-    Serial.println(F("[INFO] Time to move is less than the minimal required time. Cannot adjust elevation."));
+    Log.println(F("[INFO] Time to move is less than the minimal required time. Cannot adjust elevation."));
     return currentElevation;
   }
 
-  Serial.print(F("[INFO] Elevation difference: "));
-  Serial.print(azimuthDifference, 2);
-  Serial.print(F("°. Time to move: "));
-  Serial.print(timeToMove);
-  Serial.println(F(" ms"));
+  Log.print(F("[INFO] Elevation difference: "));
+  Log.print(azimuthDifference, 2);
+  Log.print(F("°. Time to move: "));
+  Log.print(timeToMove);
+  Log.println(F(" ms"));
 
   motorController->Enable();
 
   if (targetElevation > currentElevation)
   {
-    Serial.println(F("[ADJUST] Moving actuator up."));
+    Log.println(F("[ADJUST] Moving actuator up."));
     currentElevation += azimuthDifference;
     startActuatorUp();
     delay(timeToMove);
   }
   else
   {
-    Serial.println(F("[ADJUST] Moving actuator down."));
+    Log.println(F("[ADJUST] Moving actuator down."));
     currentElevation -= azimuthDifference;
     startActuatorDown();
     delay(timeToMove);
@@ -111,17 +111,17 @@ float ElevationController::moveToAngle(float targetAzimuth, float targetElevatio
   stopActuator();
   motorController->Disable();
 
-  Serial.print(F("[ADJUST] Elevation adjusted. Current elevation: "));
-  Serial.println(currentElevation, 2);
+  Log.print(F("[ADJUST] Elevation adjusted. Current elevation: "));
+  Log.println(currentElevation, 2);
 
-  Serial.println(F("\n\t--- End of Elevation Adjustment ---\n"));
+  Log.println(F("\n\t--- End of Elevation Adjustment ---\n"));
 
   return currentElevation;
 }
 
 void ElevationController::moveToMaxElevation()
 {
-  Serial.println(F("-> Moving to max elevation position"));
+  Log.println(F("-> Moving to max elevation position"));
   motorController->Enable();
 
   startActuatorUp();
@@ -131,12 +131,12 @@ void ElevationController::moveToMaxElevation()
   motorController->Disable();
 
   currentElevation = elevationDegMax;
-  Serial.println(F("-> Max elevation position reached"));
+  Log.println(F("-> Max elevation position reached"));
 }
 
 void ElevationController::moveToMinElevation()
 {
-  Serial.println(F("-> Moving to min elevation position"));
+  Log.println(F("-> Moving to min elevation position"));
   motorController->Enable();
 
   startActuatorDown();
@@ -146,25 +146,25 @@ void ElevationController::moveToMinElevation()
   motorController->Disable();
 
   currentElevation = elevationDegMin;
-  Serial.println(F("-> Min elevation position reached"));
+  Log.println(F("-> Min elevation position reached"));
 }
 
 // --------------------------------------------------
 
 void ElevationController::startActuatorUp()
 {
-  Serial.println(F("[ACTUATOR] Starting actuator. Direction: up."));
+  Log.println(F("[ACTUATOR] Starting actuator. Direction: up."));
   motorController->TurnLeft(motorPwmSpeed);
 }
 
 void ElevationController::startActuatorDown()
 {
-  Serial.println(F("[ACTUATOR] Starting actuator. Direction: down."));
+  Log.println(F("[ACTUATOR] Starting actuator. Direction: down."));
   motorController->TurnRight(motorPwmSpeed);
 }
 
 void ElevationController::stopActuator()
 {
-  Serial.println(F("[ACTUATOR] Stopping actuator."));
+  Log.println(F("[ACTUATOR] Stopping actuator."));
   motorController->Stop();
 }

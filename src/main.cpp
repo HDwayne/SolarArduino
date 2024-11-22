@@ -15,26 +15,29 @@ const unsigned long panelAdjustmentIntervalMillis = 60000; // check every minute
 
 void setup()
 {
-  delay(1000); // stabilization time
+  delay(1000);
 
-  // Initialize Serial
-  Serial.begin(9600);
-  while (!Serial)
-    ;
-
-  // Initialize the system components
-  Serial.println(F("\n\t--- System Initialization ---\n"));
-
-  // Initialize Modules
   configModule.begin();
 
-#if defined(MODULE_ANENOMETER_H)
-  anenometerModule.init();
-#endif // MODULE_ANENOMETER_H
+  delay(1000);
 
 #if defined(MODULE_WIFI_H)
   wifiModule.init();
 #endif // MODULE_WIFI_H
+
+  delay(1000);
+
+  // Initialize Serial
+  Log.begin(9600);
+
+  configModule.printConfig();
+
+  // Initialize the system components
+  Log.println(F("\n\t--- System Initialization ---\n"));
+
+#if defined(MODULE_ANENOMETER_H)
+  anenometerModule.init();
+#endif // MODULE_ANENOMETER_H
 
   rtcModule.init();
   if (rtcModule.lostPower())
@@ -42,7 +45,7 @@ void setup()
 #if defined(ESP32)
     rtcModule.adjustFromNTP();
 #else
-    Serial.println(F("[ERROR] RTC module lost power and no NTP server available. Please set the date and time manually."));
+    Log.println(F("[ERROR] RTC module lost power and no NTP server available. Please set the date and time manually."));
     errorMode();
     // rtcModule.adjustFromLocal(__DATE__, __TIME__);
 #endif
@@ -74,14 +77,14 @@ void setup()
   elevationController.init();
   if (azimuthController.init() < 0)
   {
-    Serial.println(F("[ERROR] An error occurred during azimuth calibration. "));
+    Log.println(F("[ERROR] An error occurred during azimuth calibration. "));
     errorMode();
   }
 
   // Update the solar panel position
   updatePanel();
 
-  Serial.println(F("\n\t--- System Initialization Completed ---\n"));
+  Log.println(F("\n\t--- System Initialization Completed ---\n"));
 }
 
 void loop()
@@ -99,7 +102,7 @@ void loop()
 #if defined(MODULE_WEBSERVER_H)
   if (webServerModule.isRestartRequested())
   {
-    Serial.println(F("\n\t--- Restarting System ---\n"));
+    Log.println(F("\n\t--- Restarting System ---\n"));
     ESP.restart();
   }
 #endif // MODULE_WEBSERVER_H
@@ -137,12 +140,12 @@ void loop()
 
     if (minutesDiff >= configModule.getUpdatePanelAdjustmentInterval())
     {
-      Serial.print(F("\n\t--- New Solar Panel Adjustment ---\n"));
+      Log.print(F("\n\t--- New Solar Panel Adjustment ---\n"));
       updatePanel();
     }
     else
     {
-      Serial.print(F("."));
+      Log.print(F("."));
     }
   }
 }
@@ -151,21 +154,21 @@ void loop()
 
 void resetPanelPosition()
 {
-  Serial.println(F("\n\t--- Resetting Solar Panel Position ---\n"));
+  Log.println(F("\n\t--- Resetting Solar Panel Position ---\n"));
 
   elevationController.moveToMaxElevation();
   if (azimuthController.moveFullLeft() < 0)
   {
-    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. "));
+    Log.println(F("[ERROR] An error occurred during azimuth adjustment. "));
     errorMode();
   }
 
-  Serial.println(F("\n\t--- Solar Panel Position Reset ---\n"));
+  Log.println(F("\n\t--- Solar Panel Position Reset ---\n"));
 }
 
 void updatePanel()
 {
-  Serial.println(F("\n\t--- Updating Solar Panel Position ---\n"));
+  Log.println(F("\n\t--- Updating Solar Panel Position ---\n"));
   lastPanelAdjustmentTime = rtcModule.getDateTimeUTC();
   DateTime lastPanelAdjustmentTimeLocal = rtcModule.getDateTimeLocal();
 
@@ -178,22 +181,22 @@ void updatePanel()
 
   SolTrack(currentTime, locationData, &solarPosition, configModule.getUseDegrees(), configModule.getUseNorthEqualsZero(), configModule.getComputeRefrEquatorial(), configModule.getComputeDistance());
 
-  Serial.println();
+  Log.println();
 
   rtcModule.printDateTime(lastPanelAdjustmentTime);
 
-  Serial.print(F("Corrected Azimuth: "));
-  Serial.print(solarPosition.azimuthRefract, 2);
-  Serial.print(F("°\tAltitude: "));
-  Serial.print(solarPosition.altitudeRefract, 2);
-  Serial.println(F("°"));
+  Log.print(F("Corrected Azimuth: "));
+  Log.print(solarPosition.azimuthRefract, 2);
+  Log.print(F("°\tAltitude: "));
+  Log.print(solarPosition.altitudeRefract, 2);
+  Log.println(F("°"));
 
   float newelevation = elevationController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
   float newazimuth = azimuthController.moveToAngle(solarPosition.azimuthRefract, solarPosition.altitudeRefract);
 
   if (newazimuth < 0)
   {
-    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. "));
+    Log.println(F("[ERROR] An error occurred during azimuth adjustment. "));
     errorMode();
   }
 
@@ -207,7 +210,7 @@ void updatePanel()
   mqttModule.updateField(NEXT_PANEL_ADJUSTMENT_TIME, &nextPanelAdjustmentTimeLocal);
 #endif // MODULE_MQTT_H
 
-  Serial.println(F("\n\t--- Solar Panel Position Updated ---\n"));
+  Log.println(F("\n\t--- Solar Panel Position Updated ---\n"));
 }
 
 // ----------------- Joystick control functions ---------------------
@@ -238,7 +241,7 @@ void initJoystick()
 
 void JoystickMode()
 {
-  Serial.println(F("\nEntering Joystick Mode"));
+  Log.println(F("\nEntering Joystick Mode"));
 
   azimuthController.enableMotor();
   elevationController.enableMotor();
@@ -256,14 +259,14 @@ void JoystickMode()
   elevationController.stopActuator();
   elevationController.disableMotor();
 
-  Serial.println(F("Exiting Joystick Mode"));
+  Log.println(F("Exiting Joystick Mode"));
 }
 #endif // JOYSTICK_CONTROLLER_H
 // ----------------- Anenometer control functions ---------------------
 
 void AnenometerMode()
 {
-  Serial.println(F("\nEntering Anenometer Mode"));
+  Log.println(F("\nEntering Anenometer Mode"));
 
   elevationController.moveToMaxElevation();
 
@@ -274,7 +277,7 @@ void AnenometerMode()
   {
     if (anenometerModule.isTriggered())
     {
-      Serial.println(F("Anenometer triggered, resetting countdown"));
+      Log.println(F("Anenometer triggered, resetting countdown"));
 
       countdownStart = millis();
       countdownEnd = countdownStart + configModule.getAnenometerSafeDuration();
@@ -282,22 +285,22 @@ void AnenometerMode()
     delay(100);
   }
 
-  Serial.println(F("Exiting Anenometer Mode"));
+  Log.println(F("Exiting Anenometer Mode"));
 }
 
 // ----------------- ESP32 Error mode ---------------------
 
 void errorMode()
 {
-  Serial.println(F("\n\t--- Entering Error Mode ---\n"));
+  Log.println(F("\n\t--- Entering Error Mode ---\n"));
   elevationController.moveToMaxElevation();
 
 #if defined(ESP32)
-  Serial.println(F("Entering Deep Sleep Mode"));
+  Log.println(F("Entering Deep Sleep Mode"));
   esp_deep_sleep_start();
 #endif // ESP32
 
-  Serial.println(F("\n\tEntering infinite loop"));
+  Log.println(F("\n\tEntering infinite loop"));
   while (true)
     delay(1000);
 }

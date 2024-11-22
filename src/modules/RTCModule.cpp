@@ -13,7 +13,7 @@ void RTCModule::init()
 {
   if (!rtc.begin())
   {
-    Serial.println("[ERROR] RTC module not found!");
+    Log.println("[ERROR] RTC module not found!");
     while (1)
       ; // Stop the program
   }
@@ -44,7 +44,7 @@ void RTCModule::adjustFromNTP()
 {
   while (WiFi.status() != WL_CONNECTED)
   {
-    Serial.println("[RTCModule - NTP] WiFi not connected!");
+    Log.println("[RTCModule - NTP] WiFi not connected!");
     delay(1000);
   }
 
@@ -53,7 +53,7 @@ void RTCModule::adjustFromNTP()
   struct tm timeinfo;
   while (!getLocalTime(&timeinfo))
   {
-    Serial.println("[RTCModule - NTP] Failed to obtain time");
+    Log.println("[RTCModule - NTP] Failed to obtain time");
     delay(1000);
   }
 
@@ -66,7 +66,7 @@ void RTCModule::adjustFromNTP()
       timeinfo.tm_sec);
 
   rtc.adjust(DateTimeUTC);
-  Serial.println("[RTCModule - NTP] RTC adjusted from NTP server");
+  Log.println("[RTCModule - NTP] RTC adjusted from NTP server");
   info();
 }
 #endif // ESP32
@@ -85,49 +85,49 @@ DateTime RTCModule::getDateTimeLocal()
 
 void RTCModule::printDateTime(const DateTime &dt)
 {
-  Serial.print(dayOfWeek[dt.dayOfTheWeek() - 1]);
-  Serial.print(" ");
-  Serial.print(dt.day());
-  Serial.print(" ");
-  Serial.print(mounthOfYear[dt.month() - 1]);
-  Serial.print(" ");
-  Serial.print(dt.year());
-  Serial.print(" ");
-  Serial.print(dt.hour());
-  Serial.print(":");
-  Serial.print(dt.minute());
-  Serial.print(":");
-  Serial.print(dt.second());
+  Log.print(dayOfWeek[dt.dayOfTheWeek() - 1]);
+  Log.print(" ");
+  Log.print(dt.day());
+  Log.print(" ");
+  Log.print(mounthOfYear[dt.month() - 1]);
+  Log.print(" ");
+  Log.print(dt.year());
+  Log.print(" ");
+  Log.print(dt.hour());
+  Log.print(":");
+  Log.print(dt.minute());
+  Log.print(":");
+  Log.print(dt.second());
 }
 
 // ----------------- RTC private functions -----------------
 
 void RTCModule::info()
 {
-  Serial.println(F("settings for the RTC module :"));
-  Serial.print(F("   → Delta time in winter : "));
+  Log.println(F("settings for the RTC module :"));
+  Log.print(F("   → Delta time in winter : "));
   if (DeltaHoursWinter > 0)
-    Serial.print(F("+"));
-  Serial.print(DeltaHoursWinter);
-  Serial.print(F(" H"));
-  Serial.println();
-  Serial.print(F("   → Delta time in summer : "));
+    Log.print(F("+"));
+  Log.print(DeltaHoursWinter);
+  Log.print(F(" H"));
+  Log.println();
+  Log.print(F("   → Delta time in summer : "));
   if (DeltaHoursSummer > 0)
-    Serial.print(F("+"));
-  Serial.print(DeltaHoursSummer);
-  Serial.print(F(" H"));
-  Serial.println();
-  Serial.println();
+    Log.print(F("+"));
+  Log.print(DeltaHoursSummer);
+  Log.print(F(" H"));
+  Log.println();
+  Log.println();
 
-  Serial.println(F("Date/Hour (Local) : "));
-  Serial.print(F("   → "));
+  Log.println(F("Date/Hour (Local) : "));
+  Log.print(F("   → "));
   printDateTime(getDateTimeLocal());
-  Serial.println();
+  Log.println();
 
-  Serial.println(F("Date/Hour (UTC) : "));
-  Serial.print(F("   → "));
+  Log.println(F("Date/Hour (UTC) : "));
+  Log.print(F("   → "));
   printDateTime(getDateTimeUTC());
-  Serial.println();
+  Log.println();
 }
 
 bool RTCModule::estOnEnHeureDeEte(const DateTime &dateHeureAanalyser)

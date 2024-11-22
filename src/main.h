@@ -26,6 +26,8 @@
 #include "modules/WebServerModule.h"
 #endif
 
+#include "utils/Logger.h"
+
 // Function Prototypes
 void initRTC();
 void resetPanelPosition();

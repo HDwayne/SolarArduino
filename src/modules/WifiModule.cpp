@@ -28,10 +28,10 @@ void WifiModule::WiFiEvent(WiFiEvent_t event)
   switch (event)
   {
   case SYSTEM_EVENT_STA_GOT_IP:
-    Serial.println("[WiFi] connected with IP: " + WiFi.localIP().toString());
+    Log.println("[WiFi] connected with IP: " + WiFi.localIP().toString());
     break;
   case SYSTEM_EVENT_STA_DISCONNECTED:
-    Serial.println("[WiFi] Disconnected from Wi-Fi, ESP32 will try to reconnect");
+    Log.println("[WiFi] Disconnected from Wi-Fi, ESP32 will try to reconnect");
     break;
   default:
     break;

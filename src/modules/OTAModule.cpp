@@ -27,24 +27,24 @@ void OTAModule::init()
           type = "sketch";
         else // U_SPIFFS
           type = "filesystem";
-        Serial.println("Start updating " + type); })
+        Log.println("Start updating " + type); })
       .onEnd([]()
-             { Serial.println("\nEnd"); })
+             { Log.println("\nEnd"); })
       .onProgress([](unsigned int progress, unsigned int total)
-                  { Serial.printf("Progress: %u%%\r", (progress / (total / 100))); })
+                  { Log.printf("Progress: %u%%\r", (progress / (total / 100))); })
       .onError([](ota_error_t error)
                {
-        Serial.printf("Error[%u]: ", error);
+        Log.printf("Error[%u]: ", error);
         if (error == OTA_AUTH_ERROR)
-          Serial.println("Auth Failed");
+          Log.println("Auth Failed");
         else if (error == OTA_BEGIN_ERROR)
-          Serial.println("Begin Failed");
+          Log.println("Begin Failed");
         else if (error == OTA_CONNECT_ERROR)
-          Serial.println("Connect Failed");
+          Log.println("Connect Failed");
         else if (error == OTA_RECEIVE_ERROR)
-          Serial.println("Receive Failed");
+          Log.println("Receive Failed");
         else if (error == OTA_END_ERROR)
-          Serial.println("End Failed"); });
+          Log.println("End Failed"); });
 
   ArduinoOTA.begin();
 }
@@ -64,7 +64,7 @@ void OTAModule::createDiscoveryUniqueID()
     sprintf(&devUniqueID[preSizeBytes + j], "%02X", macAddr[i]);
     j += 2;
   }
-  Serial.println(devUniqueID);
+  Log.println(devUniqueID);
 }
 
 #endif // defined(ESP32)

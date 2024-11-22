@@ -7,6 +7,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
+#include "utils/Logger.h"
 
 class WifiModule
 {

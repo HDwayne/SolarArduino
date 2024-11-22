@@ -26,13 +26,13 @@ int8_t AzimuthController::init()
   azimuthDegMin = configModule.getAzimuthDegMin();
   azimuthTimeThreshold = configModule.getAzimuthTimeThreshold();
 
-  Serial.println(F("\n\t--- Starting Initialization of Azimuth Controller ---\n"));
+  Log.println(F("\n\t--- Starting Initialization of Azimuth Controller ---\n"));
 
   moveFullRight();
 
   if (isError)
   {
-    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. Calibration failed."));
+    Log.println(F("[ERROR] An error occurred during azimuth adjustment. Calibration failed."));
     return -1;
   }
 
@@ -43,29 +43,29 @@ int8_t AzimuthController::init()
 
   if (isError)
   {
-    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. Calibration failed."));
+    Log.println(F("[ERROR] An error occurred during azimuth adjustment. Calibration failed."));
     return -1;
   }
 
   fullRotationDuration = millis() - pressStartTime;
-  Serial.print(F("\n\tCalibration Duration: "));
-  Serial.print(fullRotationDuration);
-  Serial.println(F(" ms"));
+  Log.print(F("\n\tCalibration Duration: "));
+  Log.print(fullRotationDuration);
+  Log.println(F(" ms"));
 
   // Calculate degrees per millisecond
   degreesPerMs = 360.0 / fullRotationDuration;
-  Serial.print(F("\tDegrees per millisecond: "));
-  Serial.print(degreesPerMs, 6);
-  Serial.println(F("°/ms\n"));
+  Log.print(F("\tDegrees per millisecond: "));
+  Log.print(degreesPerMs, 6);
+  Log.println(F("°/ms\n"));
 
-  Serial.println(F("\n\t--- Calibration procedure completed. ---\n"));
+  Log.println(F("\n\t--- Calibration procedure completed. ---\n"));
 
   return 0;
 }
 
 int8_t AzimuthController::moveFullLeft()
 {
-  Serial.println(F("-> Moving to full left position"));
+  Log.println(F("-> Moving to full left position"));
   motorController->Enable();
 
   startMotorLeft();
@@ -76,18 +76,18 @@ int8_t AzimuthController::moveFullLeft()
 
   if (isError)
   {
-    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. "));
+    Log.println(F("[ERROR] An error occurred during azimuth adjustment. "));
     return -1;
   }
 
   currentAzimuth = 0.0;
-  Serial.println(F("-> Full left position reached"));
+  Log.println(F("-> Full left position reached"));
   return 0;
 }
 
 int8_t AzimuthController::moveFullRight()
 {
-  Serial.println(F("-> Moving to full right position"));
+  Log.println(F("-> Moving to full right position"));
   motorController->Enable();
 
   startMotorRight();
@@ -98,12 +98,12 @@ int8_t AzimuthController::moveFullRight()
 
   if (isError)
   {
-    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. "));
+    Log.println(F("[ERROR] An error occurred during azimuth adjustment. "));
     return -1;
   }
 
   currentAzimuth = 360.0;
-  Serial.println(F("-> Full right position reached"));
+  Log.println(F("-> Full right position reached"));
   return 0;
 }
 
@@ -114,21 +114,21 @@ Returns -1.0 if an error occurred.
 */
 float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
 {
-  Serial.println(F("\n\t--- Adjusting Azimuth ---\n"));
+  Log.println(F("\n\t--- Adjusting Azimuth ---\n"));
 
   if (targetAzimuth < azimuthDegMin || targetAzimuth > azimuthDegMax || targetElevation <= 0.0)
   {
-    Serial.println(F("[INFO] Solar azimuth is out of the tracking range or sun below the horizon. Cannot adjust azimuth."));
+    Log.println(F("[INFO] Solar azimuth is out of the tracking range or sun below the horizon. Cannot adjust azimuth."));
 
     if (currentAzimuth != 0.0)
     {
-      Serial.println(F("[INFO] Moving to the initial position."));
+      Log.println(F("[INFO] Moving to the initial position."));
       moveFullLeft();
 
       if (isError)
       {
-        Serial.println(F("[ERROR] An error occurred during azimuth adjustment. "));
-        Serial.println(F("\n\t--- End of Azimuth Adjustment ---\n"));
+        Log.println(F("[ERROR] An error occurred during azimuth adjustment. "));
+        Log.println(F("\n\t--- End of Azimuth Adjustment ---\n"));
         return -1.0;
       }
     }
@@ -141,38 +141,38 @@ float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
 
   if (timeToMove < azimuthTimeThreshold)
   {
-    Serial.println(F("[INFO] Time to move is less than the minimal required time. Cannot adjust azimuth."));
+    Log.println(F("[INFO] Time to move is less than the minimal required time. Cannot adjust azimuth."));
     return currentAzimuth;
   }
 
-  Serial.print(F("[INFO] Azimuth difference: "));
-  Serial.print(azimuthDifference, 2);
-  Serial.print(F("°. Time to move: "));
-  Serial.print(timeToMove);
-  Serial.println(F(" ms"));
+  Log.print(F("[INFO] Azimuth difference: "));
+  Log.print(azimuthDifference, 2);
+  Log.print(F("°. Time to move: "));
+  Log.print(timeToMove);
+  Log.println(F(" ms"));
 
   motorController->Enable();
 
   // Determine the direction of movement and move the motor
   if (targetAzimuth > currentAzimuth)
   {
-    Serial.println(F("[ADJUST] Moving motor to the right to align with the sun."));
+    Log.println(F("[ADJUST] Moving motor to the right to align with the sun."));
     currentAzimuth += azimuthDifference;
     startMotorRight();
     if (waitForLimitSwitchOrDelay(timeToMove) == LIMIT_SWITCH_TRIGGERED)
     {
-      Serial.println(F("[WARNING] Limit switch was pressed during adjustment."));
+      Log.println(F("[WARNING] Limit switch was pressed during adjustment."));
       currentAzimuth = 360.0;
     }
   }
   else
   {
-    Serial.println(F("[ADJUST] Moving motor to the left to align with the sun."));
+    Log.println(F("[ADJUST] Moving motor to the left to align with the sun."));
     currentAzimuth -= azimuthDifference;
     startMotorLeft();
     if (waitForLimitSwitchOrDelay(timeToMove) == LIMIT_SWITCH_TRIGGERED)
     {
-      Serial.println(F("[WARNING] Limit switch was pressed during adjustment."));
+      Log.println(F("[WARNING] Limit switch was pressed during adjustment."));
       currentAzimuth = 0.0;
     }
   }
@@ -183,15 +183,15 @@ float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
 
   if (isError)
   {
-    Serial.println(F("[ERROR] An error occurred during azimuth adjustment. "));
-    Serial.println(F("\n\t--- End of Azimuth Adjustment ---\n"));
+    Log.println(F("[ERROR] An error occurred during azimuth adjustment. "));
+    Log.println(F("\n\t--- End of Azimuth Adjustment ---\n"));
     return -1.0;
   }
 
-  Serial.print(F("[ADJUST] Azimuth aligned. Current azimuth: "));
-  Serial.println(currentAzimuth, 2);
+  Log.print(F("[ADJUST] Azimuth aligned. Current azimuth: "));
+  Log.println(currentAzimuth, 2);
 
-  Serial.println(F("\n\t--- End of Azimuth Adjustment ---\n"));
+  Log.println(F("\n\t--- End of Azimuth Adjustment ---\n"));
 
   return currentAzimuth;
 }
@@ -203,7 +203,7 @@ void AzimuthController::startMotorLeft()
   if (isError)
     return;
 
-  Serial.println(F("[MOTOR] Starting motor. Direction: left."));
+  Log.println(F("[MOTOR] Starting motor. Direction: left."));
   motorController->TurnLeft(motorPwmSpeed);
 }
 
@@ -212,13 +212,13 @@ void AzimuthController::startMotorRight()
   if (isError)
     return;
 
-  Serial.println(F("[MOTOR] Starting motor. Direction: right."));
+  Log.println(F("[MOTOR] Starting motor. Direction: right."));
   motorController->TurnRight(motorPwmSpeed);
 }
 
 void AzimuthController::stopMotor()
 {
-  Serial.println(F("[MOTOR] Stopping motor."));
+  Log.println(F("[MOTOR] Stopping motor."));
   motorController->Stop();
 }
 
@@ -258,7 +258,7 @@ int8_t AzimuthController::waitForLimitSwitchOrDelay(uint32_t delayTime)
     }
     if (millis() - startTime >= fullRotationDuration * 1.05)
     {
-      Serial.println(F("[ERROR] Full rotation time exceeded. SHOULD NOT HAPPEN!."));
+      Log.println(F("[ERROR] Full rotation time exceeded. SHOULD NOT HAPPEN!."));
       isError = true;
       return ERROR_FULL_ROTATION_EXCEEDED;
     }

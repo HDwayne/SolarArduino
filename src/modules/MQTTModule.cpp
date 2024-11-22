@@ -59,14 +59,14 @@ void MQTTModule::loop()
 
         if (client.publish(topic, messages[i].c_str(), true))
         {
-          Serial.print("[MQTT] Published message: ");
-          Serial.println(messages[i]);
+          Log.print("[MQTT] Published message: ");
+          Log.println(messages[i]);
 
           messages[i] = "";
         }
         else
         {
-          Serial.println("[MQTT] Failed to publish message, will retry.");
+          Log.println("[MQTT] Failed to publish message, will retry.");
         }
       }
     }
@@ -134,8 +134,8 @@ void MQTTModule::createDiscoveryUniqueID()
     sprintf(&devUniqueID[preSizeBytes + j], "%02X", macAddr[i]);
     j += 2;
   }
-  Serial.print("Unique ID: ");
-  Serial.println(devUniqueID);
+  Log.print("Unique ID: ");
+  Log.println(devUniqueID);
 }
 
 void MQTTModule::publishMQTTDiscovery()
@@ -160,13 +160,13 @@ void MQTTModule::publishMQTTDiscovery()
     // Définir le sujet pour MQTT Discovery (configuration Home Assistant)
     String configTopic = "homeassistant/sensor/" + String(devUniqueID) + "/" + MQTTFieldsNames[i] + "/config";
 
-    Serial.print("[MQTT] Discovery topic: ");
-    Serial.println(configTopic);
+    Log.print("[MQTT] Discovery topic: ");
+    Log.println(configTopic);
 
     // Publier le message sur le sujet MQTT Discovery
     if (!(client.publish(configTopic.c_str(), buffer, true)))
     {
-      Serial.println("[MQTT] Failed to publish MQTT Discovery message");
+      Log.println("[MQTT] Failed to publish MQTT Discovery message");
     }
   }
 }

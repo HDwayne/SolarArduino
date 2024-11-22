@@ -6,6 +6,7 @@
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
 #include "ConfigModule.h"
+#include "utils/Logger.h"
 
 class WebServerModule
 {
@@ -14,13 +15,19 @@ public:
   void begin();
   bool isRestartRequested() { return restartRequested; }
 
+  void broadcastMessage(const String &message);
+
 private:
   volatile bool restartRequested = false;
 
   void initSPIFFS();
   void setupServer();
 
-  AsyncWebServer server(80);
+  AsyncWebServer server;
+  AsyncWebSocket ws;
+
+  void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
+                        AwsEventType type, void *arg, uint8_t *data, size_t len);
 
   void handleRestartSystem(AsyncWebServerRequest *request);
 

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <BTS7960.h>
+#include "utils/Logger.h"
 
 class ElevationController
 {

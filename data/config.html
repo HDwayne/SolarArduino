@@ -110,6 +110,9 @@
             <span>Current Elevation:</span> {{currentElevation}}&deg;
         </div>
         <button onclick="restartSystem()">Restart System</button>
+
+        <h3>Serial Log</h3>
+        <div id="serialLog" style="height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;"></div>
     </div>
 
     <!-- Pins Tab -->
@@ -427,6 +430,41 @@
                             alert('Failed to restart the system.');
                         }
                     });
+            }
+        }
+
+        // WebSocket
+        var gateway = `ws://${window.location.hostname}/ws`;
+        var websocket;
+
+        window.addEventListener('load', onLoad);
+
+        function onLoad(event) {
+            initWebSocket();
+        }
+
+        function initWebSocket() {
+            console.log('Trying to open a WebSocket connection...');
+            websocket = new WebSocket(gateway);
+            websocket.onopen = onOpen;
+            websocket.onclose = onClose;
+            websocket.onmessage = onMessage;
+        }
+
+        function onOpen(event) {
+            console.log('Connection opened');
+        }
+
+        function onClose(event) {
+            console.log('Connection closed');
+            setTimeout(initWebSocket, 2000);
+        }
+
+        function onMessage(event) {
+            var logElement = document.getElementById('serialLog');
+            if (logElement) {
+                logElement.innerHTML += event.data + '<br>';
+                logElement.scrollTop = logElement.scrollHeight;
             }
         }
     </script>

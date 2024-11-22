@@ -6,6 +6,7 @@
 #include <Arduino.h>
 #include <RTClib.h>
 #include "time.h"
+#include "utils/Logger.h"
 
 #if defined(ESP32)
 #include "WiFi.h"

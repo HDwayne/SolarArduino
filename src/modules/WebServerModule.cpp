@@ -8,7 +8,7 @@
 
 WebServerModule webServerModule;
 
-WebServerModule::WebServerModule() : server(80) {}
+WebServerModule::WebServerModule() : server(80), ws("/ws") {}
 
 void WebServerModule::begin()
 {
@@ -20,11 +20,11 @@ void WebServerModule::initSPIFFS()
 {
   if (!SPIFFS.begin(true))
   {
-    Serial.println("An Error has occurred while mounting SPIFFS");
+    Log.println("An Error has occurred while mounting SPIFFS");
   }
   else
   {
-    Serial.println("SPIFFS mounted successfully");
+    Log.println("SPIFFS mounted successfully");
   }
 }
 
@@ -61,7 +61,36 @@ void WebServerModule::setupServer()
 
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("config.html");
 
+  ws.onEvent([this](AsyncWebSocket *server, AsyncWebSocketClient *client,
+                    AwsEventType type, void *arg, uint8_t *data, size_t len)
+             { this->onWebSocketEvent(server, client, type, arg, data, len); });
+
+  server.addHandler(&ws);
+
   server.begin();
+}
+
+void WebServerModule::onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
+                                       AwsEventType type, void *arg, uint8_t *data, size_t len)
+{
+  if (type == WS_EVT_CONNECT)
+  {
+    Log.printf("WebSocket client #%u connected from %s\n",
+               client->id(), client->remoteIP().toString().c_str());
+  }
+  else if (type == WS_EVT_DISCONNECT)
+  {
+    Log.printf("WebSocket client #%u disconnected\n", client->id());
+  }
+  // else if (type == WS_EVT_DATA)
+  // {
+  // Traitez les données reçues
+  // }
+}
+
+void WebServerModule::broadcastMessage(const String &message)
+{
+  ws.textAll(message);
 }
 
 void WebServerModule::handleConfigPage(AsyncWebServerRequest *request)
