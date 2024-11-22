@@ -159,7 +159,7 @@ void WebServerModule::handleRestartSystem(AsyncWebServerRequest *request)
 {
   request->send(200, "text/plain", "System is restarting...");
   delay(1000);
-  ESP.restart();
+  restartRequested = true;
 }
 
 // Individual handlers for saving configurations

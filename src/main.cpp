@@ -96,6 +96,14 @@ void loop()
   otaModule.loop();
 #endif // MODULE_OTA_H
 
+#if defined(MODULE_WEBSERVER_H)
+  if (webServerModule.isRestartRequested())
+  {
+    Serial.println(F("\n\t--- Restarting System ---\n"));
+    ESP.restart();
+  }
+#endif // MODULE_WEBSERVER_H
+
 #if defined(MODULE_ANENOMETER_H)
   if (anenometerModule.isTriggered())
   {

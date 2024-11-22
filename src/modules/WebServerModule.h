@@ -12,12 +12,15 @@ class WebServerModule
 public:
   WebServerModule();
   void begin();
+  bool isRestartRequested() { return restartRequested; }
 
 private:
+  volatile bool restartRequested = false;
+
   void initSPIFFS();
   void setupServer();
 
-  AsyncWebServer server;
+  AsyncWebServer server(80);
 
   void handleRestartSystem(AsyncWebServerRequest *request);
 
