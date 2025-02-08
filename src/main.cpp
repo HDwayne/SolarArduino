@@ -21,6 +21,10 @@ const unsigned long panelAdjustmentIntervalMillis = 60000; // Check every minute
 // -----------------------------------------------------------------------------
 void wifiTask(void* parameter) {
   for (;;) {
+    #if defined(MODULE_WIFI_H)
+      wifiModule.loop();
+    #endif // MODULE_WIFI_H
+    
     #if defined(MODULE_MQTT_H)
       mqttModule.loop();
     #endif // MODULE_MQTT_H
@@ -36,15 +40,22 @@ void wifiTask(void* parameter) {
       }
     #endif // MODULE_WEBSERVER_H
 
-    // Yield to other tasks
     vTaskDelay(10 / portTICK_PERIOD_MS);
   }
 }
+
 
 // -----------------------------------------------------------------------------
 // Solar Panel Task (Core 1): Handles solar tracking, joystick, and anemometer modes
 // -----------------------------------------------------------------------------
 void solarTask(void* parameter) {
+  Log.println("[SolarTask] Starting one-time calibration on Core 1...");
+
+  calibratePanel();
+  updatePanel();
+
+  Log.println("[SolarTask] Calibration and initial update done. Entering main loop.");
+
   unsigned long lastPanelAdjustmentMillisLocal = millis();
 
   for (;;) {
@@ -316,30 +327,17 @@ void setup() {
     initJoystick();
   #endif
 
-  // Set location data for solar calculations
   locationData.latitude    = configModule.getSTLatitude();
   locationData.longitude   = configModule.getSTLongitude();
   locationData.pressure    = configModule.getSTPressure();
   locationData.temperature = configModule.getSTTemperature();
 
-  // Calibrate the solar panel (initialize both elevation and azimuth controllers)
-  calibratePanel();
+  xTaskCreatePinnedToCore(wifiTask, "WiFiTask", 4096, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(solarTask, "SolarTask", 8192, NULL, 1, NULL, 1);
 
-  // Update the solar panel to the correct position initially
-  updatePanel();
-
-  Log.println(F("\n\t--- System Initialization Completed ---\n"));
-
-  #if defined(ESP32)
-    // Create FreeRTOS tasks on separate cores
-    // Communications on core 0 (typically used by WiFi)
-    xTaskCreatePinnedToCore(wifiTask, "WiFiTask", 4096, NULL, 1, NULL, 0);
-    // Solar panel operations on core 1
-    xTaskCreatePinnedToCore(solarTask, "SolarTask", 8192, NULL, 1, NULL, 1);
-  #endif
+  Log.println(F("\n\t--- Setup() Done. Tasks Created. ---\n"));
 }
 
 void loop() {
-  // The main loop is empty because all operations are handled in the FreeRTOS tasks.
   vTaskDelay(1000 / portTICK_PERIOD_MS);
 }
