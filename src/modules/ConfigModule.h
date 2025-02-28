@@ -2,7 +2,7 @@
 #define CONFIG_MODULE_H
 
 #include <Arduino.h>
-#include "utils/Logger.h"
+#include <Preferences.h>
 
 struct ConfigData
 {
@@ -77,9 +77,6 @@ struct ConfigData
   char WIFI_PASSWORD[32];
 };
 
-#if defined(ESP32)
-
-#include <Preferences.h>
 
 class ConfigModule
 {
@@ -227,73 +224,5 @@ private:
   ConfigData configData;
   Preferences preferences;
 };
-
-#elif defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_MEGA2560)
-
-// For Arduino boards, configurations are static and read-only
-class ConfigModule
-{
-public:
-  ConfigModule();
-  void begin();                        // Empty function for compatibility
-  const ConfigData &getConfig() const; // Returns a const reference to the config data
-  void printConfig();                  // Print all configuration values
-
-  // Getters
-  uint8_t getAzimuthMotorPinEn() { return configData.AZIMUTH_MOTOR_PIN_EN; }
-  uint8_t getAzimuthMotorPwmPinL() { return configData.AZIMUTH_MOTOR_PWM_PIN_L; }
-  uint8_t getAzimuthMotorPwmPinR() { return configData.AZIMUTH_MOTOR_PWM_PIN_R; }
-  uint8_t getAzimuthLimitSwitchPin() { return configData.AZIMUTH_LIMIT_SWITCH_PIN; }
-
-  uint8_t getElevationMotorPinEn() { return configData.ELEVATION_MOTOR_PIN_EN; }
-  uint8_t getElevationMotorPwmPinU() { return configData.ELEVATION_MOTOR_PWM_PIN_U; }
-  uint8_t getElevationMotorPwmPinD() { return configData.ELEVATION_MOTOR_PWM_PIN_D; }
-
-  uint8_t getJoystickVrxPin() { return configData.JOYSTICK_VRX_PIN; }
-  uint8_t getJoystickVryPin() { return configData.JOYSTICK_VRY_PIN; }
-  uint8_t getJoystickButtonPin() { return configData.JOYSTICK_BUTTON_PIN; }
-
-  uint8_t getAnenometerButtonPin() { return configData.ANENOMETER_BUTTON_PIN; }
-
-  uint8_t getUpdatePanelAdjustmentInterval() { return configData.UPDATE_PANEL_ADJUSTMENT_INTERVAL; }
-
-  double getSTLatitude() { return configData.ST_LATITUDE; }
-  double getSTLongitude() { return configData.ST_LONGITUDE; }
-  double getSTPressure() { return configData.ST_PRESSURE; }
-  double getSTTemperature() { return configData.ST_TEMPERATURE; }
-
-  bool getUseDegrees() { return configData.useDegrees; }
-  bool getUseNorthEqualsZero() { return configData.useNorthEqualsZero; }
-  bool getComputeRefrEquatorial() { return configData.computeRefrEquatorial; }
-  bool getComputeDistance() { return configData.computeDistance; }
-
-  uint8_t getAzimuthMotorPWMSpeed() { return configData.AZIMUTH_MOTOR_PWM_SPEED; }
-  float getAzimuthDegMax() { return configData.AZIMUTH_DEG_MAX; }
-  float getAzimuthDegMin() { return configData.AZIMUTH_DEG_MIN; }
-  uint32_t getAzimuthTimeThreshold() { return configData.AZIMUTH_TIME_THRESHOLD; }
-  uint32_t getAzimuthTimeMaxBeforeCalibration() { return configData.AZIMUTH_TIME_MAX_BEFORE_CALIBRATION; }
-
-  uint8_t getElevationMotorPWMSpeed() { return configData.ELEVATION_MOTOR_PWM_SPEED; }
-  float getElevationDegMax() { return configData.ELEVATION_DEG_MAX; }
-  float getElevationDegMin() { return configData.ELEVATION_DEG_MIN; }
-  uint32_t getElevationTimeThreshold() { return configData.ELEVATION_TIME_THRESHOLD; }
-  float getElevationActuatorSpeed() { return configData.ELEVATION_ACTUATOR_SPEED; }
-  float getElevationActuatorLength() { return configData.ELEVATION_ACTUATOR_LENGTH; }
-  uint32_t getForceTimeFullTravel() { return configData.FORCE_TIME_FULL_TRAVEL; }
-
-  uint32_t getJoystickButtonDebounce() { return configData.JOYSTICK_BUTTON_DEBOUNCE; }
-  uint16_t getJoystickThreshold() { return configData.JOYSTICK_THRESHOLD; }
-
-  unsigned long getAnenometerSafeDuration() { return configData.ANENOMETER_SAFE_DURATION; }
-
-private:
-  static const ConfigData configData; // Static constant configuration data
-};
-
-#else
-#error "Board not supported"
-#endif
-
-extern ConfigModule configModule;
 
 #endif // CONFIG_MODULE_H

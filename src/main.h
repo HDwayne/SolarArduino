@@ -4,11 +4,7 @@
 #define SOLAR_TRACKER_H
 
 #include <Arduino.h>
-#include <RTClib.h>
-#include <SPI.h>
-#include "stdlib.h"
 #include "SolTrack.h"
-#include "ezButton.h"
 
 #include "controllers/AzimuthController.h"
 #include "controllers/ElevationController.h"
@@ -18,15 +14,16 @@
 #include "modules/RTCModule.h"
 #include "modules/AnemometerModule.h"
 
-#if defined(ESP32)
 #include "esp_sleep.h"
 #include "modules/WifiModule.h"
 #include "modules/MQTTModule.h"
 #include "modules/OTAModule.h"
 #include "modules/WebServerModule.h"
-#endif
 
 #include "utils/Logger.h"
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 // Function Prototypes
 void initRTC();

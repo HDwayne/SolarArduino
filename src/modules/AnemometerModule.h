@@ -1,5 +1,3 @@
-// MODULE_RTC_H
-
 #ifndef MODULE_ANENOMETER_H
 #define MODULE_ANENOMETER_H
 
@@ -16,7 +14,5 @@ public:
 private:
   ezButton *button;
 };
-
-extern AnenometerModule anenometerModule;
 
 #endif // MODULE_ANENOMETER_H

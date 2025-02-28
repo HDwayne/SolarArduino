@@ -1,12 +1,8 @@
-#if defined(ESP32)
-
 #ifndef MODULE_WEBSERVER_H
 #define MODULE_WEBSERVER_H
 
 #include <Arduino.h>
 #include <ESPAsyncWebServer.h>
-#include "ConfigModule.h"
-#include "utils/Logger.h"
 
 class WebServerModule
 {
@@ -58,7 +54,4 @@ private:
   void handleResetWiFiConfig(AsyncWebServerRequest *request);
 };
 
-extern WebServerModule webServerModule;
-
 #endif // MODULE_WEBSERVER_H
-#endif // defined(ESP32)

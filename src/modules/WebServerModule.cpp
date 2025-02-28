@@ -1,12 +1,17 @@
-#if defined(ESP32)
-
-#include "controllers/AzimuthController.h"
-#include "controllers/ElevationController.h"
 #include "WebServerModule.h"
+
 #include <SPIFFS.h>
 #include <WiFi.h>
 
-WebServerModule webServerModule;
+#include "controllers/AzimuthController.h"
+#include "controllers/ElevationController.h"
+#include "ConfigModule.h"
+#include "utils/Logger.h"
+
+extern AzimuthController azimuthController;
+extern ElevationController elevationController;
+extern ConfigModule configModule;
+extern Logger Log;
 
 WebServerModule::WebServerModule() : server(80), ws("/ws") {}
 
@@ -516,5 +521,3 @@ void WebServerModule::handleResetWiFiConfig(AsyncWebServerRequest *request)
   configModule.saveConfig();
   request->redirect("/");
 }
-
-#endif // defined(ESP32)

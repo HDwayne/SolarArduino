@@ -1,5 +1,8 @@
 #include "JoystickController.h"
+
 #include "modules/ConfigModule.h"
+
+extern ConfigModule configModule;
 
 enum Command
 {
@@ -9,8 +12,6 @@ enum Command
     COMMAND_UP = 0x04,
     COMMAND_DOWN = 0x08
 };
-
-JoystickController joystickController;
 
 // ----------------- Joystick Controller Constructor -----------------
 

@@ -1,6 +1,6 @@
 #include "Logger.h"
 
-Logger Log;
+extern WebServerModule webServerModule;
 
 Logger::Logger()
 {
@@ -13,17 +13,14 @@ void Logger::begin(unsigned long baudrate)
   while (!Serial)
     ;
 
-#ifdef ESP32
   webServerModule.begin();
   webServer = &webServerModule;
-#endif
 }
 
 size_t Logger::write(uint8_t byte)
 {
   Serial.write(byte);
 
-#ifdef ESP32
   if (webServer && WiFi.isConnected())
   {
     if (byte == '\n')
@@ -36,7 +33,6 @@ size_t Logger::write(uint8_t byte)
       lineBuffer += (char)byte;
     }
   }
-#endif
 
   return 1;
 }
@@ -45,7 +41,6 @@ size_t Logger::write(const uint8_t *buffer, size_t size)
 {
   Serial.write(buffer, size);
 
-#ifdef ESP32
   if (webServer && WiFi.isConnected())
   {
     for (size_t i = 0; i < size; i++)
@@ -62,7 +57,6 @@ size_t Logger::write(const uint8_t *buffer, size_t size)
       }
     }
   }
-#endif
 
   return size;
 }

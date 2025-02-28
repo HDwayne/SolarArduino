@@ -1,9 +1,17 @@
 #include "main.h"
 
-#if defined(ESP32)
-  #include "freertos/FreeRTOS.h"
-  #include "freertos/task.h"
-#endif
+AzimuthController azimuthController;
+ElevationController elevationController;
+JoystickController joystickController;
+AnenometerModule anenometerModule;
+ConfigModule configModule;
+MQTTModule mqttModule;
+OTAModule otaModule;
+RTCModule rtcModule;
+WebServerModule webServerModule;
+WifiModule wifiModule;
+Logger Log;
+
 
 // -----------------------------------------------------------------------------
 // Global Structures and Variables
@@ -21,24 +29,16 @@ const unsigned long panelAdjustmentIntervalMillis = 60000; // Check every minute
 // -----------------------------------------------------------------------------
 void wifiTask(void* parameter) {
   for (;;) {
-    #if defined(MODULE_WIFI_H)
-      wifiModule.loop();
-    #endif // MODULE_WIFI_H
-    
-    #if defined(MODULE_MQTT_H)
-      mqttModule.loop();
-    #endif // MODULE_MQTT_H
+    wifiModule.loop();
+  
+    mqttModule.loop();
 
-    #if defined(MODULE_OTA_H)
-      otaModule.loop();
-    #endif // MODULE_OTA_H
+    otaModule.loop();
 
-    #if defined(MODULE_WEBSERVER_H)
-      if (webServerModule.isRestartRequested()) {
-        Log.println(F("\n\t--- Restarting System ---\n"));
-        ESP.restart();
-      }
-    #endif // MODULE_WEBSERVER_H
+    if (webServerModule.isRestartRequested()) {
+      Log.println(F("\n\t--- Restarting System ---\n"));
+      ESP.restart();
+    }
 
     vTaskDelay(10 / portTICK_PERIOD_MS);
   }
@@ -62,7 +62,6 @@ void solarTask(void* parameter) {
     unsigned long currentMillis = millis();
 
     // Check Anenometer trigger
-    #if defined(MODULE_ANENOMETER_H)
     if (anenometerModule.isTriggered()) {
       AnenometerMode();
       updatePanel();
@@ -71,10 +70,8 @@ void solarTask(void* parameter) {
         vTaskDelay(10 / portTICK_PERIOD_MS);
       }
     }
-    #endif
 
     // Check for Joystick press
-    #if defined(JOYSTICK_CONTROLLER_H)
     if (joystickController.isPressed()) {
       JoystickMode();
       resetPanelPosition();
@@ -84,7 +81,6 @@ void solarTask(void* parameter) {
         vTaskDelay(10 / portTICK_PERIOD_MS);
       }
     }
-    #endif
 
     // Periodic panel adjustment
     if (currentMillis - lastPanelAdjustmentMillisLocal >= panelAdjustmentIntervalMillis) {
@@ -108,19 +104,6 @@ void solarTask(void* parameter) {
 // -----------------------------------------------------------------------------
 // System Functions
 // -----------------------------------------------------------------------------
-
-// Initializes the RTC and adjusts it if power was lost.
-void initRTC() {
-  rtcModule.init();
-  if (rtcModule.lostPower()) {
-    #if defined(ESP32)
-      rtcModule.adjustFromNTP();
-    #else
-      Log.println(F("[ERROR] RTC module lost power and no NTP server available. Please set the date and time manually."));
-      errorMode();
-    #endif
-  }
-}
 
 // Calibrates the solar panel by initializing both controllers.
 void calibratePanel() {
@@ -183,20 +166,17 @@ void updatePanel() {
   }
 
   // Optionally update MQTT fields with new values
-  #if defined(MODULE_MQTT_H)
-    mqttModule.updateField(SOLAR_AZIMUTH, &solarPosition.azimuthRefract);
-    mqttModule.updateField(SOLAR_ELEVATION, &solarPosition.altitudeRefract);
-    mqttModule.updateField(PANEL_AZIMUTH, &newazimuth);
-    mqttModule.updateField(PANEL_ELEVATION, &newelevation);
-    mqttModule.updateField(LAST_PANEL_ADJUSTMENT_TIME, &lastPanelAdjustmentTimeLocal);
-    DateTime nextPanelAdjustmentTimeLocal = lastPanelAdjustmentTimeLocal.unixtime() + configModule.getUpdatePanelAdjustmentInterval() * 60;
-    mqttModule.updateField(NEXT_PANEL_ADJUSTMENT_TIME, &nextPanelAdjustmentTimeLocal);
-  #endif
+  mqttModule.updateField(SOLAR_AZIMUTH, &solarPosition.azimuthRefract);
+  mqttModule.updateField(SOLAR_ELEVATION, &solarPosition.altitudeRefract);
+  mqttModule.updateField(PANEL_AZIMUTH, &newazimuth);
+  mqttModule.updateField(PANEL_ELEVATION, &newelevation);
+  mqttModule.updateField(LAST_PANEL_ADJUSTMENT_TIME, &lastPanelAdjustmentTimeLocal);
+  DateTime nextPanelAdjustmentTimeLocal = lastPanelAdjustmentTimeLocal.unixtime() + configModule.getUpdatePanelAdjustmentInterval() * 60;
+  mqttModule.updateField(NEXT_PANEL_ADJUSTMENT_TIME, &nextPanelAdjustmentTimeLocal);
 
   Log.println(F("\n\t--- Solar Panel Position Updated ---\n"));
 }
 
-#if defined(JOYSTICK_CONTROLLER_H)
 // Initializes the joystick and sets up callbacks for directional commands.
 void initJoystick() {
   joystickController.init();
@@ -248,7 +228,6 @@ void JoystickMode() {
 
   Log.println(F("Exiting Joystick Mode"));
 }
-#endif // JOYSTICK_CONTROLLER_H
 
 // Puts the panel in a safe mode in response to an anemometer trigger.
 void AnenometerMode() {
@@ -276,15 +255,8 @@ void errorMode() {
   Log.println(F("\n\t--- Entering Error Mode ---\n"));
   elevationController.moveToMaxElevation();
 
-  #if defined(ESP32)
-    Log.println(F("Entering Deep Sleep Mode"));
-    esp_deep_sleep_start();
-  #endif
-
-  Log.println(F("\n\tEntering infinite loop"));
-  while (true) {
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-  }
+  Log.println(F("Entering Deep Sleep Mode"));
+  esp_deep_sleep_start();
 }
 
 // -----------------------------------------------------------------------------
@@ -295,9 +267,7 @@ void setup() {
   configModule.begin();
   delay(1000);
 
-  #if defined(MODULE_WIFI_H)
-    wifiModule.init();
-  #endif
+  wifiModule.init();
 
   delay(1000);
   Log.begin(9600);
@@ -305,27 +275,13 @@ void setup() {
 
   Log.println(F("\n\t--- System Initialization ---\n"));
 
-  #if defined(MODULE_ANENOMETER_H)
-    anenometerModule.init();
-  #endif
+  anenometerModule.init();
+  rtcModule.init();
+  mqttModule.init();
+  otaModule.init();
+  webServerModule.begin();
 
-  initRTC();
-
-  #if defined(MODULE_MQTT_H)
-    mqttModule.init();
-  #endif
-
-  #if defined(MODULE_OTA_H)
-    otaModule.init();
-  #endif
-
-  #if defined(MODULE_WEBSERVER_H)
-    webServerModule.begin();
-  #endif
-
-  #if defined(JOYSTICK_CONTROLLER_H)
-    initJoystick();
-  #endif
+  initJoystick();
 
   locationData.latitude    = configModule.getSTLatitude();
   locationData.longitude   = configModule.getSTLongitude();

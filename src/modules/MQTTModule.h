@@ -1,14 +1,9 @@
-// MODULE_MQTT_H
-
-#if defined(ESP32)
 #ifndef MODULE_MQTT_H
 #define MODULE_MQTT_H
 
 #include <Arduino.h>
 #include <PubSubClient.h>
-#include <ArduinoJson.h>
 #include <WiFi.h>
-#include "utils/Logger.h"
 
 enum MQTTFields
 {
@@ -79,7 +74,4 @@ private:
   void publishMQTTDiscovery();
 };
 
-extern MQTTModule mqttModule;
-
 #endif // MODULE_MQTT_H
-#endif // defined(ESP32)

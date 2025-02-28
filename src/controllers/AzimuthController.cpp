@@ -1,7 +1,10 @@
 #include "AzimuthController.h"
+
+#include "utils/Logger.h"
 #include "modules/ConfigModule.h"
 
-AzimuthController azimuthController;
+extern ConfigModule configModule;
+extern Logger Log;
 
 // ----------------- Azimuth Controller Constructor -----------------
 

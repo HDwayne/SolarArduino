@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include <ezButton.h>
 #include <BTS7960.h>
-#include "utils/Logger.h"
 
 #define DELAY_TRIGGERED 0
 #define LIMIT_SWITCH_TRIGGERED 1
@@ -56,7 +55,5 @@ private:
   int8_t waitForLimitSwitch();
   int8_t waitForLimitSwitchOrDelay(uint32_t delayTime);
 };
-
-extern AzimuthController azimuthController;
 
 #endif // AZIMUTH_CONTROLLER_H

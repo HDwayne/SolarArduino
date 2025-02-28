@@ -1,7 +1,11 @@
 #include "RTCModule.h"
-#include "ConfigModule.h"
 
-RTCModule rtcModule;
+#include "WiFi.h"
+#include "utils/Logger.h"
+#include "modules/ConfigModule.h"
+
+extern ConfigModule configModule;
+extern Logger Log;
 
 // ----------------- RTC Module Constructor -----------------
 
@@ -16,6 +20,12 @@ void RTCModule::init()
     Log.println("[ERROR] RTC module not found!");
     while (1)
       ; // Stop the program
+  }
+
+  if (rtc.lostPower())
+  {
+    Log.println("[RTCModule] RTC lost power, adjusting from NTP server");
+    adjustFromNTP();
   }
 
   info();
@@ -39,7 +49,6 @@ void RTCModule::adjustFromLocal(const char *date, const char *time)
   info();
 }
 
-#if defined(ESP32)
 void RTCModule::adjustFromNTP()
 {
   while (WiFi.status() != WL_CONNECTED)
@@ -69,7 +78,6 @@ void RTCModule::adjustFromNTP()
   Log.println("[RTCModule - NTP] RTC adjusted from NTP server");
   info();
 }
-#endif // ESP32
 
 DateTime RTCModule::getDateTimeUTC()
 {

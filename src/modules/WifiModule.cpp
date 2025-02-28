@@ -1,8 +1,11 @@
-#if defined(ESP32)
 #include "WifiModule.h"
-#include "ConfigModule.h"
 
-WifiModule wifiModule;
+#include <ESPmDNS.h>
+#include "utils/Logger.h"
+#include "modules/ConfigModule.h"
+
+extern ConfigModule configModule;
+extern Logger Log;
 
 WifiModule::WifiModule()
   : ssid(nullptr),
@@ -82,5 +85,3 @@ void WifiModule::handleWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
       break;
   }
 }
-
-#endif // defined(ESP32)

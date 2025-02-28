@@ -1,6 +1,8 @@
 #include "ConfigModule.h"
 
-#if defined(ESP32)
+#include "utils/Logger.h"
+
+extern Logger Log;
 
 // Constructor
 ConfigModule::ConfigModule()
@@ -397,102 +399,6 @@ void ConfigModule::setWIFIPassword(const char *value)
   strncpy(configData.WIFI_PASSWORD, value, sizeof(configData.WIFI_PASSWORD));
 }
 
-// Declare the global instance of ConfigModule
-ConfigModule configModule;
-
-#elif defined(ARDUINO_AVR_UNO) || defined(ARDUINO_AVR_MEGA2560)
-
-// Static constant configuration data
-const ConfigData ConfigModule::configData = {
-    // PINS
-    4, // AZIMUTH_MOTOR_PIN_EN
-    6, // AZIMUTH_MOTOR_PWM_PIN_L
-    5, // AZIMUTH_MOTOR_PWM_PIN_R
-    7, // AZIMUTH_LIMIT_SWITCH_PIN
-
-    8,  // ELEVATION_MOTOR_PIN_EN
-    10, // ELEVATION_MOTOR_PWM_PIN_U
-    9,  // ELEVATION_MOTOR_PWM_PIN_D
-
-    A0, // JOYSTICK_VRX_PIN
-    A1, // JOYSTICK_VRY_PIN
-    2,  // JOYSTICK_BUTTON_PIN
-
-    11, // ANENOMETER_BUTTON_PIN
-
-    // Constants
-    20, // UPDATE_PANEL_ADJUSTMENT_INTERVAL
-
-    // Solar Tracking Settings
-    1.1234, // ST_LATITUDE
-    1.1234, // ST_LONGITUDE
-    101.0,  // ST_PRESSURE
-    283.0,  // ST_TEMPERATURE
-
-    // Solar Track Options
-    true,  // useDegrees
-    true,  // useNorthEqualsZero
-    false, // computeRefrEquatorial
-    false, // computeDistance
-
-    // Azimuth Settings
-    100,    // AZIMUTH_MOTOR_PWM_SPEED
-    275.0,  // AZIMUTH_DEG_MAX
-    90.0,   // AZIMUTH_DEG_MIN
-    0,      // AZIMUTH_TIME_THRESHOLD
-    180000, // AZIMUTH_TIME_MAX_BEFORE_CALIBRATION
-
-    // Elevation Settings
-    255,   // ELEVATION_MOTOR_PWM_SPEED
-    90.0,  // ELEVATION_DEG_MAX
-    19.0,  // ELEVATION_DEG_MIN
-    0,     // ELEVATION_TIME_THRESHOLD
-    5.0,   // ELEVATION_ACTUATOR_SPEED
-    350.0, // ELEVATION_ACTUATOR_LENGTH
-    95,    // FORCE_TIME_FULL_TRAVEL
-
-    // Joystick Settings
-    5000, // JOYSTICK_BUTTON_DEBOUNCE
-    250,  // JOYSTICK_THRESHOLD
-
-    // Anemometer Settings
-    900000, // ANENOMETER_SAFE_DURATION
-
-    // MQTT Settings
-    "replace_with_your_mqtt_server", // MQTT_SERVER
-    1883,                            // MQTT_PORT
-    "",                              // MQTT_USER
-    "",                              // MQTT_PASSWORD
-    "SolarTracker",                  // DEVICE_NAME
-
-    // NTP Settings
-    "europe.pool.ntp.org", // NTP_SERVER1
-    "time.google.com",     // NTP_SERVER2
-    "time.aws.com"         // NTP_SERVER3
-};
-
-// Constructor
-ConfigModule::ConfigModule()
-{
-}
-
-// Empty begin function for compatibility
-void ConfigModule::begin()
-{
-  printConfig();
-}
-
-// Return a const reference to the config data
-const ConfigData &ConfigModule::getConfig() const
-{
-  return configData;
-}
-
-// Declare the global instance of ConfigModule
-ConfigModule configModule;
-#endif // Board-specific implementations
-
-// Print all configuration values
 void ConfigModule::printConfig()
 {
   Log.println("Configuration:");

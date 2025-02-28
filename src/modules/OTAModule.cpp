@@ -1,9 +1,12 @@
-#if defined(ESP32)
-
 #include "OTAModule.h"
-#include "ConfigModule.h"
 
-OTAModule otaModule;
+#include <WiFi.h>
+#include <ArduinoOTA.h>
+#include "utils/Logger.h"
+#include "modules/ConfigModule.h"
+
+extern ConfigModule configModule;
+extern Logger Log;
 
 // ----------------- OTA Module Constructor -----------------
 
@@ -66,5 +69,3 @@ void OTAModule::createDiscoveryUniqueID()
   }
   Log.println(devUniqueID);
 }
-
-#endif // defined(ESP32)

@@ -1,7 +1,10 @@
 #include "ElevationController.h"
+
+#include "utils/Logger.h"
 #include "modules/ConfigModule.h"
 
-ElevationController elevationController;
+extern ConfigModule configModule;
+extern Logger Log;
 
 // ----------------- Elevation Controller Constructor -----------------
 

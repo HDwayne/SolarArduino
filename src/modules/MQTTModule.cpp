@@ -1,11 +1,15 @@
-#if defined(ESP32)
-
 #include "MQTTModule.h"
-#include "ConfigModule.h"
-#include "SolTrack.h"
-#include <RTClib.h>
 
-MQTTModule mqttModule;
+#include <ArduinoJson.h>
+#include <RTClib.h>
+#include "SolTrack.h"
+
+#include "utils/Logger.h"
+#include "ConfigModule.h"
+
+
+extern ConfigModule configModule;
+extern Logger Log;
 
 // ----------------- Constructeur -----------------
 
@@ -170,5 +174,3 @@ void MQTTModule::publishMQTTDiscovery()
     }
   }
 }
-
-#endif

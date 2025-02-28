@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <BTS7960.h>
-#include "utils/Logger.h"
 
 class ElevationController
 {
@@ -49,7 +48,5 @@ private:
   float elevationDegMin;
   uint32_t elevationTimeThreshold;
 };
-
-extern ElevationController elevationController;
 
 #endif // ELEVATION_CONTROLLER_H

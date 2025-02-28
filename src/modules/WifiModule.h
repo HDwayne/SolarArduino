@@ -1,12 +1,8 @@
-#if defined(ESP32)
-
 #ifndef MODULE_WIFI_H
 #define MODULE_WIFI_H
 
 #include <Arduino.h>
 #include <WiFi.h>
-#include <ESPmDNS.h>
-#include "utils/Logger.h"
 
 /**
  * WifiModule
@@ -57,7 +53,4 @@ private:
   static void handleWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info);
 };
 
-extern WifiModule wifiModule;
-
 #endif // MODULE_WIFI_H
-#endif // defined(ESP32)

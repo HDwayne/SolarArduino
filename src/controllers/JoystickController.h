@@ -49,6 +49,4 @@ private:
   int yCenter = 0;
 };
 
-extern JoystickController joystickController;
-
 #endif // JOYSTICK_CONTROLLER_H

@@ -1,16 +1,9 @@
-// MODULE_RTC_H
-
 #ifndef MODULE_RTC_H
 #define MODULE_RTC_H
 
 #include <Arduino.h>
-#include <RTClib.h>
 #include "time.h"
-#include "utils/Logger.h"
-
-#if defined(ESP32)
-#include "WiFi.h"
-#endif // ESP32
+#include <RTClib.h>
 
 class RTCModule
 {
@@ -20,9 +13,7 @@ public:
   void init();
   void adjustFromUTC(const char *date, const char *time);
   void adjustFromLocal(const char *date, const char *time);
-#if defined(ESP32)
   void adjustFromNTP();
-#endif // ESP32
   DateTime getDateTimeUTC();
   DateTime getDateTimeLocal();
   bool lostPower() { return rtc.lostPower(); }
@@ -40,7 +31,5 @@ private:
   void info();
   bool estOnEnHeureDeEte(const DateTime &dateHeure); // French Winter/Summer time
 };
-
-extern RTCModule rtcModule;
 
 #endif // MODULE_RTC_H
