@@ -2,9 +2,11 @@
 
 #include "utils/Logger.h"
 #include "modules/ConfigModule.h"
+#include "modules/MQTTModule.h"
 
 extern ConfigModule configModule;
 extern Logger Log;
+extern MQTTModule mqttModule;
 
 // ----------------- Azimuth Controller Constructor -----------------
 
@@ -84,6 +86,7 @@ int8_t AzimuthController::moveFullLeft()
   }
 
   currentAzimuth = 0.0;
+  mqttModule.publishAzimuthState();
   Log.println(F("-> Full left position reached"));
   return 0;
 }
@@ -106,6 +109,7 @@ int8_t AzimuthController::moveFullRight()
   }
 
   currentAzimuth = 360.0;
+  mqttModule.publishAzimuthState();
   Log.println(F("-> Full right position reached"));
   return 0;
 }
@@ -136,6 +140,7 @@ float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
       }
     }
 
+    mqttModule.publishAzimuthState();
     return currentAzimuth;
   }
 
@@ -145,6 +150,7 @@ float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
   if (timeToMove < azimuthTimeThreshold)
   {
     Log.println(F("[INFO] Time to move is less than the minimal required time. Cannot adjust azimuth."));
+    mqttModule.publishAzimuthState();
     return currentAzimuth;
   }
 
@@ -193,7 +199,7 @@ float AzimuthController::moveToAngle(float targetAzimuth, float targetElevation)
 
   Log.print(F("[ADJUST] Azimuth aligned. Current azimuth: "));
   Log.println(currentAzimuth, 2);
-
+  mqttModule.publishAzimuthState();
   Log.println(F("\n\t--- End of Azimuth Adjustment ---\n"));
 
   return currentAzimuth;
@@ -208,6 +214,7 @@ void AzimuthController::startMotorLeft()
 
   Log.println(F("[MOTOR] Starting motor. Direction: left."));
   motorController->TurnLeft(motorPwmSpeed);
+  mqttModule.publishAzimuthController("Moving left");
 }
 
 void AzimuthController::startMotorRight()
@@ -217,12 +224,14 @@ void AzimuthController::startMotorRight()
 
   Log.println(F("[MOTOR] Starting motor. Direction: right."));
   motorController->TurnRight(motorPwmSpeed);
+  mqttModule.publishAzimuthController("Moving right");
 }
 
 void AzimuthController::stopMotor()
 {
   Log.println(F("[MOTOR] Stopping motor."));
   motorController->Stop();
+  mqttModule.publishAzimuthController("Stopped");
 }
 
 // ----------------- Limit Switch control functions ------------------
@@ -253,6 +262,7 @@ int8_t AzimuthController::waitForLimitSwitchOrDelay(uint32_t delayTime)
     limitSwitch->loop();
     if (limitSwitch->isPressed())
     {
+      mqttModule.publishAzimuthController("Limit switch triggered");
       return LIMIT_SWITCH_TRIGGERED;
     }
     if (delayTime > 0 && millis() - startTime >= delayTime)
@@ -261,6 +271,7 @@ int8_t AzimuthController::waitForLimitSwitchOrDelay(uint32_t delayTime)
     }
     if (millis() - startTime >= fullRotationDuration * 1.05)
     {
+      mqttModule.publishAzimuthController("Full rotation time exceeded");
       Log.println(F("[ERROR] Full rotation time exceeded. SHOULD NOT HAPPEN!."));
       isError = true;
       return ERROR_FULL_ROTATION_EXCEEDED;

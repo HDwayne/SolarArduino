@@ -2,9 +2,11 @@
 
 #include "utils/Logger.h"
 #include "modules/ConfigModule.h"
+#include "modules/MQTTModule.h"
 
 extern ConfigModule configModule;
 extern Logger Log;
+extern MQTTModule mqttModule;
 
 // ----------------- Elevation Controller Constructor -----------------
 
@@ -76,6 +78,7 @@ float ElevationController::moveToAngle(float targetAzimuth, float targetElevatio
         moveToMinElevation();
     }
 
+    mqttModule.publishElevationState();
     return currentElevation;
   }
 
@@ -85,6 +88,7 @@ float ElevationController::moveToAngle(float targetAzimuth, float targetElevatio
   if (timeToMove < elevationTimeThreshold)
   {
     Log.println(F("[INFO] Time to move is less than the minimal required time. Cannot adjust elevation."));
+    mqttModule.publishElevationState();
     return currentElevation;
   }
 
@@ -116,7 +120,7 @@ float ElevationController::moveToAngle(float targetAzimuth, float targetElevatio
 
   Log.print(F("[ADJUST] Elevation adjusted. Current elevation: "));
   Log.println(currentElevation, 2);
-
+  mqttModule.publishElevationState();
   Log.println(F("\n\t--- End of Elevation Adjustment ---\n"));
 
   return currentElevation;
@@ -134,6 +138,7 @@ void ElevationController::moveToMaxElevation()
   motorController->Disable();
 
   currentElevation = elevationDegMax;
+  mqttModule.publishElevationState();
   Log.println(F("-> Max elevation position reached"));
 }
 
@@ -149,6 +154,7 @@ void ElevationController::moveToMinElevation()
   motorController->Disable();
 
   currentElevation = elevationDegMin;
+  mqttModule.publishElevationState();
   Log.println(F("-> Min elevation position reached"));
 }
 
@@ -158,16 +164,19 @@ void ElevationController::startActuatorUp()
 {
   Log.println(F("[ACTUATOR] Starting actuator. Direction: up."));
   motorController->TurnLeft(motorPwmSpeed);
+  mqttModule.publishElevationController("Moving up");
 }
 
 void ElevationController::startActuatorDown()
 {
   Log.println(F("[ACTUATOR] Starting actuator. Direction: down."));
   motorController->TurnRight(motorPwmSpeed);
+  mqttModule.publishElevationController("Moving down");
 }
 
 void ElevationController::stopActuator()
 {
   Log.println(F("[ACTUATOR] Stopping actuator."));
   motorController->Stop();
+  mqttModule.publishElevationController("Stopped");
 }

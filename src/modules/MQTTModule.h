@@ -2,76 +2,116 @@
 #define MODULE_MQTT_H
 
 #include <Arduino.h>
-#include <PubSubClient.h>
 #include <WiFi.h>
+#include <functional>
+#include <PubSubClient.h>
+#include "RTCModule.h"
 
-enum MQTTFields
+struct MqttMessage
 {
-  PANEL_AZIMUTH,
-  PANEL_ELEVATION,
-  SOLAR_AZIMUTH,
-  SOLAR_ELEVATION,
-  LAST_PANEL_ADJUSTMENT_TIME,
-  NEXT_PANEL_ADJUSTMENT_TIME,
-  PANEL_STATUS,
-  NUM_MQTT_FIELDS
+    static const size_t TOPIC_SIZE   = 64;
+    static const size_t PAYLOAD_SIZE = 256;
+
+    char topic[TOPIC_SIZE];
+    char payload[PAYLOAD_SIZE];
+    bool retained;
 };
+
+
+/**
+ * Typedef pour le callback de réception de message.
+ * On reçoit en paramètres :
+ * - Le topic,
+ * - Le payload (tableau d’octets),
+ * - La taille (length) du payload.
+ */
+typedef std::function<void(const char* topic, const byte* payload, unsigned int length)> MqttCallback;
 
 class MQTTModule
 {
 public:
-  MQTTModule();
-  void init();
-  void updateField(MQTTFields field, void *value);
-  void loop();
+    MQTTModule();
+    
+    /**
+     * Initialise la queue et crée la tâche FreeRTOS dédiée.
+     * 
+     * @param broker   Adresse ou IP du broker MQTT.
+     * @param port     Port MQTT (1883 par défaut).
+     * @param user     Nom d’utilisateur MQTT (optionnel).
+     * @param password Mot de passe MQTT (optionnel).
+     */
+    void begin(const char* broker, 
+               uint16_t port = 1883, 
+               const char* user = nullptr, 
+               const char* password = nullptr);
+
+    /**
+     * Méthode publique pour poster un message MQTT dans la file (non-bloquant).
+     * Retained par défaut = false (modifiable si besoin).
+     */
+    void publish(const String& topic, const String& payload, bool retained = false);
+
+    /**
+     * Méthode pour définir un callback utilisateur afin de traiter les messages reçus.
+     */
+    void setCallback(MqttCallback callback);
+
+    /**
+     * Boucle MQTT : gère la connexion et la réception (principalement appelée par la tâche).
+     */
+    void loop();
+
+    /**
+     * Méthode pour vérifier l’état de connexion et se reconnecter si besoin.
+     */
+    void reconnect();
+
+    /**
+     * Méthodes de publication "métier" (exemples) :
+     */
+    void publishPanelStatus(const String& status);
+    void publishElevationController(const String& status);
+    void publishAzimuthController(const String& status);
+
+    // Suppose l’usage de DateTime d'une librairie type RTClib
+    void publishAdjustmentTimes(const DateTime& lastAdjustment, const DateTime& nextAdjustment);
+    void publishAzimuthState();
+    void publishElevationState();
+    void publishRTCInfo();
+    void publishSystemInfo();
+    void publishWifi();
 
 private:
-  PubSubClient client;
-  byte macAddr[6];
+    /**
+     * Méthode interne qui poste le message dans la queue.
+     * Retained paramétrable.
+     */
+    void queuePublish(const String& topic, const String& payload, bool retained);
 
-  const char *mqtt_server;
-  uint16_t mqtt_port;
-  const char *mqtt_user;
-  const char *mqtt_password;
-  const char *device_name;
+    /**
+     * Méthode statique qui sera la task FreeRTOS.
+     */
+    static void mqttTask(void* pvParameters);
 
-  WiFiClient espClient;
+    /**
+     * Callback interne pour PubSubClient -> redirige vers le callback utilisateur.
+     */
+    static void internalMessageCallback(char* topic, byte* payload, unsigned int length);
 
-  String messages[NUM_MQTT_FIELDS];
+private:
+    static const char* _broker;
+    static uint16_t    _port;
+    static const char* _user;
+    static const char* _password;
+    static WiFiClient      _wifiClient;
+    static PubSubClient    _mqttClient;
+    static QueueHandle_t   _publishQueue;
+    static bool            _taskRunning;
+    static MqttCallback    _userCallback;
+    static String          _clientId;
+    static String          _baseTopic;
 
-  const char *MQTTFieldsNames[NUM_MQTT_FIELDS] = {
-      "panel_azimuth",
-      "panel_elevation",
-      "solar_azimuth",
-      "solar_elevation",
-      "last_adjustment_time",
-      "next_adjustment_time",
-      "panel_status"};
-
-  const char *MQTTFieldsTopics[NUM_MQTT_FIELDS] = {
-      "panel_azimuth",
-      "panel_elevation",
-      "solar_azimuth",
-      "solar_elevation",
-      "last_adjustment_time",
-      "next_adjustment_time",
-      "panel_status"};
-
-  const char *valueTemplates[NUM_MQTT_FIELDS] = {
-      "{{ value | float }}",       // Pour PANEL_AZIMUTH : Convertir la valeur en float
-      "{{ value | float }}",       // Pour PANEL_ELEVATION : Convertir la valeur en float
-      "{{ value | float }}",       // Pour SOLAR_AZIMUTH : Convertir la valeur en float
-      "{{ value | float }}",       // Pour SOLAR_ELEVATION : Convertir la valeur en float
-      "{{ value | as_datetime }}", // Pour LAST_PANEL_ADJUSTMENT_TIME : Convertir la valeur en timestamp ISO 8601
-      "{{ value | as_datetime }}", // Pour NEXT_PANEL_ADJUSTMENT_TIME : Convertir la valeur en timestamp ISO 8601
-      ""};
-
-  char devUniqueID[64];
-  long lastReconnectAttempt = 0;
-
-  bool reconnect();
-  void createDiscoveryUniqueID();
-  void publishMQTTDiscovery();
+    String dateTimeToISO(const DateTime& dt, bool utc);
 };
 
 #endif // MODULE_MQTT_H

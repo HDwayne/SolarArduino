@@ -31,8 +31,6 @@ void wifiTask(void* parameter) {
   for (;;) {
     wifiModule.loop();
   
-    mqttModule.loop();
-
     otaModule.loop();
 
     if (webServerModule.isRestartRequested()) {
@@ -42,6 +40,8 @@ void wifiTask(void* parameter) {
 
     vTaskDelay(10 / portTICK_PERIOD_MS);
   }
+
+  vTaskDelete(NULL);
 }
 
 
@@ -99,6 +99,8 @@ void solarTask(void* parameter) {
     }
     vTaskDelay(10 / portTICK_PERIOD_MS);
   }
+
+  vTaskDelete(NULL);
 }
 
 // -----------------------------------------------------------------------------
@@ -107,16 +109,19 @@ void solarTask(void* parameter) {
 
 // Calibrates the solar panel by initializing both controllers.
 void calibratePanel() {
+  mqttModule.publishPanelStatus("Calibrating");
   elevationController.init();
   if (azimuthController.init() < 0) {
     Log.println(F("[ERROR] An error occurred during azimuth calibration."));
     errorMode();
   }
+  mqttModule.publishPanelStatus("Idle");
 }
 
 // Resets the solar panel to a default (or safe) position.
 void resetPanelPosition() {
   Log.println(F("\n\t--- Resetting Solar Panel Position ---\n"));
+  mqttModule.publishPanelStatus("Resetting");
 
   elevationController.moveToMaxElevation();
   if (azimuthController.moveFullLeft() < 0) {
@@ -124,12 +129,15 @@ void resetPanelPosition() {
     errorMode();
   }
 
+  mqttModule.publishPanelStatus("Idle");
   Log.println(F("\n\t--- Solar Panel Position Reset ---\n"));
 }
 
 // Updates the solar panel's position based on the current solar calculations.
 void updatePanel() {
   Log.println(F("\n\t--- Updating Solar Panel Position ---\n"));
+  mqttModule.publishPanelStatus("Adjusting");
+
   lastPanelAdjustmentTime = rtcModule.getDateTimeUTC();
   DateTime lastPanelAdjustmentTimeLocal = rtcModule.getDateTimeLocal();
 
@@ -165,14 +173,10 @@ void updatePanel() {
     errorMode();
   }
 
-  // Optionally update MQTT fields with new values
-  mqttModule.updateField(SOLAR_AZIMUTH, &solarPosition.azimuthRefract);
-  mqttModule.updateField(SOLAR_ELEVATION, &solarPosition.altitudeRefract);
-  mqttModule.updateField(PANEL_AZIMUTH, &newazimuth);
-  mqttModule.updateField(PANEL_ELEVATION, &newelevation);
-  mqttModule.updateField(LAST_PANEL_ADJUSTMENT_TIME, &lastPanelAdjustmentTimeLocal);
   DateTime nextPanelAdjustmentTimeLocal = lastPanelAdjustmentTimeLocal.unixtime() + configModule.getUpdatePanelAdjustmentInterval() * 60;
-  mqttModule.updateField(NEXT_PANEL_ADJUSTMENT_TIME, &nextPanelAdjustmentTimeLocal);
+
+  mqttModule.publishAdjustmentTimes(lastPanelAdjustmentTimeLocal, nextPanelAdjustmentTimeLocal);
+  mqttModule.publishPanelStatus("Idle");
 
   Log.println(F("\n\t--- Solar Panel Position Updated ---\n"));
 }
@@ -209,6 +213,7 @@ void initJoystick() {
 // Allows manual control of the panel via the joystick.
 void JoystickMode() {
   Log.println(F("\nEntering Joystick Mode"));
+  mqttModule.publishPanelStatus("Joystick Mode");
 
   azimuthController.enableMotor();
   elevationController.enableMotor();
@@ -226,14 +231,17 @@ void JoystickMode() {
   elevationController.stopActuator();
   elevationController.disableMotor();
 
+  mqttModule.publishPanelStatus("Idle");
   Log.println(F("Exiting Joystick Mode"));
 }
 
 // Puts the panel in a safe mode in response to an anemometer trigger.
 void AnenometerMode() {
   Log.println(F("\nEntering Anenometer Mode"));
+  mqttModule.publishPanelStatus("Anemometer Mode");
 
   elevationController.moveToMaxElevation();
+  mqttModule.publishElevationState();
 
   unsigned long countdownStart = millis();
   unsigned long countdownEnd = countdownStart + configModule.getAnenometerSafeDuration();
@@ -247,12 +255,15 @@ void AnenometerMode() {
     vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 
+  mqttModule.publishPanelStatus("Idle");
   Log.println(F("Exiting Anenometer Mode"));
 }
 
 // Handles error conditions. For ESP32, it enters deep sleep.
 void errorMode() {
   Log.println(F("\n\t--- Entering Error Mode ---\n"));
+  mqttModule.publishPanelStatus("Error");
+
   elevationController.moveToMaxElevation();
 
   Log.println(F("Entering Deep Sleep Mode"));
@@ -266,18 +277,18 @@ void setup() {
   delay(1000);
   configModule.begin();
   delay(1000);
-
   wifiModule.init();
-
-  delay(1000);
   Log.begin(9600);
-  configModule.printConfig();
-
-  Log.println(F("\n\t--- System Initialization ---\n"));
-
   anenometerModule.init();
   rtcModule.init();
-  mqttModule.init();
+  
+  mqttModule.begin(
+    configModule.getMQTTServer(),
+    configModule.getMQTTPort(),
+    configModule.getMQTTUser(),
+    configModule.getMQTTPassword()
+  );
+
   otaModule.init();
   webServerModule.begin();
 
